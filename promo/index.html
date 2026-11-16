@@ -110,7 +110,16 @@
     display: flex; align-items: center; justify-content: center;
   }
 
-  .battery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 30px; }
+  .battery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-top: 30px; }
+  .radar { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 34px; align-items: center; margin-top: 40px; }
+  .radar figure:nth-child(1) { transform: rotate(-2deg); }
+  .radar figure:nth-child(2) { transform: rotate(1.5deg) translateY(18px); }
+  .radar figcaption { margin-top: 18px; text-align: center; }
+  .radar .text { padding: 24px 26px; }
+  .radar ul { margin: 10px 0 0 20px; }
+  .radar li { margin-top: 6px; }
+  .note { margin-top: 26px; padding: 14px 18px; border: 3px dashed var(--ink); border-radius: 14px; background: #fff; font-size: 16px; }
+  .credits { margin-top: 10px; font-size: 14px; opacity: .8; }
   .battery .sticker { padding: 22px; }
   .battery .big { font-family: var(--num); font-size: 46px; line-height: 1; }
 
@@ -128,7 +137,7 @@
   footer p { opacity: .8; margin-top: 8px; }
 
   @media screen and (max-width: 900px) {
-    .hero .wrap, .split, .action, .action:nth-of-type(even), .trio, .battery { grid-template-columns: 1fr; }
+    .hero .wrap, .split, .action, .action:nth-of-type(even), .trio, .battery, .radar { grid-template-columns: 1fr; }
     .action:nth-of-type(even) .shot { order: 0; }
     .tiles { grid-template-columns: 1fr 1fr; }
     .tile.profile { grid-column: span 2; grid-template-columns: 1fr; }
@@ -181,11 +190,12 @@
       <h1 class="outline">Karoo<span>Fun!</span></h1>
       <div class="claim"><span class="bubble">Dein Karoo 3 wird zum Comic. Zack! Bumm! Wuuusch!</span></div>
       <p class="pitch sticker">
-        Tempo, Temperatur, Puls, Distanz und dein Höhenprofil auf <b>einer</b> knallbunten Seite. Und wenn du es krachen lässt,
-        explodiert der ganze Bildschirm. Fahrradcomputer können auch Spaß machen.
+        Tempo, Temperatur, Puls, Distanz und dein Höhenprofil auf <b>einer</b> knallbunten Seite, mit echtem Himmel und Live-Wetter.
+        Dazu ein Regenradar als eigene Kachel. Und wenn du es krachen lässt, explodiert der ganze Bildschirm.
+        Fahrradcomputer können auch Spaß machen.
       </p>
       <div class="badges">
-        <span>🎨 Comic-Look</span><span>🏔 Höhenprofil</span><span>💥 3 Comic-Aktionen</span><span>🔋 Akku-schonend</span>
+        <span>🎨 Comic-Look</span><span>🏔 Höhenprofil</span><span>🌦 Live-Wetter</span><span>🛰 Regenradar</span><span>💥 3 Comic-Aktionen</span><span>🔋 Akku-schonend</span>
       </div>
     </div>
     <div class="device"><img class="screen" src="img/hot.png" alt="Karoo Fun an einem heißen Tag"></div>
@@ -204,12 +214,12 @@
         <div class="tile speed">
           <div class="icon">🚀</div>
           <h3 class="outline">Tempo</h3>
-          <p>Grün, wenn du schneller als dein Schnitt bist, rot, wenn nicht. Darunter groß dein Ø. Schnell? Windstreifen. Langsam? Eine Schnecke kriecht mit.</p>
+          <p>Grün, wenn du schneller als dein Schnitt bist, rot, wenn nicht. Darunter groß dein Ø. Schneller? Ein Hase galoppiert mit. Langsamer? Eine dicke Schnecke kriecht.</p>
         </div>
         <div class="tile temp">
           <div class="icon">🌡</div>
           <h3 class="outline">Temperatur</h3>
-          <p>Mit einer Nachkommastelle. Unter 0 °C friert die Kachel ein, über 25 °C wird sie zum Glutofen. Dazwischen scheint die Sonne.</p>
+          <p>Mit einer Nachkommastelle. Unter 0 °C friert die Kachel ein, über 25 °C wird sie zum Glutofen. Dazu der echte Himmel über dir: Sonne, Abendrot, Mond, Wolken, Regen und ein Windsack.</p>
         </div>
         <div class="tile hr">
           <div class="icon">❤️</div>
@@ -244,12 +254,60 @@
     <div class="wrap">
       <span class="bubble kicker">Wetter-Effekte</span>
       <h2>Brrr! Herrlich! Puh, heiß!</h2>
-      <p class="lead">Jede Sekunde bewegt sich etwas: Flocken fallen, Eiszapfen tropfen, Flammen flackern, die Sonne dreht sich. Die Zahlen selbst bleiben stehen, damit du sie auch auf Schotter lesen kannst.</p>
+      <p class="lead">Jede Sekunde bewegt sich etwas: Flocken fallen, Eiszapfen tropfen, Flammen flackern, die Sonne dreht sich. Die Zahlen selbst bleiben stehen, damit du sie auch auf Schotter lesen kannst.
+        Und oben im Tempo-Feld: Hase, wenn du über deinem Schnitt fährst, Schnecke, wenn nicht.</p>
       <div class="trio">
         <figure><img class="screen" src="img/cold.png" alt="Eisig unter 0 Grad"><figcaption><span class="bubble">Unter 0 °C: alles friert ein</span></figcaption></figure>
         <figure><img class="screen" src="img/normal.png" alt="Normales Wetter"><figcaption><span class="bubble">Dazwischen: Sonne satt</span></figcaption></figure>
         <figure><img class="screen" src="img/hot.png" alt="Glutofen über 25 Grad"><figcaption><span class="bubble">Über 25 °C: Glutofen</span></figcaption></figure>
       </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <span class="bubble kicker">Tag, Nacht &amp; Wetter</span>
+      <h2>Der Himmel über dir. Echt jetzt.</h2>
+      <p class="lead">Aus deiner GPS-Position und der Uhrzeit rechnet Karoo Fun aus, wo die Sonne steht. Mittags knallt sie, am Abend geht sie
+        rot hinter Hügeln unter, nachts gibt es Sterne und den Mond in seiner echten Phase. Das klappt auch ganz ohne Handy.</p>
+      <div class="trio">
+        <figure><img class="screen" src="img/golden.png" alt="Abendsonne"><figcaption><span class="bubble">Abendsonne hinter Hügeln</span></figcaption></figure>
+        <figure><img class="screen" src="img/night.png" alt="Nacht mit Mond"><figcaption><span class="bubble">Nachts: Mond &amp; Sterne</span></figcaption></figure>
+        <figure><img class="screen" src="img/snow.png" alt="Schnee bei Nacht"><figcaption><span class="bubble">Frost, Schnee und Windsack</span></figcaption></figure>
+      </div>
+      <p class="lead" style="margin-top:60px">Ist dein Handy per Companion-App verbunden, kommt alle 15 Minuten das aktuelle Wetter dazu: Wolken schieben sich vor die Sonne,
+        Regen prasselt, bei Gewitter blitzt es. Der rot-weiße <b>Windsack</b> zeigt, wie stark es bläst, und dank GPS-Fahrtrichtung auch,
+        ob du Rücken-, Gegen- oder Seitenwind hast.</p>
+      <div class="trio">
+        <figure><img class="screen" src="img/rain.png" alt="Regen mit Gegenwind"><figcaption><span class="bubble">Regen, 30 km/h Gegenwind</span></figcaption></figure>
+        <figure><img class="screen" src="img/storm.png" alt="Gewitter am Abend"><figcaption><span class="bubble">Gewitter am Abend</span></figcaption></figure>
+        <figure><img class="screen" src="img/normal.png" alt="Sonniger Mittag"><figcaption><span class="bubble">Ohne Verbindung: klarer Himmel</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <span class="bubble kicker">Regenradar</span>
+      <h2>Wird's nass? Ein Blick genügt.</h2>
+      <p class="lead">Das Regenradar ist eine eigene Kachel, die du auf jede Fahrtseite legen kannst. Es zeigt das Radar vom Deutschen Wetterdienst
+        in den bekannten DWD-Farben auf einer grauen Deutschlandkarte, mit dir als Punkt in der Mitte.</p>
+      <div class="radar">
+        <figure><img class="screen" src="img/radar.png" alt="Regenradar jetzt"><figcaption><span class="bubble">Jetzt</span></figcaption></figure>
+        <figure><img class="screen" src="img/radar_forecast.png" alt="Regenradar Prognose"><figcaption><span class="bubble">Prognose +30 min</span></figcaption></figure>
+        <div class="text sticker">
+          <h3>So funktioniert's</h3>
+          <ul>
+            <li><b>Zoom</b> mit den großen <b>+</b> und <b>−</b> Knöpfen: 10, 25 oder 50 km. Der Maßstab unten links passt sich an.</li>
+            <li><b>Prognose</b> für die nächste Stunde in 10-Minuten-Schritten, als Animation.</li>
+            <li><b>Tipp auf die Zeitleiste</b> schaltet ein Bild weiter. Nach 20 Sekunden läuft die Animation wieder.</li>
+            <li><b>Ansage</b> genau für deinen Standort, z. B. „Noch trocken · Regen ab ca. 15:40“.</li>
+            <li>Lädt im <b>Hintergrund</b> alle 5 Minuten nach. Wischst du auf die Seite, ist alles schon da.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="note">ℹ️ Radar und Karte gibt es für Deutschland und die Grenzgebiete. Die Daten kommen übers Handy (Companion-App) oder WLAN.
+        Über Bluetooth ist das langsam: Beim Start dauert es etwa eine Minute, bis alles da ist. Mit dem Handy-Hotspot per WLAN geht es viel schneller.</p>
     </div>
   </section>
 
@@ -309,6 +367,7 @@
             <li><b>Dauer</b> der Aktionen: 1 bis 3 Sekunden</li>
             <li>Jede Aktion <b>einzeln an/aus</b>, mit eigenen Schwellen für Tempo, Gefälle, Pulszone und Zeit</li>
             <li><b>Vorschau-Knopf</b>, um jede Aktion zu Hause anzuschauen</li>
+            <li><b>Versionsnummer</b> oben rechts, damit du siehst, welche Version auf deinem Karoo läuft</li>
           </ul>
         </div>
         <img class="screen" src="img/settings.png" alt="Einstellungen von Karoo Fun" style="transform: rotate(2deg)">
@@ -318,12 +377,13 @@
 
   <section>
     <div class="wrap">
-      <span class="bubble kicker">Akku</span>
+      <span class="bubble kicker">Akku &amp; Daten</span>
       <h2>Viel Show, wenig Strom.</h2>
       <div class="battery">
         <div class="sticker"><div class="big">1×</div><p>pro Sekunde wird die Seite neu gezeichnet. So oft kommen die Messwerte ohnehin.</p></div>
         <div class="sticker"><div class="big">3 s</div><p>dauert eine Comic-Aktion höchstens. Die Bilder blättert der Karoo selbst durch, die App muss nichts nachschieben.</p></div>
         <div class="sticker"><div class="big">25 min</div><p>Pause zwischen den Aktionen. Display und GPS bleiben die großen Verbraucher.</p></div>
+        <div class="sticker"><div class="big">~10 KB</div><p>alle 5 Minuten fürs Radar, ein paar hundert Byte alle 15 Minuten fürs Wetter. Karten bleiben auf dem Karoo gespeichert.</p></div>
       </div>
     </div>
   </section>
@@ -334,7 +394,7 @@
       <h2>In 4 Schritten zum Comic-Cockpit</h2>
       <ol class="steps">
         <li class="sticker">App auf den Karoo 3 spielen. Wie das geht, steht <a href="#anleitung">Schritt für Schritt unten</a>, auch wenn du so etwas noch nie gemacht hast.</li>
-        <li class="sticker">Am Karoo eine Fahrtseite mit <b>einem</b> Datenfeld anlegen und dort <b>Karoo Fun › Comic-Cockpit</b> wählen.</li>
+        <li class="sticker">Am Karoo eine Fahrtseite mit <b>einem</b> Datenfeld anlegen und dort <b>Karoo Fun › Comic-Cockpit</b> wählen. Lust auf Radar? Noch eine Seite mit <b>Karoo Fun › Regenradar</b>.</li>
         <li class="sticker">Unter <b>Einstellungen › Apps › Karoo Fun › Öffnen</b> deinen Max-Puls und die Aktionen einstellen.</li>
         <li class="sticker">Tipp: Unter <b>Einstellungen › Tastensymbole</b> die Tastenknöpfe ausschalten, dann hat der Comic noch mehr Platz.</li>
       </ol>
@@ -488,6 +548,7 @@
             <li>Am Karoo in deinem <b>Fahrprofil</b> die <b>Seiten</b> öffnen und eine neue Seite hinzufügen (oder eine vorhandene bearbeiten).</li>
             <li>Als Aufteilung die Variante mit <b>nur einem einzigen Feld</b> wählen. Das Cockpit braucht die ganze Seite.</li>
             <li>Auf das Feld tippen und in der Liste <b>Karoo Fun › Comic-Cockpit</b> auswählen.</li>
+            <li>Für das Regenradar genauso eine weitere Seite anlegen und <b>Karoo Fun › Regenradar</b> wählen. Am schönsten ebenfalls als einziges Feld.</li>
             <li>Speichern, Fahrt starten, Spaß haben. Zack! 💥</li>
           </ol>
         </div>
@@ -500,6 +561,8 @@
           <ul>
             <li><b>Einstellungen der App:</b> Am Karoo <b>Einstellungen › Apps › Karoo Fun › Öffnen</b>. Dort als Erstes deinen <b>Max-Puls</b> eintragen.
               Gehalten gedrückt zählen + und – schnell weiter. Mit der Zurück-Taste unten links am Karoo kommst du wieder raus.</li>
+            <li><b>Wetter und Radar:</b> Brauchen eine Verbindung, also die Hammerhead-Companion-App auf dem Handy (Bluetooth an) oder WLAN am Karoo.</li>
+            <li><b>Welche Version?</b> Steht in den Einstellungen der App oben rechts.</li>
             <li><b>Mehr Platz:</b> Unter <b>Einstellungen › Tastensymbole</b> die Tastenknöpfe ausschalten. Dann verschwindet die graue Leiste am unteren Rand.</li>
             <li><b>USB-Debugging wieder aus?</b> Kannst du nach der Installation in den Developer Options ausschalten. Für spätere Updates einfach wieder einschalten.</li>
             <li><b>App wieder loswerden:</b> <b>Einstellungen › Apps › Karoo Fun › Deinstallieren</b>.</li>
@@ -529,7 +592,8 @@
 <footer>
   <div class="wrap">
     <div class="big outline">Zack! Bumm! Losfahren!</div>
-    <p>Karoo Fun · Extension für den Hammerhead Karoo 3</p>
+    <p>Karoo Fun 1.1 · Extension für den Hammerhead Karoo 3</p>
+    <p class="credits">Radar: Deutscher Wetterdienst · Karte: © basemap.de / BKG · Wetter: Open-Meteo.com (CC BY 4.0)</p>
   </div>
 </footer>
 

@@ -101,15 +101,24 @@ class SettingsActivity : Activity() {
         setPadding(dp(20), dp(22), dp(20), dp(18))
         background = LayerDrawable(arrayOf(GradientDrawable().apply { setColor(INK) }, GradientDrawable().apply { setColor(0xFFA884F3.toInt()) }))
             .apply { setLayerInset(1, 0, 0, 0, dp(3)) }
-        addView(TextView(context).apply {
+        val title = LinearLayout(context).apply { gravity = Gravity.CENTER_VERTICAL }
+        title.addView(TextView(context).apply {
             text = getString(R.string.app_name)
             typeface = numbers
             setTextSize(TypedValue.COMPLEX_UNIT_PX, 30f * scale)
             setTextColor(Color.WHITE)
             setShadowLayer(1f, dp(3).toFloat(), dp(3).toFloat(), INK)
+        }, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f))
+        // Version as a small sticker, so it's easy to tell which build is on the Karoo
+        title.addView(label(getString(R.string.settings_version, versionName()), 14f).apply {
+            background = sticker(Color.WHITE, 12, 3)
+            setPadding(dp(10), dp(3), dp(12), dp(5))
         })
+        addView(title)
         addView(label(getString(R.string.settings_subtitle), 15f))
     }
+
+    private fun versionName(): String = packageManager.getPackageInfo(packageName, 0).versionName ?: "?"
 
     private fun card(title: String, hint: String, toggle: Toggle?, takeover: Takeover?, vararg rows: View) = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL

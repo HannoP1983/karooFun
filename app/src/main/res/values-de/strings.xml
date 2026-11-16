@@ -44,6 +44,7 @@
     <string name="panel_steady">%d min konstant</string>
 
     <string name="settings_weather_credit">Wetterdaten von Open-Meteo.com (CC BY 4.0) · Radar: Deutscher Wetterdienst · Karte: © basemap.de / BKG</string>
+    <string name="settings_version">Version %s</string>
     <string name="settings_subtitle">Einstellungen für Comic-Aktionen</string>
     <string name="settings_all">⏱ Für alle Animationen</string>
     <string name="settings_all_hint">Damit die Aktionen etwas Besonderes bleiben, kommt höchstens alle paar Minuten eine.</string>

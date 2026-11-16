@@ -1,6 +1,9 @@
 package de.karoofun.karoo
 
 import android.app.Activity
+import android.content.Context
+import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,6 +18,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.net.URL
 import java.util.Calendar
 import java.util.Locale
@@ -27,6 +31,8 @@ import kotlin.math.roundToInt
  * STORM, SNOW, FOG) with "wind" in km/h and "wind_from" in degrees (the demo rides east, so 270 is tailwind),
  * or "takeover" to fire a takeover on the ride page. "page" = radar shows the radar tile instead, fetched directly
  * from the internet, at "lat"/"lon" (default Munich) with "bearing"; tapping +/- zooms like on the Karoo.
+ * "lang" (e.g. de) renders the texts in that language, "zoom" (CITY, REGION, OVERVIEW) sets the radar zoom.
+ * "save" writes the page as <save>.png to the app's external files dir once "save_tick" is reached, for the promo page.
  */
 class PreviewActivity : Activity() {
     private val handler = Handler(Looper.getMainLooper())
@@ -50,7 +56,7 @@ class PreviewActivity : Activity() {
             }.timeInMillis
         }
         val units = Units(locale = Locale.GERMANY)
-        val renderer = DashboardRenderer(dashboardTexts(), units)
+        val renderer = DashboardRenderer(texts().dashboardTexts(), units)
         val rider = Rider(units)
         val image = ImageView(this).apply { scaleType = ImageView.ScaleType.FIT_XY }
         val screen = resources.displayMetrics.widthPixels
@@ -67,7 +73,9 @@ class PreviewActivity : Activity() {
                         demo.copy(weather = Weather(Condition.valueOf(it), intent.getIntExtra("wind", 0).toDouble(), intent.getIntExtra("wind_from", 270).toDouble(), now))
                     } ?: demo
                 }
-                image.setImageBitmap(renderer.render(KAROO_WIDTH, KAROO_HEIGHT, data, rider.zone(data.heartRate, FunSettings.load(this@PreviewActivity)) ?: 1, frame, now))
+                val bitmap = renderer.render(KAROO_WIDTH, KAROO_HEIGHT, data, rider.zone(data.heartRate, FunSettings.load(this@PreviewActivity)) ?: 1, frame, now)
+                image.setImageBitmap(bitmap)
+                saveIfRequested(bitmap, frame)
                 if (fixed < 0) {
                     frame++
                     handler.postDelayed(this, 1_000)
@@ -78,9 +86,10 @@ class PreviewActivity : Activity() {
     }
 
     private fun showRadar() {
+        intent.getStringExtra("zoom")?.let { getSharedPreferences("radar", MODE_PRIVATE).edit().putString("zoom", it).commit() }
         RadarStore.load(this)
         val layout = RadarLayout(KAROO_WIDTH, KAROO_HEIGHT)
-        val renderer = RadarRenderer(radarTexts())
+        val renderer = RadarRenderer(texts().radarTexts())
         val position = (intent.getStringExtra("lat")?.toDouble() ?: 48.137) to (intent.getStringExtra("lon")?.toDouble() ?: 11.575)
         val rider = RideSnapshot(latitude = position.first, longitude = position.second, bearing = intent.getIntExtra("bearing", 52).toDouble())
         val loader = RadarLoader(layout.mapWidth, layout.mapHeight, null) { url ->
@@ -113,11 +122,24 @@ class PreviewActivity : Activity() {
                 val millis = System.currentTimeMillis()
                 val selected = RadarStore.selectedFrame(millis)
                 RadarStore.shown = selected ?: RadarTimeline.frameAt(tick)
-                image.setImageBitmap(renderer.render(layout, loader.state.value, RadarStore.zoom.value, rider, tick, millis, selected))
+                val bitmap = renderer.render(layout, loader.state.value, RadarStore.zoom.value, rider, tick, millis, selected)
+                image.setImageBitmap(bitmap)
+                saveIfRequested(bitmap, tick)
                 if (fixed < 0) tick++
                 delay(1_000)
             }
         }
+    }
+
+    private fun texts(): Context {
+        val lang = intent.getStringExtra("lang") ?: return this
+        return createConfigurationContext(Configuration(resources.configuration).apply { setLocale(Locale(lang)) })
+    }
+
+    private fun saveIfRequested(bitmap: Bitmap, tick: Int) {
+        val name = intent.getStringExtra("save") ?: return
+        if (tick != intent.getIntExtra("save_tick", 0)) return
+        File(getExternalFilesDir(null), "$name.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
     }
 
     override fun onDestroy() {

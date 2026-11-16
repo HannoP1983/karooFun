@@ -1,0 +1,13 @@
+[versions]
+agp = "9.5.1"
+karooExt = "1.1.9"
+coroutines = "1.10.2"
+junit = "4.13.2"
+
+[libraries]
+karoo-ext = { module = "com.github.hammerheadnav:karoo-ext", version.ref = "karooExt" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+junit = { module = "junit:junit", version.ref = "junit" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }

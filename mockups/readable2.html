@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Karoo Fun – Große Zahlen, mehr Comic</title>
+<style>
+  :root {
+    --ink: #1F2328;
+    --num: "Arial Rounded MT Bold", sans-serif;
+    --hand: "Chalkboard SE", "Comic Sans MS", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 480px; height: 642px; background: #fff; overflow: hidden; }
+  .tile { position: relative; width: 480px; height: 642px; border: 3.5px solid var(--ink); border-radius: 20px; overflow: hidden; color: var(--ink); }
+  .bg, .deco { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .deco { z-index: 3; }
+  .tile::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+    background-image: radial-gradient(rgba(0,0,0,.08) 1.3px, transparent 1.5px); background-size: 7px 7px;
+  }
+  .cell { position: absolute; z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  .num {
+    font-family: var(--num); line-height: .9; letter-spacing: -2px; color: #fff; white-space: nowrap;
+    text-shadow:
+      -4px -4px 0 var(--ink), 4px -4px 0 var(--ink), -4px 4px 0 var(--ink), 4px 4px 0 var(--ink),
+       0 -4px 0 var(--ink), 0 4px 0 var(--ink), -4px 0 0 var(--ink), 4px 0 0 var(--ink),
+       7px 7px 0 var(--ink);
+  }
+  .num .dec { font-size: .6em; letter-spacing: -1px; }
+  .num .unit { font-size: .3em; letter-spacing: 0; margin-left: 4px; }
+  .num.icy { color: #E9F8FF; }
+  .num.glow { color: #FFF3B0; }
+
+  /* Field name: always top left, same size everywhere */
+  .tag {
+    position: absolute; z-index: 6; font-family: var(--hand); font-weight: bold; font-size: 20px; line-height: 1;
+    background: #FFF6D6; border: 3px solid var(--ink); border-radius: 12px; padding: 4px 10px 3px; box-shadow: 3px 3px 0 var(--ink);
+    transform: rotate(-3deg);
+  }
+  .pill {
+    font-family: var(--num); background: #fff; border: 3px solid var(--ink); border-radius: 20px; box-shadow: 3px 3px 0 var(--ink);
+    padding: 1px 12px 3px; line-height: 1.05; white-space: nowrap; color: var(--ink);
+  }
+  .pill .dec { font-size: .65em; }
+  .badge { font-family: var(--num); border: 3.5px solid var(--ink); border-radius: 26px; box-shadow: 4px 4px 0 var(--ink); padding: 4px 14px 6px; line-height: 1; }
+</style>
+</head>
+<body>
+<div class="tile" id="tile">
+  <svg class="bg" viewBox="0 0 480 642" preserveAspectRatio="none" id="bg"></svg>
+  <svg class="deco" viewBox="0 0 480 642" preserveAspectRatio="none" id="deco"></svg>
+</div>
+<script>
+const INK = '#1F2328';
+const scenarios = {
+  cold:   { speed: 21.4, avg: 24.8, temp: -3.2, hr: 128, dist: 12.37, grade: 6.1 },
+  normal: { speed: 26.3, avg: 25.2, temp: 14.6, hr: 151, dist: 41.05, grade: 9.2 },
+  hot:    { speed: 32.6, avg: 27.1, temp: 31.7, hr: 166, dist: 68.42, grade: 3.8 },
+};
+const s = scenarios[location.hash.slice(1)] || scenarios.normal;
+const zone = s.hr < 105 ? 1 : s.hr < 123 ? 2 : s.hr < 140 ? 3 : s.hr < 158 ? 4 : 5;
+const above = s.speed >= s.avg;
+const tempState = s.temp < 0 ? 'freeze' : s.temp > 25 ? 'hot' : 'normal';
+const big = (v, d, unit = '') => {
+  const [i, f] = v.toFixed(d).split('.');
+  return `${i}${f !== undefined ? `<span class="dec">,${f}</span>` : ''}${unit ? `<span class="unit">${unit}</span>` : ''}`;
+};
+
+function profile(km) {
+  const n = Math.max(40, Math.round(km * 7)), pts = [];
+  let el = 380;
+  for (let i = 0; i <= n; i++) {
+    const d = i / n * km;
+    const t = 520 + 300 * Math.sin(d / 6) + 160 * Math.sin(d / 2.3 + 1) + 260 * Math.max(0, Math.sin(d / 3.4 - 2)) + (d > 44 ? 420 * Math.min(1, (d - 44) / 11) : 0);
+    el += (t - el) * 0.12;
+    pts.push({ d, e: el });
+  }
+  return pts;
+}
+const bands = ['#3B8CFF', '#3DDC6A', '#F5D324', '#FF9A1F', '#FF4D3D', '#D23CFF'];
+const band = g => g < 0 ? 0 : g < 3 ? 1 : g < 6 ? 2 : g < 9 ? 3 : g < 12 ? 4 : 5;
+
+function chart(top, bottom) {
+  const pts = profile(s.dist);
+  const lo = Math.min(...pts.map(p => p.e)), hi = Math.max(...pts.map(p => p.e));
+  const range = Math.max(hi - lo, 40);
+  const x = i => 14 + pts[i].d / Math.max(s.dist, 2) * 452;
+  const y = i => bottom - (pts[i].e - lo) / range * (bottom - top - 22);
+  let fills = '';
+  for (let i = 1; i < pts.length; i++) {
+    const g = (pts[i].e - pts[i - 1].e) / ((pts[i].d - pts[i - 1].d) * 1000) * 100;
+    fills += `<path d="M${x(i - 1)} ${bottom} L${x(i - 1)} ${y(i - 1)} L${x(i)} ${y(i)} L${x(i)} ${bottom} Z" fill="${bands[band(g)]}" stroke="${bands[band(g)]}" stroke-width="1"/>`;
+  }
+  let line = `M${x(0)} ${y(0)}`;
+  for (let i = 1; i < pts.length; i++) line += ` L${x(i)} ${y(i)}`;
+  const last = pts.length - 1, hiIdx = pts.reduce((m, p, i) => p.e > pts[m].e ? i : m, 0);
+  const flag = hiIdx < last - 2 ? `<g transform="translate(${x(hiIdx)} ${y(hiIdx)})"><path d="M0 0 V-28" stroke="${INK}" stroke-width="3"/><path d="M0 -28 L20 -23 L0 -16 Z" fill="#FF4D3D" stroke="${INK}" stroke-width="2.5"/></g>` : '';
+  const deco = `
+    <path d="M14 ${bottom} H466" stroke="${INK}" stroke-width="3"/>
+    <path d="${line}" fill="none" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>
+    ${flag}
+    <circle cx="${x(last)}" cy="${y(last)}" r="10" fill="#fff" stroke="${INK}" stroke-width="4"/>
+    <g transform="translate(${x(last) - 66} ${y(last) - 40})" stroke="${INK}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none">
+      <circle cx="11" cy="23" r="9" fill="#fff"/><circle cx="47" cy="23" r="9" fill="#fff"/>
+      <path d="M11 23 L22 8 L40 8 L47 23 M22 8 L30 23 L40 8 M30 23 L11 23 M20 4 L26 4 M40 8 L38 2 L44 2"/>
+    </g>`;
+  return { fills, deco };
+}
+
+/* ---------- Temperature effects, kept to the edges of the cell (240..480 × 0..160) ---------- */
+function tempDeco() {
+  if (tempState === 'normal') {
+    const rays = Array.from({length: 10}, (_, i) => {
+      const a = i * Math.PI / 5 + 0.2;
+      return `<line x1="448" y1="30" x2="${448 + 46 * Math.cos(a)}" y2="${30 + 46 * Math.sin(a)}"/>`;
+    }).join('');
+    return `<g stroke="${INK}" stroke-width="3.5" stroke-linecap="round">${rays}<circle cx="448" cy="30" r="25" fill="#FF9F1C"/></g>
+      <path transform="translate(250 128) scale(.8)" d="M10 29 C0 29 0 17 10 17 C10 5 28 3 32 13 C38 3 56 7 54 19 C66 19 66 29 56 29 Z" fill="#fff" stroke="${INK}" stroke-width="3"/>`;
+  }
+  if (tempState === 'freeze') {
+    const heights = [16, 26, 12, 30, 18, 14, 27, 17, 11, 24, 15, 22];
+    const icicles = heights.map((h, i) => {
+      const x = 240 + i * 20;
+      return `<path d="M${x} 0 L${x + 20} 0 Q${x + 14} ${h * .6} ${x + 10} ${h} Q${x + 6} ${h * .6} ${x} 0 Z" fill="#F4FBFF" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/>
+              ${h > 25 ? `<path d="M${x + 10} ${h + 6} q-3 4 0 6 q3 -2 0 -6 Z" fill="#BFE6FA" stroke="${INK}" stroke-width="1.5"/>` : ''}`;
+    }).join('');
+    const flake = (cx, cy, r) => {
+      let d = '';
+      for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; d += `M${cx} ${cy} L${cx + r * Math.cos(a)} ${cy + r * Math.sin(a)} `; }
+      return `<path d="${d}" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="${d}" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>`;
+    };
+    return `${icicles}
+      <path d="M240 162 L240 142 C262 132 286 136 304 144 C324 152 344 132 372 134 C398 136 410 148 432 144 C452 140 466 130 482 136 L482 162 Z" fill="#fff" stroke="${INK}" stroke-width="3"/>
+      ${flake(258, 70, 8)}${flake(466, 96, 7)}${flake(262, 118, 6)}${flake(470, 52, 5)}
+      <path d="M296 ${44} q16 -10 34 -4" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".7" fill="none"/>`;
+  }
+  return `
+    <path d="M240 162 L240 140 C246 128 250 132 254 116 C260 132 268 128 272 108 C278 130 290 126 294 116 C300 134 310 130 316 104 C322 130 332 128 338 114 C344 132 354 128 360 102 C366 130 376 128 382 114 C388 132 398 128 404 106 C410 130 420 128 426 116 C432 134 442 130 448 108 C454 130 464 128 470 118 C474 132 478 134 482 128 L482 162 Z"
+          fill="#D9301C" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M244 162 C252 150 258 152 264 140 C270 152 280 150 286 138 C294 152 302 150 310 136 C318 152 328 150 336 140 C344 154 354 150 360 138 C368 152 378 150 386 140 C394 154 404 150 410 138 C418 152 428 150 436 142 C442 154 448 152 454 144 C460 154 470 156 480 150 L480 162 Z"
+          fill="#FFD166" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>
+    <g fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round" transform="translate(432 14)">
+      <path d="M4 34 C0 28 8 24 4 18 C0 12 8 8 4 2"/><path d="M15 34 C11 28 19 24 15 18 C11 12 19 8 15 2"/><path d="M26 34 C22 28 30 24 26 18 C22 12 30 8 26 2"/>
+    </g>`;
+}
+
+const tempBg = {
+  normal: '<rect x="240" y="0" width="240" height="160" fill="#FFD23F"/>',
+  freeze: '<defs><linearGradient id="ice" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E3F6FF"/><stop offset="1" stop-color="#7FCBF0"/></linearGradient></defs><rect x="240" y="0" width="240" height="160" fill="url(#ice)"/>',
+  hot: '<defs><radialGradient id="fire" cx=".55" cy="1" r="1"><stop offset="0" stop-color="#FFC23D"/><stop offset=".55" stop-color="#FF7A2E"/><stop offset="1" stop-color="#E9452E"/></radialGradient></defs><rect x="240" y="0" width="240" height="160" fill="url(#fire)"/>',
+}[tempState];
+
+const c = chart(446, 604);
+document.getElementById('bg').innerHTML = `
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6EC3FF"/><stop offset="1" stop-color="#CFEBFF"/></linearGradient></defs>
+  <rect x="0" y="0" width="240" height="160" fill="${above ? '#3FBF66' : '#F2564B'}"/>
+  ${tempBg}
+  <rect x="0" y="160" width="240" height="161" fill="${['#A9B3BF', '#4FA3F0', '#8BD13F', '#FF9F1C', '#F2564B'][zone - 1]}"/>
+  <rect x="240" y="160" width="240" height="161" fill="#A884F3"/>
+  <rect x="0" y="321" width="480" height="321" fill="url(#sky)"/>
+  ${c.fills}`;
+document.getElementById('deco').innerHTML = `
+  ${tempDeco()}
+  <g stroke="${INK}" stroke-width="3" stroke-linecap="round" fill="none">
+    <path d="M238 14 C248 60 230 110 240 150"/><path d="M240 172 C250 220 230 270 242 310"/>
+    <path d="M14 158 C80 166 160 152 226 160"/><path d="M254 160 C320 168 400 152 466 162"/><path d="M16 323 C120 332 330 312 464 320"/>
+  </g>
+  ${!above ? `<g transform="translate(186 8) scale(1.1)">
+      <path d="M2 24 Q10 22 34 24 L30 22" fill="#F7E3A1" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>
+      <circle cx="18" cy="14" r="9" fill="#E9A86B" stroke="${INK}" stroke-width="2.5"/>
+      <path d="M34 12 L32 4 M37 12 L39 5" stroke="${INK}" stroke-width="2" stroke-linecap="round"/></g>`
+    : `<g stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"><path d="M196 18 h30 M206 32 h22"/></g>`}
+  <path transform="translate(196 166) scale(.38)" d="M50 88 C20 66 6 50 6 32 C6 18 17 8 30 8 C40 8 46 14 50 22 C54 14 60 8 70 8 C83 8 94 18 94 32 C94 50 80 66 50 88 Z" fill="#fff" stroke="${INK}" stroke-width="8" stroke-linejoin="round"/>
+  ${c.deco}`;
+
+const tempCls = tempState === 'freeze' ? 'icy' : tempState === 'hot' ? 'glow' : '';
+const tempTop = tempState === 'freeze' ? 26 : tempState === 'hot' ? -6 : 8;
+document.getElementById('tile').insertAdjacentHTML('beforeend', `
+  <div class="tag" style="left:10px; top:8px">Tempo</div>
+  <div class="cell" style="left:0; top:0; width:240px; height:160px; padding-top:22px">
+    <div class="num" style="font-size:96px">${big(s.speed, 1)}</div>
+    <div class="pill" style="font-size:34px; margin-top:4px">${above ? '▲' : '▼'} Ø ${big(s.avg, 1)}</div>
+  </div>
+  <div class="tag" style="left:252px; top:8px">${tempState === 'freeze' ? 'Brrr!' : tempState === 'hot' ? 'Glutofen!' : 'Temp'}</div>
+  <div class="cell" style="left:240px; top:0; width:240px; height:160px; padding-top:${tempTop + 22}px">
+    <div class="num ${tempCls}" style="font-size:96px">${big(s.temp, 1, '°')}</div>
+  </div>
+  <div class="tag" style="left:10px; top:168px">Puls · Z${zone}</div>
+  <div class="cell" style="left:0; top:160px; width:240px; height:161px; padding-top:22px">
+    <div class="num" style="font-size:112px">${s.hr}</div>
+  </div>
+  <div class="tag" style="left:252px; top:168px">Distanz</div>
+  <div class="cell" style="left:240px; top:160px; width:240px; height:161px; padding-top:22px">
+    <div class="num" style="font-size:98px">${big(s.dist, 2)}</div>
+  </div>
+  <div class="tag" style="left:10px; top:330px">Höhe · Anstieg · Steigung</div>
+  <div class="cell" style="left:0; top:362px; width:480px; height:70px; flex-direction:row; justify-content:space-between; padding:0 14px">
+    <div class="num" style="font-size:64px">${[995, 582, 526][Object.keys(scenarios).indexOf(location.hash.slice(1) || 'normal')]}<span class="unit">m</span></div>
+    <div class="num" style="font-size:64px"><span class="unit" style="font-size:.5em">▲</span>${[643, 1273, 2000][Object.keys(scenarios).indexOf(location.hash.slice(1) || 'normal')]}</div>
+    <div class="badge num" style="font-size:52px; background:${bands[band(s.grade)]}">+${big(s.grade, 1)}</div>
+  </div>`);
+</script>
+</body>
+</html>

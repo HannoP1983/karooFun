@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Karoo Fun – Lesbarkeit</title>
+<style>
+  :root {
+    --ink: #1F2328;
+    --num: "Arial Rounded MT Bold", sans-serif;
+    --hand: "Chalkboard SE", "Comic Sans MS", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 480px; height: 642px; background: #fff; overflow: hidden; }
+  .tile { position: relative; width: 480px; height: 642px; border: 3.5px solid var(--ink); border-radius: 20px; overflow: hidden; color: var(--ink); }
+  .bg, .overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .overlay { z-index: 3; }
+  .tile::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+    background-image: radial-gradient(rgba(0,0,0,.08) 1.3px, transparent 1.5px); background-size: 7px 7px;
+  }
+  .cell { position: absolute; z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  /* Big comic digits: whole number large, decimals smaller, thick outline */
+  .num {
+    font-family: var(--num); line-height: .9; letter-spacing: -2px; color: #fff; white-space: nowrap;
+    text-shadow:
+      -4px -4px 0 var(--ink), 4px -4px 0 var(--ink), -4px 4px 0 var(--ink), 4px 4px 0 var(--ink),
+       0 -4px 0 var(--ink), 0 4px 0 var(--ink), -4px 0 0 var(--ink), 4px 0 0 var(--ink),
+       7px 7px 0 var(--ink);
+  }
+  .num .dec { font-size: .6em; letter-spacing: -1px; }
+  .num .unit { font-size: .3em; letter-spacing: 0; margin-left: 4px; }
+
+  .tag {
+    position: absolute; z-index: 5; font-family: var(--hand); font-weight: bold; font-size: 15px; line-height: 1;
+    background: #FFF6D6; border: 2.5px solid var(--ink); border-radius: 10px; padding: 3px 8px 2px; box-shadow: 2px 2px 0 var(--ink);
+  }
+  .pill {
+    font-family: var(--num); background: #fff; border: 3px solid var(--ink); border-radius: 18px; box-shadow: 3px 3px 0 var(--ink);
+    padding: 2px 12px 3px; line-height: 1.05; white-space: nowrap;
+  }
+  .badge { font-family: var(--num); border: 3.5px solid var(--ink); border-radius: 26px; box-shadow: 4px 4px 0 var(--ink); padding: 4px 14px 6px; line-height: 1; }
+</style>
+</head>
+<body>
+<div class="tile" id="tile">
+  <svg class="bg" viewBox="0 0 480 642" preserveAspectRatio="none" id="bg"></svg>
+  <svg class="overlay" viewBox="0 0 480 642" preserveAspectRatio="none" id="overlay"></svg>
+</div>
+<script>
+const INK = '#1F2328';
+const variant = location.hash.slice(1) || 'v1';
+const ride = { speed: 26.3, avg: 25.2, temp: 14.6, hr: 151, zone: 3, dist: 41.05, elev: 582, ascent: 1273, grade: 9.2 };
+const big = (v, d, unit = '') => {
+  const [i, f] = v.toFixed(d).split('.');
+  return `${i}${f !== undefined ? `<span class="dec">,${f}</span>` : ''}${unit ? `<span class="unit">${unit}</span>` : ''}`;
+};
+
+// Same made-up profile as the other mockups
+function profile(km) {
+  const n = Math.round(km * 7), pts = [];
+  let el = 380;
+  for (let i = 0; i <= n; i++) {
+    const d = i / n * km;
+    const t = 520 + 300 * Math.sin(d / 6) + 160 * Math.sin(d / 2.3 + 1) + 260 * Math.max(0, Math.sin(d / 3.4 - 2)) + (d > 44 ? 420 * Math.min(1, (d - 44) / 11) : 0);
+    el += (t - el) * 0.12;
+    pts.push({ d, e: el });
+  }
+  return pts;
+}
+const bands = ['#3B8CFF', '#3DDC6A', '#F5D324', '#FF9A1F', '#FF4D3D', '#D23CFF'];
+const band = g => g < 0 ? 0 : g < 3 ? 1 : g < 6 ? 2 : g < 9 ? 3 : g < 12 ? 4 : 5;
+
+function chart(top, bottom) {
+  const pts = profile(ride.dist);
+  const lo = Math.min(...pts.map(p => p.e)), hi = Math.max(...pts.map(p => p.e));
+  const x = i => 14 + pts[i].d / ride.dist * 452;
+  const y = i => bottom - (pts[i].e - lo) / (hi - lo) * (bottom - top - 18);
+  let fills = '';
+  for (let i = 1; i < pts.length; i++) {
+    const g = (pts[i].e - pts[i - 1].e) / ((pts[i].d - pts[i - 1].d) * 1000) * 100;
+    fills += `<path d="M${x(i - 1)} ${bottom} L${x(i - 1)} ${y(i - 1)} L${x(i)} ${y(i)} L${x(i)} ${bottom} Z" fill="${bands[band(g)]}" stroke="${bands[band(g)]}" stroke-width="1"/>`;
+  }
+  let line = `M${x(0)} ${y(0)}`;
+  for (let i = 1; i < pts.length; i++) line += ` L${x(i)} ${y(i)}`;
+  const last = pts.length - 1, hiIdx = pts.reduce((m, p, i) => p.e > pts[m].e ? i : m, 0);
+  const overlay = `
+    <path d="M14 ${bottom} H466" stroke="${INK}" stroke-width="3"/>
+    <path d="${line}" fill="none" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>
+    <g transform="translate(${x(hiIdx)} ${y(hiIdx)})"><path d="M0 0 V-28" stroke="${INK}" stroke-width="3"/><path d="M0 -28 L20 -23 L0 -16 Z" fill="#FF4D3D" stroke="${INK}" stroke-width="2.5"/></g>
+    <circle cx="${x(last)}" cy="${y(last)}" r="10" fill="#fff" stroke="${INK}" stroke-width="4"/>`;
+  return { fills, overlay };
+}
+
+const sky = (top) => `<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6EC3FF"/><stop offset="1" stop-color="#CFEBFF"/></linearGradient></defs>
+  <rect x="0" y="${top}" width="480" height="${642 - top}" fill="url(#sky)"/>`;
+
+let bg = '', overlay = '', html = '';
+if (variant === 'v1') {
+  // Same layout as today, but every number as big as its cell allows; decoration only at the edges.
+  const c = chart(410, 600);
+  bg = `
+    <rect x="0" y="0" width="240" height="160" fill="#3FBF66"/><rect x="240" y="0" width="240" height="160" fill="#FFD23F"/>
+    <rect x="0" y="160" width="240" height="161" fill="#8BD13F"/><rect x="240" y="160" width="240" height="161" fill="#A884F3"/>
+    ${sky(321)}${c.fills}
+    <g stroke="${INK}" stroke-width="3" stroke-linecap="round" fill="none">
+      <path d="M238 14 C248 60 230 110 240 150"/><path d="M240 172 C250 220 230 270 242 310"/>
+      <path d="M14 158 C80 166 160 152 226 160"/><path d="M254 160 C320 168 400 152 466 162"/><path d="M16 323 C120 332 330 312 464 320"/>
+    </g>`;
+  overlay = c.overlay;
+  html = `
+    <div class="tag" style="left:10px; top:8px">Tempo</div>
+    <div class="cell" style="left:0; top:0; width:240px; height:160px; padding-top:10px">
+      <div class="num" style="font-size:104px">${big(ride.speed, 1)}</div>
+      <div class="pill" style="font-size:26px; margin-top:6px">▲ Ø ${Math.round(ride.avg)}</div>
+    </div>
+    <div class="tag" style="right:10px; top:8px">Temp</div>
+    <div class="cell" style="left:240px; top:0; width:240px; height:160px; padding-top:12px">
+      <div class="num" style="font-size:100px">${big(ride.temp, 1, '°')}</div>
+    </div>
+    <div class="tag" style="left:10px; top:168px">Puls</div>
+    <div class="cell" style="left:0; top:160px; width:240px; height:161px; padding-top:8px">
+      <div class="num" style="font-size:112px">${ride.hr}</div>
+      <div class="pill" style="font-size:24px; margin-top:6px">♥ Z${ride.zone}</div>
+    </div>
+    <div class="tag" style="right:10px; top:168px">km</div>
+    <div class="cell" style="left:240px; top:160px; width:240px; height:161px; padding-top:10px">
+      <div class="num" style="font-size:100px">${big(ride.dist, 2)}</div>
+    </div>
+    <div class="cell" style="left:0; top:330px; width:480px; height:76px; flex-direction:row; justify-content:space-between; padding:0 14px">
+      <div class="num" style="font-size:66px">${ride.elev}<span class="unit">m</span></div>
+      <div class="num" style="font-size:66px"><span class="unit" style="font-size:.5em">▲</span>${ride.ascent}</div>
+      <div class="badge num" style="font-size:54px; background:#FF4D3D">+9<span class="dec">,2</span></div>
+    </div>`;
+} else {
+  // Focus: speed gets the top third, HR and distance below, temperature as a badge; calmer profile.
+  const c = chart(470, 608);
+  bg = `
+    <rect x="0" y="0" width="480" height="232" fill="#3FBF66"/>
+    <rect x="0" y="232" width="240" height="150" fill="#8BD13F"/><rect x="240" y="232" width="240" height="150" fill="#A884F3"/>
+    ${sky(382)}${c.fills}
+    <g stroke="${INK}" stroke-width="3" stroke-linecap="round" fill="none">
+      <path d="M16 233 C120 242 330 224 464 232"/><path d="M240 246 C250 290 230 330 242 372"/><path d="M16 384 C120 392 330 374 464 382"/>
+    </g>`;
+  overlay = c.overlay;
+  html = `
+    <div class="tag" style="left:10px; top:8px">Tempo</div>
+    <div class="badge num" style="position:absolute; z-index:5; right:12px; top:10px; font-size:36px; background:#FFD23F">${big(ride.temp, 1, '°')}</div>
+    <div class="cell" style="left:0; top:0; width:480px; height:232px; padding-top:30px">
+      <div class="num" style="font-size:176px">${big(ride.speed, 1)}</div>
+      <div class="pill" style="font-size:32px; margin-top:4px">▲ Ø ${ride.avg.toFixed(1).replace('.', ',')} km/h</div>
+    </div>
+    <div class="tag" style="left:10px; top:240px">Puls · Z${ride.zone}</div>
+    <div class="cell" style="left:0; top:232px; width:240px; height:150px; padding-top:18px">
+      <div class="num" style="font-size:112px">${ride.hr}</div>
+    </div>
+    <div class="tag" style="right:10px; top:240px">km</div>
+    <div class="cell" style="left:240px; top:232px; width:240px; height:150px; padding-top:18px">
+      <div class="num" style="font-size:100px">${big(ride.dist, 2)}</div>
+    </div>
+    <div class="cell" style="left:0; top:390px; width:480px; height:72px; flex-direction:row; justify-content:space-between; padding:0 14px">
+      <div class="num" style="font-size:62px">${ride.elev}<span class="unit">m</span></div>
+      <div class="num" style="font-size:62px"><span class="unit" style="font-size:.5em">▲</span>${ride.ascent}</div>
+      <div class="badge num" style="font-size:52px; background:#FF4D3D">+9<span class="dec">,2</span></div>
+    </div>`;
+}
+document.getElementById('bg').innerHTML = bg;
+document.getElementById('overlay').innerHTML = overlay;
+document.getElementById('tile').insertAdjacentHTML('beforeend', html);
+</script>
+</body>
+</html>

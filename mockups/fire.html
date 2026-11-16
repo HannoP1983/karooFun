@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Karoo Fun – You're on fire!</title>
+<style>
+  :root {
+    --ink: #1F2328;
+    --w: 480px;
+    --h: 642px;
+    --num: "Arial Rounded MT Bold", sans-serif;
+    --hand: "Chalkboard SE", "Comic Sans MS", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: var(--w); height: var(--h); background: #fff; overflow: hidden; }
+
+  .tile {
+    position: relative; width: var(--w); height: var(--h);
+    border: 3.5px solid var(--ink); border-radius: 20px; overflow: hidden;
+    background: radial-gradient(circle at 50% 42%, #7A1E3A 0%, #3B1240 55%, #1E0B2A 100%);
+  }
+  .tile::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+    background-image: radial-gradient(rgba(255,255,255,.07) 1.3px, transparent 1.5px);
+    background-size: 7px 7px;
+  }
+  .stage { position: absolute; inset: 0; z-index: 2; }
+  .art { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  .outline {
+    color: #fff;
+    text-shadow:
+      -3px -3px 0 var(--ink), 3px -3px 0 var(--ink), -3px 3px 0 var(--ink), 3px 3px 0 var(--ink),
+       0 -3px 0 var(--ink), 0 3px 0 var(--ink), -3px 0 0 var(--ink), 3px 0 0 var(--ink),
+       6px 6px 0 var(--ink);
+  }
+  .shout {
+    position: absolute; left: 0; right: 0; top: 196px; text-align: center; z-index: 3;
+    font-family: var(--num); line-height: .95; letter-spacing: -1px;
+  }
+  .shout .small { font-size: 38px; display: block; margin-bottom: 4px; }
+  .shout .big { font-size: 72px; display: block; color: #FFE135; }
+
+  .panel {
+    position: absolute; z-index: 4; left: 18px; right: 18px; bottom: 22px; height: 118px;
+    background: #F2564B; border: 3.5px solid var(--ink); border-radius: 22px; box-shadow: 5px 5px 0 var(--ink);
+    display: flex; align-items: center; justify-content: space-between; padding: 0 18px;
+  }
+  .panel .cap { font-family: var(--hand); font-weight: bold; font-size: 15px; margin-bottom: 2px; color: var(--ink); }
+  .panel .speed { font-family: var(--num); font-size: 58px; line-height: 1; }
+  .panel .speed small { font-size: 20px; margin-left: 3px; }
+  .panel .chips { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+  .panel .chip {
+    font-family: var(--num); font-size: 22px; line-height: 1; padding: 6px 10px;
+    background: #fff; border: 3px solid var(--ink); border-radius: 16px; box-shadow: 3px 3px 0 var(--ink);
+    color: var(--ink); white-space: nowrap;
+  }
+  .panel .chip small { font-size: 13px; margin-left: 2px; }
+</style>
+</head>
+<body>
+<div class="tile">
+  <div class="stage" id="stage"></div>
+</div>
+
+<script>
+// URL hash: "#" plays the 3 s takeover at 5 fps (and repeats), "#2" renders a fixed frame.
+const frame = location.hash.slice(1);
+const INK = '#1F2328';
+const FRAMES = 15;
+const ride = { speed: 34.6, avg: 27.1, hr: 176, zone: 5 };
+const fmt = (v, d) => v.toFixed(d).replace('.', ',');
+const CX = 240, CY = 270;
+
+function burst(cx, cy, rOut, rIn, spikes, rot, squash = 0.86) {
+  let d = '';
+  for (let i = 0; i < spikes * 2; i++) {
+    const r = i % 2 ? rIn : rOut * (0.82 + 0.18 * ((i * 7) % 4) / 3);
+    const a = (i / (spikes * 2)) * Math.PI * 2 + rot;
+    d += `${i ? 'L' : 'M'}${(cx + r * Math.cos(a)).toFixed(1)} ${(cy + r * Math.sin(a) * squash).toFixed(1)} `;
+  }
+  return d + 'Z';
+}
+
+// Explosion grows in the first frames, then keeps throbbing; the last frames shrink it away.
+function scaleAt(t) {
+  if (t < 3) return [0.25, 0.65, 1.12][t];
+  if (t >= FRAMES - 2) return [0.8, 0.5][t - (FRAMES - 2)];
+  return 1 + (t % 2) * 0.05;
+}
+
+function sparks(t) {
+  const reach = Math.min(1, (t + 1) / 6);
+  return Array.from({length: 14}, (_, i) => {
+    const a = i / 14 * Math.PI * 2 + 0.2;
+    const r = 120 + reach * (90 + (i % 3) * 30);
+    const x = CX + r * Math.cos(a), y = CY + r * Math.sin(a) * 0.9;
+    const s = 6 + (i % 3) * 3;
+    const rot = t * 40 + i * 30;
+    return `<path transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot})" d="M0 ${-s} L${s * .3} ${-s * .3} L${s} 0 L${s * .3} ${s * .3} L0 ${s} L${-s * .3} ${s * .3} L${-s} 0 L${-s * .3} ${-s * .3} Z"
+      fill="${i % 2 ? '#FFE135' : '#fff'}" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>`;
+  }).join('');
+}
+
+function debris(t) {
+  const reach = Math.min(1, t / 8);
+  return Array.from({length: 8}, (_, i) => {
+    const a = i / 8 * Math.PI * 2 + 0.6;
+    const r = 150 + reach * 140;
+    const x = CX + r * Math.cos(a), y = CY + r * Math.sin(a) * 0.9;
+    return `<path transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${t * 55 + i * 45})" d="M-7 -4 L6 -6 L8 5 L-4 7 Z" fill="#3B1240" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  }).join('');
+}
+
+function smoke(t) {
+  const puff = (x, y, k) => `<g transform="translate(${x} ${y}) scale(${k})">
+      <path d="M-30 10 C-44 10 -44 -8 -30 -8 C-30 -26 -6 -30 0 -16 C8 -30 32 -26 30 -8 C46 -8 46 10 30 10 Z" fill="#E8E1EE" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+    </g>`;
+  const k = Math.min(1, t / 5) * (0.9 + (t % 2) * 0.06);
+  if (k === 0) return '';
+  return puff(70, 120, k) + puff(410, 150, k * 0.9) + puff(60, 420, k * 0.8) + puff(420, 400, k);
+}
+
+
+function render(t) {
+  const k = scaleAt(t);
+  const rot = t * 0.05;
+  const shake = t < 3 ? [[0, 0], [-6, 4], [6, -4]][t] : [[0, 0], [-3, 2], [3, -2], [-2, -2]][t % 4];
+  const flash = t === 1 ? `<rect x="0" y="0" width="480" height="642" fill="#FFF8D0" opacity=".85"/>` : '';
+  const showText = t >= 2 && t < FRAMES - 1;
+  const textScale = t === 2 ? 1.15 : 1;
+  const above = Math.round((ride.speed / ride.avg - 1) * 100);
+
+  document.getElementById('stage').innerHTML = `
+    <div style="position:absolute; inset:0; transform: translate(${shake[0]}px, ${shake[1]}px)">
+      <svg class="art" viewBox="0 0 480 642">
+        ${smoke(t)}
+        ${debris(t)}
+        <g transform="translate(${CX} ${CY}) scale(${k}) translate(${-CX} ${-CY})">
+          <path d="${burst(CX + 7, CY + 7, 250, 185, 16, rot)}" fill="${INK}"/>
+          <path d="${burst(CX, CY, 250, 185, 16, rot)}" fill="#E9452E" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>
+          <path d="${burst(CX, CY, 200, 150, 14, -rot + 0.2)}" fill="#FF7A2E" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>
+          <path d="${burst(CX, CY, 158, 118, 12, rot + 0.4)}" fill="#FFC23D" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>
+          <path d="${burst(CX, CY, 108, 84, 10, -rot)}" fill="#FFF3B0" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+        </g>
+        ${t >= 1 ? sparks(t) : ''}
+        ${flash}
+      </svg>
+      ${showText ? `
+      <div class="shout outline" style="transform: scale(${textScale}) rotate(-4deg)">
+        <span class="small">YOU'RE</span>
+        <span class="big">ON FIRE!</span>
+      </div>` : ''}
+    </div>
+    <!-- Fixed layer, refreshed once per second, so it stays readable. -->
+    <div class="panel">
+      <div>
+        <div class="cap">Tempo · Ø ${fmt(ride.avg, 1)} km/h</div>
+        <div class="speed outline">${fmt(ride.speed, 1)}<small>km/h</small></div>
+      </div>
+      <div class="chips">
+        <div class="chip">▲ +${above}<small>%</small></div>
+        <div class="chip">♥ Z${ride.zone} · ${ride.hr}</div>
+      </div>
+    </div>`;
+}
+
+if (frame !== '') {
+  render(Number(frame));
+} else {
+  let t = 0;
+  render(t);
+  setInterval(() => { t = (t + 1) % (FRAMES + 5); render(Math.min(t, FRAMES - 1)); }, 200);
+}
+</script>
+</body>
+</html>

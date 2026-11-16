@@ -1,0 +1,5 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0;background:#2b2b2b;color:#ddd;font:14px sans-serif;width:1280px;padding:10px;display:flex;flex-wrap:wrap;gap:10px">
+<script>
+for (const [f,l] of [['partly_day','Mittag · leicht bewölkt · Wind 8 Rücken'],['overcast_day','Mittag · bedeckt · 18 Rücken'],['rain_day_head','Mittag · Regen · 30 Gegenwind'],['storm_day_cross','Mittag · Gewitter · 35 Seite'],['partly_evening','16:20 · leicht bewölkt'],['rain_evening','16:20 · Regen (Frame 1)'],['overcast_night','21:00 · bedeckt'],['rain_night_tail','21:00 · Regen · 25 Rücken'],['fog_day','Mittag · Nebel'],['snow_frost_day','Frost · Schnee · 15 Rücken'],['snow_frost_night','Frost · Schnee · Nacht'],['hot_rain','Hitze · Regen']])
+  document.write(`<div style="width:305px"><div style="width:305px;height:205px;overflow:hidden;position:relative"><img src="${f}.png" style="position:absolute;width:610px;left:-305px;top:-272px"></div>${l}</div>`);
+</script></body></html>

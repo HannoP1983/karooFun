@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Karoo Fun – Große Schnecke, schneller Hase</title>
+<style>
+  :root { --ink: #1F2328; --num: "Arial Rounded MT Bold", sans-serif; --hand: "Chalkboard SE", "Comic Sans MS", sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #2b2b2b; color: #eee; font-family: var(--hand); padding: 24px; width: 1280px; }
+  h1 { font-size: 26px; margin-bottom: 4px; }
+  h2 { font-size: 20px; margin: 26px 0 4px; color: #FFD23F; }
+  p.note { font-size: 14px; color: #bbb; margin-bottom: 10px; max-width: 1200px; }
+  .row { display: flex; gap: 14px; align-items: flex-end; }
+  .frame { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px; color: #aaa; }
+  .real { display: flex; gap: 10px; margin-top: 8px; align-items: flex-end; }
+  svg { display: block; }
+</style>
+</head>
+<body>
+<h1>Tempo-Zelle: große Schnecke & schneller Hase</h1>
+<p class="note">Zelle in Originalgröße 239 × 160 px, oben 1,25× vergrößert, darunter 1:1. Ein Frame pro Sekunde, wie auf dem Karoo. Zahlen bleiben fest; alles Bewegte bleibt im freien Streifen über und rechts neben der Zahl.</p>
+<div id="out"></div>
+<script>
+const INK = '#1F2328';
+const W = 239, H = 160;
+const GREEN = '#3FBF66', RED = '#F2564B';
+
+const st = (fill, w = 2.5) => `fill="${fill}" stroke="${INK}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"`;
+const sticker = (d, fill, w = 2.5, shadow = 0) =>
+  (shadow ? `<path d="${d}" fill="${INK}" transform="translate(${shadow},${shadow})"/>` : '') + `<path d="${d}" ${st(fill, w)}/>`;
+const circle = (cx, cy, r, fill, w = 2.5) => `<circle cx="${cx}" cy="${cy}" r="${r}" ${st(fill, w)}/>`;
+const line = (x1, y1, x2, y2, w = 2, color = INK) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${w}" stroke-linecap="round"/>`;
+
+function tag() {
+  return `<g transform="rotate(-3 50 24)">
+    <rect x="10" y="8" width="82" height="30" rx="12" fill="${INK}" transform="translate(3,3)"/>
+    <rect x="10" y="8" width="82" height="30" rx="12" ${st('#FFF6D6', 3)}/>
+    <text x="51" y="30" text-anchor="middle" font-family="Chalkboard SE" font-weight="bold" font-size="20" fill="${INK}">Tempo</text></g>`;
+}
+
+function bigNumber(whole, dec) {
+  const t = `<tspan>${whole}</tspan><tspan font-size="54">${dec}</tspan>`;
+  const base = `x="${W / 2}" y="102" text-anchor="middle" font-family="Arial Rounded MT Bold" font-size="90" letter-spacing="-2"`;
+  return `<text ${base} fill="${INK}" stroke="${INK}" stroke-width="10" stroke-linejoin="round" transform="translate(6,6)">${t}</text>
+    <text ${base} fill="${INK}" stroke="${INK}" stroke-width="10" stroke-linejoin="round">${t}</text>
+    <text ${base} fill="#fff">${t}</text>`;
+}
+
+function pill(avg, up) {
+  const x = 52, y = 110, w = 136, h = 40;
+  const ax = x + 22, ay = y + h / 2, r = 8;
+  const tri = up ? `M${ax},${ay - r} L${ax + r},${ay + r * .8} L${ax - r},${ay + r * .8}Z` : `M${ax},${ay + r} L${ax + r},${ay - r * .8} L${ax - r},${ay - r * .8}Z`;
+  return `<rect x="${x + 3}" y="${y + 3}" width="${w}" height="${h}" rx="20" fill="${INK}"/>
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="20" ${st('#fff', 3)}/>
+    <path d="${tri}" fill="${INK}"/>
+    <text x="${x + 38}" y="${y + 31}" font-family="Arial Rounded MT Bold" font-size="32" fill="${INK}">Ø ${avg[0]}<tspan font-size="21">${avg[1]}</tspan></text>`;
+}
+
+function halftone() {
+  return `<pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.3" fill="rgba(0,0,0,.08)"/></pattern><rect width="${W}" height="${H}" fill="url(#dots)"/>`;
+}
+
+/* ---------- Heute: kleine Schnecke / zwei Streifen ---------- */
+function oldSnail(f) {
+  const x = W - 56 + (f % 4) * 3, y = 38;
+  return sticker(`M${x},${y} Q${x + 16},${y - 4} ${x + 34},${y} L${x + 36},${y - 10} Q${x + 30},${y - 4} ${x + 26},${y - 4}Z`, '#F7E3A1')
+    + line(x + 34, y - 9, x + 31, y - 20) + line(x + 37, y - 9, x + 40, y - 19)
+    + `<circle cx="${x + 31}" cy="${y - 20}" r="2" fill="${INK}"/><circle cx="${x + 40}" cy="${y - 19}" r="2" fill="${INK}"/>`
+    + circle(x + 16, y - 11, 9, '#E9A86B')
+    + `<path d="M${x + 16},${y - 6} A5,5 0 1 1 ${x + 21},${y - 11}" fill="none" stroke="${INK}" stroke-width="2"/>`;
+}
+function oldStreaks(f) {
+  const s = (f % 3) * 5;
+  return line(W - 46 + s, 16, W - 18 + s, 16, 5, 'rgba(255,255,255,.8)') + line(W - 36 + s, 30, W - 14 + s, 30, 5, 'rgba(255,255,255,.8)');
+}
+
+/* ---------- Große Schnecke ---------- */
+// Free strip right of the tag and above the number: x 108..234, y 2..40
+const BOX = { x: 110, y: 2, w: 124, h: 38 };
+
+function shellSpiral(cx, cy, r) {
+  let d = `M${cx},${cy}`;
+  for (let a = 0; a <= Math.PI * 4.2; a += 0.25) {
+    const rr = r * 0.85 * a / (Math.PI * 4.2);
+    d += ` L${(cx + rr * Math.cos(a)).toFixed(1)},${(cy + rr * Math.sin(a)).toFixed(1)}`;
+  }
+  return `<path d="${d}" fill="none" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/>`;
+}
+
+// Snail facing right in local coordinates 0..110 × 0..38, ground at y = 38
+function bigSnail(f) {
+  const crawl = (f % 4) * 3;
+  const st4 = [0, 3, 5, 2][f % 4];
+  const wob = [0, 2, 0, -2][f % 4];
+  const hx = 88 + st4;
+  let s = '';
+  for (let i = 0; i < 3; i++) s += `<ellipse cx="${-4 - i * 11}" cy="37" rx="${5 - i}" ry="2" fill="rgba(255,255,255,${0.75 - i * 0.2})"/>`;
+  s += sticker(`M0,38 Q40,34 ${hx - 6},36 Q${hx + 10},38 ${hx + 12},28 Q${hx + 13},16 ${hx + 3},15 Q${hx - 6},15 ${hx - 9},25 Q50,28 12,31 Z`, '#F7E3A1', 3, 3);
+  s += line(hx, 17, hx - 4 + wob, 4, 2.4) + line(hx + 6, 17, hx + 12 + wob, 5, 2.4);
+  for (const [ex, ey] of [[hx - 4 + wob, 4], [hx + 12 + wob, 5]]) {
+    s += circle(ex, ey, 4, '#fff', 2) + `<circle cx="${ex + 1.2}" cy="${ey}" r="1.8" fill="${INK}"/>`;
+  }
+  s += `<path d="M${hx + 3},${27} q4,3 8,0" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>`;
+  s += `<circle cx="${hx - 1}" cy="24" r="2.5" fill="#F7A8B8"/>`;
+  s += circle(40, 19, 17, '#E9A86B', 3) + shellSpiral(41, 19, 15);
+  s += `<path d="M29,8 q6,-5 13,-4" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/>`;
+  return `<g transform="translate(${BOX.x + crawl},${BOX.y})">${s}</g>`;
+}
+
+/* ---------- Hase ---------- */
+const ell = (cx, cy, rx, ry, rot, fill, w = 2.5, shadow = 0) =>
+  (shadow ? `<ellipse cx="${cx + shadow}" cy="${cy + shadow}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${cx + shadow} ${cy + shadow})" fill="${INK}"/>` : '')
+  + `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${cx} ${cy})" ${st(fill, w)}/>`;
+
+// Caramel bunny running right in local coordinates 0..120 × 0..38, ground at y = 38.
+// Caramel fur with a cream belly and muzzle, one floppy ear, big dark eyes and a small :3 smile.
+const FUR = '#E3A564', FUR_DARK = '#C98945', CREAM = '#FFF3E0', PINK = '#F4A3B4', CHEST = '#FFF3E0';
+function foot(cx, cy, rot, len) {
+  return `<g transform="rotate(${rot} ${cx} ${cy})">` + ell(cx, cy, len, 5, 0, '#E7DCD6', 2.5)
+    + ell(cx + len * 0.55, cy, 3, 3.4, 0, PINK, 1.2) + ell(cx + len * 0.05, cy, 3.6, 3.6, 0, PINK, 1.2) + `</g>`;
+}
+function bunny(f) {
+  let s = '';
+  if (f % 2 === 0) {
+    s += circle(4, 33, 3.5, '#fff', 2) + circle(-4, 30, 2.5, '#fff', 2);
+    s += foot(20, 30, 14, 15);
+    s += ell(92, 34, 7, 3.5, 25, FUR);
+    s += ell(60, 11, 14, 4.5, -2, FUR_DARK) + ell(62, 7, 16, 5, -10, FUR) + ell(63, 7, 10, 2, -10, PINK, 0);
+    s += ell(48, 24, 21, 10, -4, FUR, 3, 3) + ell(68, 28, 6, 5, 0, CHEST, 0);
+    s += circle(28, 19, 6, '#fff', 2.5);
+    s += head(82, 19);
+  } else {
+    s += circle(24, 34, 4.5, '#fff', 2) + circle(15, 32, 3, '#fff', 2);
+    s += foot(56, 33, 4, 14);
+    s += ell(46, 34, 7, 3.2, -25, FUR);
+    s += ell(60, 10, 13, 4.5, -8, FUR_DARK) + ell(63, 6, 15, 5, -22, FUR) + ell(64, 6, 9, 2, -22, PINK, 0);
+    s += ell(46, 22, 18, 11, -14, FUR, 3, 3) + ell(62, 27, 6, 5, 0, CHEST, 0);
+    s += circle(30, 17, 6, '#fff', 2.5);
+    s += head(78, 19);
+  }
+  return `<g transform="translate(${BOX.x - 4},${BOX.y})">${s}</g>`;
+}
+function head(hx, hy) {
+  const eye = (ex, ey) => ell(ex, ey, 3.6, 4.6, 0, INK, 0)
+    + `<circle cx="${ex + 1.2}" cy="${ey - 1.6}" r="1.5" fill="#fff"/><circle cx="${ex - 1}" cy="${ey + 1.8}" r=".7" fill="#fff"/>`;
+  return ell(hx, hy, 16, 14.5, 0, FUR, 3)
+    // floppy tip on the near ear, falling over the forehead
+    + `<path d="M${hx - 8},${hy - 12} q6,-6 12,-3 q3,2 1,6 q-5,-3 -11,0 z" fill="${FUR}" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>`
+    + ell(hx + 5, hy + 6, 8.5, 6.5, 0, CREAM, 1.6)
+    + `<circle cx="${hx - 8}" cy="${hy + 4}" r="3.2" fill="${PINK}" opacity=".85"/><circle cx="${hx + 13}" cy="${hy + 3}" r="2.6" fill="${PINK}" opacity=".85"/>`
+    + eye(hx - 2, hy - 2) + eye(hx + 9, hy - 2)
+    + `<path d="M${hx + 3},${hy + 3} l4,0 l-2,2.4 z" fill="#E86F8A" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/>`
+    + `<path d="M${hx + 1.5},${hy + 7} q1.75,2.4 3.5,0 q1.75,2.4 3.5,0" fill="none" stroke="${INK}" stroke-width="1.5" stroke-linecap="round"/>`;
+}
+
+function zoom(f) {
+  return `<svg width="${140 * 4}" height="${46 * 4}" viewBox="${BOX.x - 14} 0 ${140} ${46}" style="background:${GREEN}">${bunny(f)}</svg>`;
+}
+
+/* ---------- Varianten ---------- */
+const scenes = {
+  oldBelow: f => oldSnail(f),
+  oldAbove: f => oldStreaks(f),
+  snail:    f => bigSnail(f),
+  bunny:    f => bunny(f),
+  box:      () => `<rect x="${BOX.x}" y="${BOX.y}" width="${BOX.w}" height="${BOX.h}" fill="rgba(255,255,255,.25)" stroke="#fff" stroke-dasharray="4 3"/>`,
+};
+
+function cell(scene, f, above, scale) {
+  const bg = above ? GREEN : RED;
+  const num = above ? ['32', ',6'] : ['21', ',4'];
+  const avg = above ? ['27', ',1'] : ['24', ',8'];
+  return `<svg width="${W * scale}" height="${H * scale}" viewBox="0 0 ${W} ${H}">
+    <defs><clipPath id="c"><rect width="${W}" height="${H}"/></clipPath></defs>
+    <g clip-path="url(#c)"><rect width="${W}" height="${H}" fill="${bg}"/>${halftone()}
+    ${scenes[scene](f)}${tag()}${bigNumber(...num)}${pill(avg, above)}
+    <rect x="1.5" y="1.5" width="${W - 3}" height="${H - 3}" fill="none" stroke="${INK}" stroke-width="3" rx="4"/></g></svg>`;
+}
+
+const sections = [
+  ['Heute (zum Vergleich) und freier Platz', 'Kleine Schnecke unter dem Schnitt, zwei weiße Streifen darüber. Rechts: der freie Streifen (124 × 38 px) zwischen Tag, Zahl und Rand.', [['oldBelow', false, 0], ['oldAbove', true, 0], ['box', true, 0]]],
+  ['Unter Ø: große Schnecke', 'Füllt den ganzen freien Streifen (~110 × 38 px statt 36 × 30). Kriecht 3 px pro Sekunde, Kopf streckt sich, Fühler wackeln, Schleimspur dahinter.', [0, 1, 2, 3].map(f => ['snail', false, f])],
+  ['Über Ø: eigener Hase', 'Eigene Figur: karamellfarbenes Fell, cremefarbene Schnauze und Brust, Schlappohr-Spitze über der Stirn, große dunkle Kulleraugen mit Glanzpunkten, rosa Bäckchen, :3-Mäulchen. Ersetzt die Streifen komplett. Abwechselnd Flugphase (Beine lang, Ohren flach) und Sammelphase (Hinterbeine vorn, Rücken rund), dazu Staubwölkchen hinter den Pfoten. Bei 1 Bild/s wirkt der Posenwechsel wie Galopp.', [0, 1, 2, 3].map(f => ['bunny', true, f])],
+];
+
+let html = '';
+for (const [title, note, list] of sections) {
+  html += `<h2>${title}</h2><p class="note">${note}</p><div class="row">`;
+  for (const [scene, above, f] of list) html += `<div class="frame">${cell(scene, f, above, 1.25)}<span>${list.length > 3 ? 'Frame ' + f : (above ? 'über Ø' : 'unter Ø')}</span></div>`;
+  html += '</div><div class="real">';
+  for (const [scene, above, f] of list) html += `<div class="frame">${cell(scene, f, above, 1)}</div>`;
+  html += '<span class="frame">← Originalgröße</span></div>';
+}
+html += `<h2>Hase gezoomt (4×)</h2><div class="row"><div class="frame">${zoom(0)}<span>Flugphase</span></div><div class="frame">${zoom(1)}<span>Sammelphase</span></div></div>`;
+document.getElementById('out').innerHTML = html;
+</script>
+</body>
+</html>

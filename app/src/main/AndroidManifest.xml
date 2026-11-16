@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:icon="@drawable/ic_fun"
+        android:label="@string/app_name">
+
+        <service
+            android:name=".FunExtension"
+            android:exported="true"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="io.hammerhead.karooext.KAROO_EXTENSION" />
+            </intent-filter>
+            <meta-data
+                android:name="io.hammerhead.karooext.EXTENSION_INFO"
+                android:resource="@xml/extension_info" />
+        </service>
+
+        <!-- The Karoo app loads the pre-rendered takeover frames from here; read-only, PNG frames only -->
+        <provider
+            android:name=".FramesProvider"
+            android:authorities="de.karoofun.karoo.frames"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
+
+        <!-- Taps on the radar tile: +/- and the timeline dots -->
+        <receiver
+            android:name=".RadarTapReceiver"
+            android:exported="false" />
+
+        <!-- Same intent filter as Hammerhead's sample extension, so Karoo Settings > Apps can open it -->
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="de.karoofun.karoo.MAIN" />
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>

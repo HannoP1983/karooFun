@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ExtensionInfo
+    displayName="@string/extension_name"
+    icon="@drawable/ic_fun"
+    id="karoo-fun"
+    scansDevices="false">
+    <DataType
+        description="@string/dashboard_description"
+        displayName="@string/dashboard_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-dashboard" />
+    <DataType
+        description="@string/radar_description"
+        displayName="@string/radar_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="rain-radar" />
+</ExtensionInfo>

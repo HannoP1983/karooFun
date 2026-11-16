@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Karoo Fun – Bildfolge</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #EDEAE2; font-family: "Chalkboard SE", sans-serif; font-weight: bold; padding: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(2, 480px); gap: 14px 18px; }
+  .frame span { display: block; font-size: 16px; margin-bottom: 4px; color: #1F2328; }
+  iframe { width: 480px; height: 642px; border: 0; display: block; }
+</style>
+</head>
+<body>
+<div class="grid" id="grid"></div>
+<script>
+// "#kalt" etc. shows four seconds of the dashboard, "#event" and "#fire" show takeover frames at 5 fps.
+const scenario = location.hash.slice(1) || 'normal';
+const views = {
+  event: [0, 1, 2, 3].map(t => [`Bild ${t + 1} (${(t * 0.2).toFixed(1)} s)`, `event.html#${t}`]),
+  fire: [0, 1, 2, 8].map(t => [`Bild ${t + 1} (${(t * 0.2).toFixed(1)} s)`, `fire.html#${t}`]),
+  party: [0, 1, 2, 7].map(t => [`Bild ${t + 1} (${(t * 0.2).toFixed(1)} s)`, `party.html#${t}`]),
+}[scenario] || [0, 1, 2, 3].map(t => [`Sekunde ${t + 1}`, `mockup.html#${scenario}/${t}`]);
+document.getElementById('grid').innerHTML = views
+  .map(([title, src]) => `<div class="frame"><span>${title}</span><iframe src="${src}"></iframe></div>`)
+  .join('');
+</script>
+</body>
+</html>

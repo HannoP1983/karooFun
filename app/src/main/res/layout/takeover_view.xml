@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Full-page takeover: the flipper plays the pre-rendered frames on its own at 5 fps,
+     the strip with live values sits fixed on top so it stays readable. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ViewFlipper
+        android:id="@+id/frames"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:autoStart="true"
+        android:flipInterval="200" />
+
+    <ImageView
+        android:id="@+id/panel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/dashboard_name"
+        android:scaleType="fitEnd" />
+</FrameLayout>

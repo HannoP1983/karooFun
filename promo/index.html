@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Karoo Fun – Dein Karoo wird zum Comic!</title>
+<style>
+  :root {
+    --ink: #1F2328;
+    --paper: #FFF4D6;
+    --yellow: #FFD23F;
+    --red: #F2564B;
+    --green: #3FBF66;
+    --blue: #4FA3F0;
+    --purple: #A884F3;
+    --pink: #FF4FA3;
+    --teal: #22B8A6;
+    --num: "Arial Rounded MT Bold", "Arial Black", sans-serif;
+    --hand: "Chalkboard SE", "Comic Sans MS", "Comic Neue", cursive;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--paper); color: var(--ink); font-family: var(--hand); font-size: 18px; line-height: 1.5;
+    background-image: radial-gradient(rgba(0,0,0,.07) 1.3px, transparent 1.5px); background-size: 8px 8px;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  .outline {
+    color: #fff;
+    text-shadow:
+      -3px -3px 0 var(--ink), 3px -3px 0 var(--ink), -3px 3px 0 var(--ink), 3px 3px 0 var(--ink),
+       0 -3px 0 var(--ink), 0 3px 0 var(--ink), -3px 0 0 var(--ink), 3px 0 0 var(--ink),
+       6px 6px 0 var(--ink);
+  }
+  .sticker { background: #fff; border: 4px solid var(--ink); border-radius: 22px; box-shadow: 7px 7px 0 var(--ink); }
+  .bubble {
+    display: inline-block; position: relative; background: #FFF6D6; border: 3px solid var(--ink); border-radius: 18px;
+    padding: 6px 16px; box-shadow: 4px 4px 0 var(--ink); font-weight: bold; white-space: nowrap;
+  }
+  .bubble::after {
+    content: ""; position: absolute; left: 22px; bottom: -13px;
+    border: 9px solid transparent; border-top: 11px solid var(--ink); border-bottom: 0;
+  }
+  .screen { display: block; width: 100%; height: auto; border-radius: 20px; border: 4px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); background: var(--ink); }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative; overflow: hidden; border-bottom: 5px solid var(--ink);
+    background: repeating-conic-gradient(from 0deg at 72% 52%, #FF5A3C 0deg 7.5deg, #FFB627 7.5deg 15deg);
+  }
+  .hero::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(0,0,0,.13) 1.4px, transparent 1.6px); background-size: 8px 8px;
+  }
+  .hero .wrap { position: relative; display: grid; grid-template-columns: 1.15fr .85fr; gap: 40px; align-items: center; padding-top: 56px; padding-bottom: 72px; }
+  .hero h1 { font-family: var(--num); font-size: 92px; line-height: .95; letter-spacing: -2px; transform: rotate(-3deg); }
+  .hero h1 span { color: var(--yellow); display: block; }
+  .hero .claim { margin-top: 30px; font-size: 26px; font-weight: bold; }
+  .hero .claim .bubble { white-space: normal; }
+  .hero .pitch { margin-top: 26px; padding: 18px 22px; font-size: 19px; transform: rotate(1deg); }
+  .hero .device { transform: rotate(3deg); }
+  .badges { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
+  .badges span {
+    font-family: var(--num); font-size: 16px; padding: 7px 14px; border: 3px solid var(--ink); border-radius: 16px;
+    background: #fff; box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  /* ---------- Sections ---------- */
+  section { padding: 76px 0 20px; }
+  .kicker { transform: rotate(-2deg); margin-bottom: 18px; font-size: 18px; }
+  h2 { font-family: var(--num); font-size: 54px; line-height: 1.05; letter-spacing: -1px; margin-bottom: 14px; }
+  h3 { font-family: var(--num); font-size: 26px; line-height: 1.1; margin-bottom: 8px; }
+  .lead { font-size: 21px; max-width: 760px; }
+
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-top: 34px; }
+  .tile { padding: 20px; border: 4px solid var(--ink); border-radius: 20px; box-shadow: 6px 6px 0 var(--ink); }
+  .tile .icon { font-size: 40px; line-height: 1; margin-bottom: 8px; }
+  .tile p { font-size: 16px; }
+  .tile.speed { background: var(--green); transform: rotate(-1.5deg); }
+  .tile.temp { background: var(--yellow); transform: rotate(1deg); }
+  .tile.hr { background: var(--blue); transform: rotate(-1deg); }
+  .tile.dist { background: var(--purple); transform: rotate(1.5deg); }
+  .tile.profile { background: #8ED1FF; grid-column: span 4; display: grid; grid-template-columns: 1fr 2fr; gap: 20px; align-items: center; transform: rotate(-.5deg); }
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: bold; }
+  .legend i { width: 18px; height: 18px; border: 3px solid var(--ink); border-radius: 5px; }
+
+  .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; margin-top: 40px; align-items: start; }
+  .trio figure { text-align: center; }
+  .trio figure:nth-child(1) { transform: rotate(-2deg); }
+  .trio figure:nth-child(2) { transform: rotate(1deg) translateY(18px); }
+  .trio figure:nth-child(3) { transform: rotate(2deg); }
+  .trio figcaption { margin-top: 18px; }
+
+  .action { display: grid; grid-template-columns: 340px 1fr; gap: 44px; align-items: center; margin-top: 50px; }
+  .action:nth-of-type(even) { grid-template-columns: 1fr 340px; }
+  .action:nth-of-type(even) .shot { order: 2; }
+  .action .text { padding: 26px 30px; }
+  .action .when { margin-top: 14px; padding: 12px 16px; border: 3px dashed var(--ink); border-radius: 14px; background: var(--paper); font-size: 17px; }
+  .action .shot { transform: rotate(-2deg); }
+  .action:nth-of-type(even) .shot { transform: rotate(2deg); }
+  .tag { display: inline-block; font-family: var(--num); font-size: 15px; padding: 4px 12px; border: 3px solid var(--ink); border-radius: 12px; margin-bottom: 10px; color: #fff; text-shadow: 1px 1px 0 var(--ink); }
+
+  .split { display: grid; grid-template-columns: 1fr 360px; gap: 44px; align-items: center; margin-top: 30px; }
+  ul.checks { list-style: none; margin-top: 18px; }
+  ul.checks li { position: relative; padding-left: 40px; margin-bottom: 12px; }
+  ul.checks li::before {
+    content: "✓"; position: absolute; left: 0; top: 2px; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--green); border: 3px solid var(--ink); color: #fff; font-family: var(--num); font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .battery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 30px; }
+  .battery .sticker { padding: 22px; }
+  .battery .big { font-family: var(--num); font-size: 46px; line-height: 1; }
+
+  ol.steps { list-style: none; counter-reset: step; margin-top: 30px; display: grid; gap: 18px; }
+  ol.steps li { counter-increment: step; position: relative; padding: 18px 22px 18px 84px; }
+  ol.steps li::before {
+    content: counter(step); position: absolute; left: 18px; top: 50%; transform: translateY(-50%) rotate(-6deg);
+    width: 48px; height: 48px; border-radius: 50%; background: var(--yellow); border: 3px solid var(--ink); box-shadow: 3px 3px 0 var(--ink);
+    font-family: var(--num); font-size: 24px; display: flex; align-items: center; justify-content: center;
+  }
+  code { font-family: Menlo, monospace; font-size: 15px; background: #F1ECDD; border: 2px solid var(--ink); border-radius: 8px; padding: 2px 7px; }
+
+  footer { margin-top: 80px; padding: 40px 0 60px; border-top: 5px solid var(--ink); background: var(--ink); color: #fff; text-align: center; }
+  footer .big { font-family: var(--num); font-size: 44px; }
+  footer p { opacity: .8; margin-top: 8px; }
+
+  @media screen and (max-width: 900px) {
+    .hero .wrap, .split, .action, .action:nth-of-type(even), .trio, .battery { grid-template-columns: 1fr; }
+    .action:nth-of-type(even) .shot { order: 0; }
+    .tiles { grid-template-columns: 1fr 1fr; }
+    .tile.profile { grid-column: span 2; grid-template-columns: 1fr; }
+    .hero h1 { font-size: 64px; }
+  }
+
+  /* ---------- Beginner install guide ---------- */
+  .guide-step { display: grid; grid-template-columns: 74px 1fr; gap: 20px; margin-top: 26px; padding: 22px 26px; }
+  .guide-step .no {
+    width: 64px; height: 64px; border-radius: 50%; background: var(--yellow); border: 4px solid var(--ink); box-shadow: 4px 4px 0 var(--ink);
+    font-family: var(--num); font-size: 32px; display: flex; align-items: center; justify-content: center; transform: rotate(-6deg);
+  }
+  .guide-step > div { min-width: 0; }
+  .guide-step code { word-break: break-all; }
+  .guide-step h3 { margin-bottom: 6px; }
+  .guide-step p, .guide-step li { font-size: 18px; }
+  .guide-step ol, .guide-step ul { margin: 8px 0 0 22px; }
+  .guide-step li { margin-bottom: 6px; }
+  .os { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 12px; }
+  .os > div { border: 3px solid var(--ink); border-radius: 16px; padding: 14px 16px; background: var(--paper); }
+  .os h4 { font-family: var(--num); font-size: 20px; margin-bottom: 6px; }
+  pre.cmd {
+    margin: 10px 0; padding: 12px 16px; background: var(--ink); color: #9EF7A4; border-radius: 12px; border: 3px solid var(--ink);
+    font-family: Menlo, Consolas, monospace; font-size: 16px; white-space: pre-wrap; box-shadow: 4px 4px 0 #8A8577;
+  }
+  .say { display: inline-block; background: #E6F6FF; border: 3px solid var(--ink); border-radius: 12px; padding: 2px 10px; font-weight: bold; }
+  .warn { margin-top: 12px; padding: 12px 16px; border: 3px solid var(--ink); border-radius: 14px; background: #FFE3E0; }
+  .ok { margin-top: 12px; padding: 12px 16px; border: 3px solid var(--ink); border-radius: 14px; background: #DDF5E3; }
+  details.trouble { margin-top: 14px; border: 3px solid var(--ink); border-radius: 14px; background: #fff; box-shadow: 4px 4px 0 var(--ink); }
+  details.trouble summary { cursor: pointer; padding: 12px 16px; font-weight: bold; font-size: 18px; }
+  details.trouble div { padding: 0 16px 14px; }
+  @media screen and (max-width: 900px) { .os { grid-template-columns: 1fr; } .guide-step { grid-template-columns: 1fr; } }
+
+  /* ---------- Print / PDF ---------- */
+  @page { size: A4; margin: 8mm; }
+  @media print {
+    html { zoom: .66; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .sticker, .guide-step, .action, .trio figure, .tile, .battery > div, ol.steps li, details.trouble { break-inside: avoid; }
+    h2, .kicker { break-after: avoid; }
+    section { padding-top: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <h1 class="outline">Karoo<span>Fun!</span></h1>
+      <div class="claim"><span class="bubble">Dein Karoo 3 wird zum Comic. Zack! Bumm! Wuuusch!</span></div>
+      <p class="pitch sticker">
+        Tempo, Temperatur, Puls, Distanz und dein Höhenprofil auf <b>einer</b> knallbunten Seite. Und wenn du es krachen lässt,
+        explodiert der ganze Bildschirm. Fahrradcomputer können auch Spaß machen.
+      </p>
+      <div class="badges">
+        <span>🎨 Comic-Look</span><span>🏔 Höhenprofil</span><span>💥 3 Comic-Aktionen</span><span>🔋 Akku-schonend</span>
+      </div>
+    </div>
+    <div class="device"><img class="screen" src="img/hot.png" alt="Karoo Fun an einem heißen Tag"></div>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <span class="bubble kicker">Alles auf einen Blick</span>
+      <h2>Eine Seite. Fünf Helden.</h2>
+      <p class="lead">Karoo Fun belegt eine komplette Fahrtseite. Oben vier Werte, unten dein Höhenprofil. Keine strengen Kästchen, sondern
+        handgezeichnete Linien, Punktraster und weiße Zahlen mit dicker Kontur, die man auch in der prallen Sonne liest.</p>
+
+      <div class="tiles">
+        <div class="tile speed">
+          <div class="icon">🚀</div>
+          <h3 class="outline">Tempo</h3>
+          <p>Grün, wenn du schneller als dein Schnitt bist, rot, wenn nicht. Darunter groß dein Ø. Schnell? Windstreifen. Langsam? Eine Schnecke kriecht mit.</p>
+        </div>
+        <div class="tile temp">
+          <div class="icon">🌡</div>
+          <h3 class="outline">Temperatur</h3>
+          <p>Mit einer Nachkommastelle. Unter 0 °C friert die Kachel ein, über 25 °C wird sie zum Glutofen. Dazwischen scheint die Sonne.</p>
+        </div>
+        <div class="tile hr">
+          <div class="icon">❤️</div>
+          <h3 class="outline">Puls</h3>
+          <p>Die Kachel färbt sich nach deiner Pulszone. Das Herz schlägt mit, ab Zone 4 richtig heftig. Die Zonen stellst du selbst ein.</p>
+        </div>
+        <div class="tile dist">
+          <div class="icon">🚲</div>
+          <h3 class="outline">Distanz</h3>
+          <p>In km mit zwei Nachkommastellen. Ein kleines Rad rollt Richtung nächsten Kilometerstein, die Straße zieht vorbei.</p>
+        </div>
+        <div class="tile profile">
+          <div>
+            <div class="icon">🏔</div>
+            <h3 class="outline">Höhenprofil</h3>
+          </div>
+          <div>
+            <p>Das gefahrene Profil wächst live mit, eingefärbt nach Steigung. Dazu groß Höhe, Anstieg und die aktuelle Steigung.
+              Am Gipfel flattert eine Fahne, und dein Rad sitzt am Hang, bergauf mit Schweißtropfen, bergab mit Fahrtwind.</p>
+            <div class="legend">
+              <span><i style="background:#3B8CFF"></i>bergab</span><span><i style="background:#3DDC6A"></i>0–3 %</span>
+              <span><i style="background:#F5D324"></i>3–6 %</span><span><i style="background:#FF9A1F"></i>6–9 %</span>
+              <span><i style="background:#FF4D3D"></i>9–12 %</span><span><i style="background:#D23CFF"></i>12 %+</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <span class="bubble kicker">Wetter-Effekte</span>
+      <h2>Brrr! Herrlich! Puh, heiß!</h2>
+      <p class="lead">Jede Sekunde bewegt sich etwas: Flocken fallen, Eiszapfen tropfen, Flammen flackern, die Sonne dreht sich. Die Zahlen selbst bleiben stehen, damit du sie auch auf Schotter lesen kannst.</p>
+      <div class="trio">
+        <figure><img class="screen" src="img/cold.png" alt="Eisig unter 0 Grad"><figcaption><span class="bubble">Unter 0 °C: alles friert ein</span></figcaption></figure>
+        <figure><img class="screen" src="img/normal.png" alt="Normales Wetter"><figcaption><span class="bubble">Dazwischen: Sonne satt</span></figcaption></figure>
+        <figure><img class="screen" src="img/hot.png" alt="Glutofen über 25 Grad"><figcaption><span class="bubble">Über 25 °C: Glutofen</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <span class="bubble kicker">Comic-Aktionen</span>
+      <h2>Wenn's knallt, dann richtig.</h2>
+      <p class="lead">Drei Momente übernehmen für bis zu 3 Sekunden den ganzen Bildschirm, mit 5 Bildern pro Sekunde. Unten bleibt eine feste,
+        ruhige Kachel mit deinen Werten stehen, damit du auch dann alles lesen kannst.</p>
+
+      <div class="action">
+        <div class="shot"><img class="screen" src="img/takeover_0.png" alt="Pokal oder Spital"></div>
+        <div class="text sticker">
+          <span class="tag" style="background:#3B8CFF">Abfahrt</span>
+          <h3>🏆 Pokal oder Spital?!</h3>
+          <p>Pokal gegen Krankenwagen, Blaulicht inklusive. Dein Rad schießt den Hang hinunter, eine Sprechblase ruft „Festhalten!“
+            oder „Finger an die Bremse!“.</p>
+          <div class="when"><b>Kommt, wenn</b> es bergab geht (ab −2 %) und du schneller als 60 km/h bist.</div>
+        </div>
+      </div>
+
+      <div class="action">
+        <div class="shot"><img class="screen" src="img/takeover_1.png" alt="You're on fire"></div>
+        <div class="text sticker">
+          <span class="tag" style="background:#F2564B">Vollgas</span>
+          <h3>🔥 You're on fire!</h3>
+          <p>Ein Feuerball zündet, ein greller Blitz, dann füllt eine Comic-Explosion die Seite. Funken fliegen, Rauch quillt, und mittendrin
+            leuchtet „YOU'RE ON FIRE!“.</p>
+          <div class="when"><b>Kommt, wenn</b> du mindestens 10 s lang 15 % über deinem Schnitt fährst und dein Puls in Zone 4 oder 5 ist.</div>
+        </div>
+      </div>
+
+      <div class="action">
+        <div class="shot"><img class="screen" src="img/takeover_2.png" alt="Party-Pace wins the race"></div>
+        <div class="text sticker">
+          <span class="tag" style="background:#22B8A6">Konstant</span>
+          <h3>🍺 Party-Pace wins the race!</h3>
+          <p>Die Discokugel fällt herein, Scheinwerfer kreisen, Konfetti rieselt, Maßkrüge stoßen an. „Prost!“ Dein Rad tanzt mit
+            Partyhütchen auf der Bühne.</p>
+          <div class="when"><b>Kommt, wenn</b> dein Puls 20 min lang konstant in Zone 2–3 liegt und du dabei dein Schnitt-Tempo (± 5 %) hältst.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <span class="bubble kicker">Einstellungen</span>
+      <h2>Du bestimmst, wann's kracht.</h2>
+      <div class="split">
+        <div>
+          <p class="lead">Die Einstellungen öffnest du direkt am Karoo unter <b>Einstellungen › Apps › Karoo Fun › Öffnen</b>.
+            Jede Änderung gilt sofort.</p>
+          <ul class="checks">
+            <li><b>Eigene Pulszonen</b> aus deinem Max-Puls, jede Grenze einzeln anpassbar, oder die Zonen aus dem Karoo-Profil</li>
+            <li><b>Pause für alle Aktionen:</b> höchstens alle 25 min eine (einstellbar), damit's besonders bleibt</li>
+            <li><b>Dauer</b> der Aktionen: 1 bis 3 Sekunden</li>
+            <li>Jede Aktion <b>einzeln an/aus</b>, mit eigenen Schwellen für Tempo, Gefälle, Pulszone und Zeit</li>
+            <li><b>Vorschau-Knopf</b>, um jede Aktion zu Hause anzuschauen</li>
+          </ul>
+        </div>
+        <img class="screen" src="img/settings.png" alt="Einstellungen von Karoo Fun" style="transform: rotate(2deg)">
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <span class="bubble kicker">Akku</span>
+      <h2>Viel Show, wenig Strom.</h2>
+      <div class="battery">
+        <div class="sticker"><div class="big">1×</div><p>pro Sekunde wird die Seite neu gezeichnet. So oft kommen die Messwerte ohnehin.</p></div>
+        <div class="sticker"><div class="big">3 s</div><p>dauert eine Comic-Aktion höchstens. Die Bilder blättert der Karoo selbst durch, die App muss nichts nachschieben.</p></div>
+        <div class="sticker"><div class="big">25 min</div><p>Pause zwischen den Aktionen. Display und GPS bleiben die großen Verbraucher.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <span class="bubble kicker">Los geht's</span>
+      <h2>In 4 Schritten zum Comic-Cockpit</h2>
+      <ol class="steps">
+        <li class="sticker">App auf den Karoo 3 spielen. Wie das geht, steht <a href="#anleitung">Schritt für Schritt unten</a>, auch wenn du so etwas noch nie gemacht hast.</li>
+        <li class="sticker">Am Karoo eine Fahrtseite mit <b>einem</b> Datenfeld anlegen und dort <b>Karoo Fun › Comic-Cockpit</b> wählen.</li>
+        <li class="sticker">Unter <b>Einstellungen › Apps › Karoo Fun › Öffnen</b> deinen Max-Puls und die Aktionen einstellen.</li>
+        <li class="sticker">Tipp: Unter <b>Einstellungen › Tastensymbole</b> die Tastenknöpfe ausschalten, dann hat der Comic noch mehr Platz.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="anleitung">
+    <div class="wrap">
+      <span class="bubble kicker">Installieren für Einsteiger</span>
+      <h2>Keine Ahnung von Technik? Kein Problem!</h2>
+      <p class="lead">Karoo Fun gibt es (noch) nicht im Karoo-App-Store. Du spielst die App deshalb einmalig per USB-Kabel vom Computer auf
+        deinen Karoo. Das dauert beim ersten Mal ungefähr 15 Minuten, und du kannst nichts kaputt machen. Nimm dir einen Kaffee und mach einfach
+        Schritt für Schritt mit.</p>
+
+      <div class="sticker" style="margin-top:24px; padding:18px 24px">
+        <h3>Das brauchst du</h3>
+        <ul class="checks">
+          <li>Deinen <b>Hammerhead Karoo 3</b>, geladen</li>
+          <li>Einen <b>Computer</b> mit Windows oder macOS</li>
+          <li>Ein <b>USB-C-Kabel, das Daten kann</b>. Am besten das Kabel, das beim Karoo dabei war. Manche billigen Kabel können nur laden, damit klappt es nicht.</li>
+          <li>Die Datei <b>app-release.apk</b>, das ist die App selbst. Die bekommst du von der Person, die dir diese Seite geschickt hat.</li>
+        </ul>
+      </div>
+
+      <div class="guide-step sticker">
+        <div class="no">1</div>
+        <div>
+          <h3>Am Karoo die „Entwickleroptionen“ freischalten</h3>
+          <p>Das ist ein versteckter Menüpunkt. Keine Sorge, du wirst dadurch nicht zum Hacker, und der Karoo funktioniert ganz normal weiter.</p>
+          <ol>
+            <li>Am Karoo <b>Einstellungen</b> öffnen und ganz nach unten scrollen.</li>
+            <li>Auf <b>Über</b> tippen.</li>
+            <li>Den Eintrag mit der <b>Build-Nummer</b> suchen und <b>7 Mal schnell hintereinander</b> darauf tippen.</li>
+            <li>Es erscheint ein Hinweis wie <span class="say">Sie sind jetzt Entwickler</span>. Fertig!</li>
+          </ol>
+          <p class="ok">Steht in den Einstellungen unten schon <b>Developer Options</b>? Dann ist dieser Schritt bereits erledigt.</p>
+        </div>
+      </div>
+
+      <div class="guide-step sticker">
+        <div class="no">2</div>
+        <div>
+          <h3>USB-Debugging einschalten</h3>
+          <p>Damit erlaubst du dem Computer, eine App auf den Karoo zu spielen.</p>
+          <ol>
+            <li>Zurück in die <b>Einstellungen</b>, wieder ganz nach unten.</li>
+            <li>Auf <b>Developer Options</b> (Entwickleroptionen) tippen.</li>
+            <li>Den Schalter bei <b>USB-Debugging</b> einschalten und die Rückfrage mit <b>OK</b> bestätigen.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="guide-step sticker">
+        <div class="no">3</div>
+        <div>
+          <h3>Das Programm „adb“ auf den Computer holen</h3>
+          <p>adb ist ein kleines, kostenloses Werkzeug von Google, mit dem der Computer mit Android-Geräten spricht. Der Karoo ist innen ein Android-Gerät.</p>
+          <div class="os">
+            <div>
+              <h4>🪟 Windows</h4>
+              <ol>
+                <li>Im Browser die Google-Seite <b>„SDK Platform-Tools“</b> öffnen:<br><code>developer.android.com/tools/releases/platform-tools</code></li>
+                <li>Auf <b>„Download SDK Platform-Tools for Windows“</b> klicken, den Bedingungen zustimmen, herunterladen.</li>
+                <li>Die ZIP-Datei im Download-Ordner mit Rechtsklick › <b>Alle extrahieren…</b> entpacken.</li>
+                <li>Jetzt gibt es einen Ordner <b>platform-tools</b>. Den brauchen wir gleich wieder.</li>
+              </ol>
+            </div>
+            <div>
+              <h4>🍎 Mac</h4>
+              <ol>
+                <li>Im Browser die Google-Seite <b>„SDK Platform-Tools“</b> öffnen:<br><code>developer.android.com/tools/releases/platform-tools</code></li>
+                <li>Auf <b>„Download SDK Platform-Tools for Mac“</b> klicken, zustimmen, herunterladen.</li>
+                <li>Die ZIP-Datei im Ordner <b>Downloads</b> doppelklicken. Sie entpackt sich von selbst.</li>
+                <li>Jetzt gibt es im Ordner Downloads einen Ordner <b>platform-tools</b>.</li>
+              </ol>
+            </div>
+          </div>
+          <p class="ok"><b>Trick, der alles einfacher macht:</b> Kopiere die Datei <b>app-release.apk</b> in genau diesen Ordner <b>platform-tools</b>.
+            Dann liegt alles an einem Ort.</p>
+        </div>
+      </div>
+
+      <div class="guide-step sticker">
+        <div class="no">4</div>
+        <div>
+          <h3>Das Befehlsfenster im richtigen Ordner öffnen</h3>
+          <p>Jetzt kommt der Teil, der nach Hacker aussieht. Ist er aber nicht: Du tippst nur zwei Zeilen ab.</p>
+          <div class="os">
+            <div>
+              <h4>🪟 Windows</h4>
+              <ol>
+                <li>Den Ordner <b>platform-tools</b> im Explorer öffnen.</li>
+                <li>Oben in die <b>Adresszeile</b> klicken (dort, wo der Pfad steht).</li>
+                <li><b>cmd</b> eintippen und <b>Enter</b> drücken.</li>
+                <li>Ein schwarzes Fenster geht auf. Das ist die „Eingabeaufforderung“.</li>
+              </ol>
+            </div>
+            <div>
+              <h4>🍎 Mac</h4>
+              <ol>
+                <li>Das Programm <b>Terminal</b> öffnen (Cmd + Leertaste drücken, „Terminal“ tippen, Enter).</li>
+                <li>Diese Zeile eintippen und Enter drücken:</li>
+              </ol>
+              <pre class="cmd">cd ~/Downloads/platform-tools</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-step sticker">
+        <div class="no">5</div>
+        <div>
+          <h3>Karoo anschließen und Erlaubnis geben</h3>
+          <ol>
+            <li>Den Karoo einschalten und mit dem USB-Kabel an den Computer stecken.</li>
+            <li>Im schwarzen Fenster diese Zeile eintippen und Enter drücken:</li>
+          </ol>
+          <div class="os">
+            <div><h4>🪟 Windows</h4><pre class="cmd">adb devices</pre></div>
+            <div><h4>🍎 Mac</h4><pre class="cmd">./adb devices</pre></div>
+          </div>
+          <ol start="3">
+            <li>Auf dem Karoo erscheint jetzt die Frage <span class="say">USB-Debugging zulassen?</span><br>
+              Haken bei <b>„Von diesem Computer immer zulassen“</b> setzen und <b>OK</b> tippen.</li>
+            <li>Den Befehl von eben noch einmal eintippen. Jetzt steht da eine lange Nummer und dahinter das Wort <b>device</b>. 🎉</li>
+          </ol>
+          <p class="warn">Steht da <b>unauthorized</b>? Dann hast du die Frage auf dem Karoo noch nicht mit OK bestätigt. Steht da gar nichts? Schau unten bei „Hilfe, es klappt nicht“.</p>
+        </div>
+      </div>
+
+      <div class="guide-step sticker">
+        <div class="no">6</div>
+        <div>
+          <h3>Die App installieren</h3>
+          <p>Diese Zeile eintippen und Enter drücken:</p>
+          <div class="os">
+            <div><h4>🪟 Windows</h4><pre class="cmd">adb install -r app-release.apk</pre></div>
+            <div><h4>🍎 Mac</h4><pre class="cmd">./adb install -r app-release.apk</pre></div>
+          </div>
+          <p>Nach ein paar Sekunden erscheint das Wort <b>Success</b>. Das war's, die App ist drauf! 🥳</p>
+          <p class="ok">Später eine neue Version bekommen? Genau dieselbe Zeile noch einmal, mit der neuen Datei. Deine Einstellungen bleiben erhalten.</p>
+        </div>
+      </div>
+
+      <div class="guide-step sticker">
+        <div class="no">7</div>
+        <div>
+          <h3>Das Comic-Cockpit auf eine Fahrtseite legen</h3>
+          <ol>
+            <li>Kabel abziehen.</li>
+            <li>Am Karoo in deinem <b>Fahrprofil</b> die <b>Seiten</b> öffnen und eine neue Seite hinzufügen (oder eine vorhandene bearbeiten).</li>
+            <li>Als Aufteilung die Variante mit <b>nur einem einzigen Feld</b> wählen. Das Cockpit braucht die ganze Seite.</li>
+            <li>Auf das Feld tippen und in der Liste <b>Karoo Fun › Comic-Cockpit</b> auswählen.</li>
+            <li>Speichern, Fahrt starten, Spaß haben. Zack! 💥</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="guide-step sticker">
+        <div class="no">8</div>
+        <div>
+          <h3>Einstellen und letzte Tipps</h3>
+          <ul>
+            <li><b>Einstellungen der App:</b> Am Karoo <b>Einstellungen › Apps › Karoo Fun › Öffnen</b>. Dort als Erstes deinen <b>Max-Puls</b> eintragen.
+              Gehalten gedrückt zählen + und – schnell weiter. Mit der Zurück-Taste unten links am Karoo kommst du wieder raus.</li>
+            <li><b>Mehr Platz:</b> Unter <b>Einstellungen › Tastensymbole</b> die Tastenknöpfe ausschalten. Dann verschwindet die graue Leiste am unteren Rand.</li>
+            <li><b>USB-Debugging wieder aus?</b> Kannst du nach der Installation in den Developer Options ausschalten. Für spätere Updates einfach wieder einschalten.</li>
+            <li><b>App wieder loswerden:</b> <b>Einstellungen › Apps › Karoo Fun › Deinstallieren</b>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <details class="trouble">
+        <summary>🆘 Hilfe, es klappt nicht</summary>
+        <div>
+          <p><b>„adb“ wird nicht gefunden / „command not found“ / „ist nicht als Befehl erkannt“</b><br>
+            Das schwarze Fenster ist im falschen Ordner. Schritt 4 noch einmal machen. Unter Windows in PowerShell statt cmd muss es <code>.\adb devices</code> heißen.</p>
+          <p><b>Bei <code>adb devices</code> erscheint kein Gerät</b><br>
+            Fast immer liegt es am Kabel: anderes Kabel probieren, am besten das Original. Anderen USB-Anschluss am Computer nehmen.
+            Prüfen, ob USB-Debugging (Schritt 2) wirklich an ist. Karoo einmal ab- und wieder anstecken.</p>
+          <p><b>„unauthorized“</b><br>Auf dem Karoo die Frage „USB-Debugging zulassen?“ mit OK bestätigen. Kam keine Frage? Kabel ab- und wieder anstecken.</p>
+          <p><b>„INSTALL_FAILED_UPDATE_INCOMPATIBLE“</b><br>
+            Es ist schon eine anders signierte Version drauf. Erst entfernen mit <code>adb uninstall de.karoofun.karoo</code> (Mac: <code>./adb …</code>), dann Schritt 6 wiederholen.</p>
+          <p><b>Mac meldet, das Programm sei von einem „nicht verifizierten Entwickler“</b><br>
+            In <b>Systemeinstellungen › Datenschutz &amp; Sicherheit</b> ganz unten bei adb auf <b>Trotzdem erlauben</b> klicken und den Befehl noch einmal eintippen.</p>
+        </div>
+      </details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="big outline">Zack! Bumm! Losfahren!</div>
+    <p>Karoo Fun · Extension für den Hammerhead Karoo 3</p>
+  </div>
+</footer>
+
+</body>
+</html>

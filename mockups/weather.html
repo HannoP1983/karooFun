@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Karoo Fun – Wetter, Tageszeit und Windsack</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #2b2b2b; color: #eee; font-family: "Chalkboard SE", sans-serif; padding: 24px; width: 1280px; }
+  h1 { font-size: 26px; margin-bottom: 4px; }
+  h2 { font-size: 20px; margin: 22px 0 4px; color: #FFD23F; }
+  p.note { font-size: 14px; color: #bbb; margin-bottom: 10px; max-width: 1220px; }
+  .grid { display: grid; grid-template-columns: 110px repeat(4, 262px); gap: 10px 12px; align-items: center; }
+  .grid .head { font-size: 15px; color: #FFD23F; text-align: center; }
+  .grid .rowlabel { font-size: 15px; color: #ddd; }
+  .frame { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 12px; color: #aaa; }
+  svg { display: block; }
+</style>
+</head>
+<body>
+<h1>Temperatur-Zelle: Wetter × Tageszeit, plus Windsack</h1>
+<p class="note">Wetter alle 15 min über die Companion-App (Open-Meteo), Sonne und Mond weiter aus GPS und Uhrzeit. Ohne Verbindung bleibt einfach der klare Himmel. Zelle 239 × 160 px, hier 1,08×. Deko immer unter der Zahl.</p>
+<div id="out"></div>
+<script>
+const INK = '#1F2328', W = 239, H = 160;
+const st = (fill, w = 3) => `fill="${fill}" stroke="${INK}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"`;
+const circle = (cx, cy, r, fill, w = 3) => `<circle cx="${cx}" cy="${cy}" r="${r}" ${st(fill, w)}/>`;
+let uid = 0;
+
+function tag(text) {
+  const w = text.length * 11 + 22;
+  return `<g transform="rotate(-3 50 24)"><rect x="10" y="8" width="${w}" height="30" rx="12" fill="${INK}" transform="translate(3,3)"/>
+    <rect x="10" y="8" width="${w}" height="30" rx="12" ${st('#FFF6D6')}/>
+    <text x="${10 + w / 2}" y="30" text-anchor="middle" font-family="Chalkboard SE" font-weight="bold" font-size="20" fill="${INK}">${text}</text></g>`;
+}
+function bigNumber(whole, dec) {
+  const t = `<tspan>${whole}</tspan><tspan font-size="58">${dec}</tspan><tspan font-size="30">°</tspan>`;
+  const base = `x="${W / 2}" y="106" text-anchor="middle" font-family="Arial Rounded MT Bold" font-size="96" letter-spacing="-2"`;
+  return `<text ${base} fill="${INK}" stroke="${INK}" stroke-width="10" stroke-linejoin="round" transform="translate(6,6)">${t}</text>
+    <text ${base} fill="${INK}" stroke="${INK}" stroke-width="10" stroke-linejoin="round">${t}</text><text ${base} fill="#fff">${t}</text>`;
+}
+function sky(stops) {
+  const id = 'g' + (uid++);
+  return `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">${stops.map(([o, c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient></defs><rect width="${W}" height="${H}" fill="url(#${id})"/>`;
+}
+function halftone() {
+  const id = 'd' + (uid++);
+  return `<pattern id="${id}" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.3" fill="rgba(0,0,0,.08)"/></pattern><rect width="${W}" height="${H}" fill="url(#${id})"/>`;
+}
+function sun(cx, cy, r, color, rays, f = 0) {
+  let s = '';
+  for (let k = 0; k < 10; k++) {
+    const a = k * Math.PI / 5 + f * Math.PI / 20;
+    s += `<line x1="${cx}" y1="${cy}" x2="${cx + rays * Math.cos(a)}" y2="${cy + rays * Math.sin(a)}" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>`;
+  }
+  return s + circle(cx, cy, r, color, 3.5);
+}
+function moon(cx, cy, r, phase = 0.3) {
+  const k = Math.cos(2 * Math.PI * phase), rx = Math.abs(k) * r, sweep = k > 0 ? 0 : 1;
+  return `<circle cx="${cx + 3}" cy="${cy + 3}" r="${r}" fill="${INK}"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="#55618A"/>
+    <path d="M${cx},${cy - r} A${r},${r} 0 0 1 ${cx},${cy + r} A${rx},${r} 0 0 ${sweep} ${cx},${cy - r} Z" fill="#FFF4C2"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${INK}" stroke-width="3"/>`;
+}
+function star(x, y, r, on) {
+  const p = [];
+  for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4 - Math.PI / 2, rr = k % 2 ? r * 0.4 : r; p.push(`${x + rr * Math.cos(a)},${y + rr * Math.sin(a)}`); }
+  return `<polygon points="${p.join(' ')}" fill="${on ? '#FFF6C9' : '#C9D3F2'}" stroke="${INK}" stroke-width="1.8" stroke-linejoin="round"/>`;
+}
+function stars(n = 7, f = 0) {
+  return [[100, 14, 5], [138, 30, 4], [165, 10, 3.5], [20, 128, 4], [214, 132, 3.5], [120, 150, 3], [66, 146, 3.5]].slice(0, n)
+    .map(([x, y, r], i) => star(x, y, (i + f) % 3 === 0 ? r * 1.4 : r, (i + f) % 3 === 0)).join('');
+}
+function hills(front, back) {
+  return `<path d="M-2,${H + 2} L-2,${H - 26} C30,${H - 40} 60,${H - 38} 95,${H - 24} C130,${H - 12} 170,${H - 44} ${W + 2},${H - 30} L${W + 2},${H + 2} Z" ${st(back)}/>
+    <path d="M-2,${H + 2} L-2,${H - 12} C40,${H - 24} 80,${H - 6} 120,${H - 14} C160,${H - 22} 200,${H - 10} ${W + 2},${H - 16} L${W + 2},${H + 2} Z" ${st(front)}/>`;
+}
+/* Fluffy comic cloud, (x, y) = bottom left, k = scale */
+function cloud(x, y, fill = '#fff', k = 1) {
+  return `<path transform="translate(${x},${y}) scale(${k})" d="M8,0 C0,0 0,-10 8,-10 C8,-20 23,-22 26,-13 C31,-21 46,-18 44,-8 C54,-8 54,0 46,0 Z" ${st(fill, 3 / k)}/>`;
+}
+/* Big cloud bank across the top right, for overcast/rain/thunder */
+function cloudBank(fill, shade) {
+  return `<path d="M96,40 C86,40 84,26 96,24 C94,10 112,4 122,12 C128,-2 152,-4 160,8 C170,-4 196,-2 200,12 C214,6 236,12 234,28 C246,30 246,46 232,46 L104,46 C96,46 92,42 96,40 Z" ${st(fill)}/>
+    <path d="M110,44 C130,38 150,46 170,40 C190,46 212,38 230,44" fill="none" stroke="${shade}" stroke-width="4" stroke-linecap="round"/>`;
+}
+function rain(f, color = '#DDF3FF', heavy = false) {
+  let s = '';
+  const cols = heavy ? [104, 124, 144, 164, 184, 204, 224, 18] : [108, 134, 160, 186, 212, 232, 20];
+  cols.forEach((x, i) => {
+    for (let j = 0; j < 3; j++) {
+      const y = 52 + j * 36 + ((f * 14 + i * 13) % 36);
+      if (y > H - 10) continue;
+      s += `<path d="M${x - j * 5},${y} q6,10 0,14 q-6,-4 0,-14 z" fill="${color}" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>`;
+    }
+  });
+  return s;
+}
+function snowflake(x, y, r) {
+  let d = '';
+  for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; d += `M${x},${y} L${x + r * Math.cos(a)},${y + r * Math.sin(a)} `; }
+  return `<path d="${d}" stroke="${INK}" stroke-width="${Math.max(3.5, r * 0.34)}" stroke-linecap="round"/><path d="${d}" stroke="#fff" stroke-width="${Math.max(1.5, r * 0.16)}" stroke-linecap="round"/>`;
+}
+function snow(f) {
+  return [[112, 62, 6], [140, 80, 5], [170, 60, 7], [200, 78, 5], [226, 64, 6], [130, 120, 5], [214, 118, 6], [20, 70, 5], [26, 132, 6]]
+    .map(([x, y, r], i) => snowflake(x - (f % 2) * 3, y + ((f + i) % 3) * 6, r)).join('');
+}
+function bolt(x, y, on) {
+  return on ? `<path d="M${x},${y} l-16,34 h13 l-11,34 l30,-44 h-14 l12,-24 z" ${st('#FFE14D', 3)}/>` : '';
+}
+function fog(f) {
+  return [[54, 0.5], [70, 0.4], [120, 0.55], [136, 0.45]].map(([y, o], i) =>
+    `<path d="M${-10 + ((f + i) % 2) * 8},${y} h${W + 20}" stroke="rgba(255,255,255,${o})" stroke-width="10" stroke-linecap="round" stroke-dasharray="${60 + i * 10} 18"/>`).join('');
+}
+
+/* Windsock: pole at (px, H), stripes red/white; speed in km/h sets how far it lifts, dir 1 = sock points right (tailwind), -1 = left (headwind), 0 = crosswind (foreshortened) */
+function windsock(px, speed, dir, f = 0) {
+  const top = H - 34;
+  const lift = Math.min(1, speed / 28);
+  const flutter = [0, 4, -2, 3][f % 4] * (speed > 3 ? 1 : 0);
+  const angle = 45 * (1 - lift) + flutter;
+  const len = dir === 0 ? 32 : 50;
+  const sx = dir === -1 ? -1 : 1;
+  let s = `<line x1="${px}" y1="${H + 2}" x2="${px}" y2="${top - 6}" stroke="${INK}" stroke-width="6" stroke-linecap="round"/>
+    <line x1="${px}" y1="${H + 2}" x2="${px}" y2="${top - 6}" stroke="#C9CED6" stroke-width="2.5" stroke-linecap="round"/>
+    ${circle(px, top - 7, 3.5, '#E53935', 2)}`;
+  let g = '';
+  const r0 = 9, r1 = 5;
+  for (let i = 0; i < 5; i++) {
+    const a = i / 5, b = (i + 1) / 5;
+    const ra = r0 + (r1 - r0) * a, rb = r0 + (r1 - r0) * b;
+    const wav = (t) => Math.sin((t * 3 + f) * 2) * 1.5 * lift;
+    g += `<path d="M${a * len},${-ra + wav(a)} L${b * len},${-rb + wav(b)} L${b * len},${rb + wav(b)} L${a * len},${ra + wav(a)} Z" fill="${i % 2 ? '#fff' : '#E53935'}" stroke="${INK}" stroke-width="2.4" stroke-linejoin="round"/>`;
+  }
+  g += `<ellipse cx="${len}" cy="0" rx="2.2" ry="${r1}" fill="#8A1F1C" stroke="${INK}" stroke-width="2"/>`;
+  s += `<g transform="translate(${px},${top}) scale(${sx},1) rotate(${angle})">${g}<line x1="0" y1="${-r0}" x2="0" y2="${r0}" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/></g>`;
+  if (speed >= 20) for (const [dx, dy, l] of [[60, -8, 22], [66, 4, 16], [58, 14, 12]]) {
+    s += `<path d="M${px + sx * dx},${top + dy} q${sx * l / 2},-4 ${sx * l},0" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`;
+  }
+  return s;
+}
+
+/* ---------- Tageszeit-Grundhimmel, abgedunkelt je nach Wetter ---------- */
+const BASE = {
+  day:     { clear: [[0, '#FFD23F'], [1, '#FFD23F']], cloudy: [[0, '#BFD2E0'], [1, '#A3B6C6']], rain: [[0, '#8C9AAB'], [1, '#6E7E92']], storm: [[0, '#4F5566'], [1, '#353A48']] },
+  evening: { clear: [[0, '#FF9F45'], [0.6, '#FF7A59'], [1, '#F2566B']], cloudy: [[0, '#B88C9E'], [1, '#D98A7A']], rain: [[0, '#7A6A85'], [1, '#9A6E78']], storm: [[0, '#3F3550'], [1, '#5A3A4E']] },
+  night:   { clear: [[0, '#14203F'], [1, '#2D3F72']], cloudy: [[0, '#1E2638'], [1, '#33405A']], rain: [[0, '#1A202E'], [1, '#2B3445']], storm: [[0, '#14161F'], [1, '#262A38']] },
+};
+const CLOUD = { day: ['#fff', '#DCE3EA'], evening: ['#F4D3D9', '#D6A8B6'], night: ['#8592BA', '#5E6A8F'] };
+
+function celestial(time, f, hidden = false) {
+  if (hidden) return '';
+  if (time === 'day') return sun(W - 32, 30, 25, '#FF9F1C', 46, f);
+  if (time === 'evening') return sun(W - 34, H - 30, 30, '#FF4E1F', 38, f);
+  return stars(7, f) + moon(W - 35, 32, 21);
+}
+const WEATHER = {
+  clear: (t, f) => sky(BASE[t].clear) + celestial(t, f) + (t === 'evening' ? hills('#8A3E6B', '#B4507A') : cloud(8, H - 8, CLOUD[t][0])),
+  partly: (t, f) => sky(BASE[t].clear) + celestial(t, f) + (t === 'evening' ? hills('#8A3E6B', '#B4507A') : '') + cloud(W - 92, 52, CLOUD[t][0], 1.3) + cloud(110, 26, CLOUD[t][0], 0.9) + cloud(8, H - 8, CLOUD[t][0]),
+  overcast: (t, f) => sky(BASE[t].cloudy) + (t === 'evening' ? hills('#6E4A66', '#8A5E7E') : '') + cloudBank(CLOUD[t][0], CLOUD[t][1]) + cloud(8, H - 8, CLOUD[t][0]),
+  rain: (t, f) => sky(BASE[t].rain) + rain(f, t === 'night' ? '#9CC4F0' : '#DDF3FF') + cloudBank(t === 'night' ? '#5E6A8F' : '#C7CFD8', t === 'night' ? '#46506F' : '#9AA6B4'),
+  storm: (t, f) => sky(BASE[t].storm) + rain(f, '#9CC4F0', true) + cloudBank('#6B7180', '#4E5360') + bolt(222, 40, f % 2 === 0),
+  snow: (t, f) => sky(BASE[t].cloudy) + cloudBank(CLOUD[t][0], CLOUD[t][1]) + snow(f) + `<path d="M-2,${H + 2} L-2,${H - 14} C60,${H - 24} 140,${H - 6} ${W + 2},${H - 18} L${W + 2},${H + 2} Z" ${st('#fff')}/>`,
+  fog: (t, f) => sky(BASE[t].cloudy) + celestial(t, f).replace(/<circle/g, '<circle opacity=".55"').replace(/<line/g, '<line opacity=".35"') + fog(f),
+};
+const ROWS = [['clear', 'Klar'], ['partly', 'Leicht bewölkt'], ['overcast', 'Bedeckt'], ['rain', 'Regen'], ['storm', 'Gewitter'], ['snow', 'Schnee'], ['fog', 'Nebel']];
+const TIMES = [['day', 'Tag'], ['evening', 'Abend'], ['night', 'Nacht']];
+
+function cell(inner, num = ['14', ',6'], scale = 1.08) {
+  return `<svg width="${W * scale}" height="${H * scale}" viewBox="0 0 ${W} ${H}">${inner}${halftone()}${tag('Temp')}${bigNumber(...num)}
+    <rect x="1.5" y="1.5" width="${W - 3}" height="${H - 3}" fill="none" stroke="${INK}" stroke-width="3" rx="4"/></svg>`;
+}
+
+let html = `<h2>Wetter × Tageszeit</h2><p class="note">Sonne bzw. Mond verschwinden hinter Wolken, der Himmel wird grauer. Regen- und Schneeflocken fallen pro Sekunde ein Stück weiter, der Blitz blinkt jede zweite Sekunde. Die vierte Spalte zeigt Frame 1 der Tag-Variante.</p><div class="grid"><div></div>`;
+html += TIMES.map(([, l]) => `<div class="head">${l}</div>`).join('') + `<div class="head">Tag · nächster Frame</div>`;
+for (const [w, label] of ROWS) {
+  html += `<div class="rowlabel">${label}</div>`;
+  for (const [t] of TIMES) html += `<div class="frame">${cell(WEATHER[w](t, 0), w === 'snow' ? ['−1', ',4'] : ['14', ',6'])}</div>`;
+  html += `<div class="frame">${cell(WEATHER[w]('day', 1), w === 'snow' ? ['−1', ',4'] : ['14', ',6'])}</div>`;
+}
+html += '</div>';
+
+if (location.hash === '#wind') html = '';
+html += `<h2>Windsack (rot-weiß, wie am Flughafen)</h2><p class="note">Im freien Streifen unter der Zahl, damit ihn die Ziffern nie verdecken. Wie beim echten Windsack: je mehr Wind, desto waagerechter. Ab ~28 km/h steht er voll, darunter hängt er schräg durch. Mit der Fahrtrichtung vom GPS: Rückenwind = Sack zeigt nach rechts (in Fahrtrichtung), Gegenwind = nach links, Seitenwind = verkürzt. Flattert pro Sekunde leicht. Unter ~5 km/h wird er nicht gezeigt.</p><div class="grid" style="grid-template-columns: repeat(4, 262px)">`;
+const winds = [
+  [8, 1, 'Rückenwind 8 km/h', 'day', 'clear'], [18, 1, 'Rückenwind 18 km/h', 'day', 'partly'], [32, 1, 'Rückenwind 32 km/h', 'day', 'overcast'], [32, -1, 'Gegenwind 32 km/h', 'day', 'overcast'],
+  [20, 0, 'Seitenwind 20 km/h', 'day', 'clear'], [25, -1, 'Gegenwind 25 km/h · Abend', 'evening', 'clear'], [24, -1, 'Gegenwind · Regen', 'day', 'rain'], [30, 1, 'Rückenwind · Nacht', 'night', 'partly'],
+];
+for (const [v, dir, label, t, w] of winds) {
+  let inner = WEATHER[w](t, 0).replace(cloud(8, H - 8, CLOUD[t][0]), '');
+  html += `<div class="frame">${cell(inner + windsock(dir === -1 ? W - 26 : 26, v, dir, 0))}<span>${label}</span></div>`;
+}
+html += '</div>';
+document.getElementById('out').innerHTML = html;
+</script>
+</body>
+</html>

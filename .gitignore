@@ -1,0 +1,13 @@
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+.kotlin/
+.claude/settings.local.json
+.DS_Store
+.claude/
+
+# Raw emulator screenshots; the sheet*.png overviews are kept
+mockups/device_*/*.png
+!mockups/device_*/sheet*.png

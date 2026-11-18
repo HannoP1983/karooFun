@@ -14,6 +14,13 @@ data class Rider(val units: Units = Units(), val zoneStarts: List<Int> = emptyLi
         if (settings.ownZones) heartRateZone(it, settings.zoneStarts, settings.maxHr) else heartRateZone(it, zoneStarts, maxHr)
     }
 
+    /** Max heart rate the zones are based on, with the same fallback as [heartRateZone]. */
+    fun maxHr(settings: FunSettings): Int = when {
+        settings.ownZones -> settings.maxHr
+        maxHr >= MIN_MAX_HR -> maxHr
+        else -> DEFAULT_MAX_HR
+    }
+
     companion object {
         fun from(profile: UserProfile?): Rider {
             if (profile == null) return Rider()
@@ -45,6 +52,8 @@ fun Context.dashboardTexts() = DashboardTexts(
     profile = getString(R.string.field_profile),
     zone = getString(R.string.zone_short),
 )
+
+fun Context.fieldLabels() = ComicField.entries.associateWith { getString(it.labelRes) }
 
 fun Context.radarTexts() = RadarTexts(
     title = getString(R.string.radar_title),

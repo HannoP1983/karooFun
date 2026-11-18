@@ -56,5 +56,5 @@ fun heartRateZone(heartRate: Double, zoneStarts: List<Int>, maxHr: Int): Int {
 /** Rounded percentage in integer math, so 70 % of 175 is 123 and not 122 from 122.4999… */
 fun percentOf(value: Int, percent: Int) = (value * percent + 50) / 100
 
-private const val MIN_MAX_HR = 100
-private const val DEFAULT_MAX_HR = 175
+const val MIN_MAX_HR = 100
+const val DEFAULT_MAX_HR = 175

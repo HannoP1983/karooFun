@@ -13,8 +13,14 @@ import java.util.concurrent.atomic.AtomicInteger
 data class RideSnapshot(
     val speed: Double? = null,
     val averageSpeed: Double? = null,
+    val maxSpeed: Double? = null,
     val temperature: Double? = null,
     val heartRate: Double? = null,
+    val averageHeartRate: Double? = null,
+    val maxHeartRate: Double? = null,
+    val cadence: Double? = null,
+    val averageCadence: Double? = null,
+    val maxCadence: Double? = null,
     val distance: Double? = null,
     val points: List<ProfilePoint> = emptyList(),
     val elevation: Double? = null,
@@ -71,9 +77,21 @@ object RideStore {
 
     fun onAverageSpeed(speed: Double) = _state.update { it.copy(averageSpeed = speed) }
 
+    fun onMaxSpeed(speed: Double) = _state.update { it.copy(maxSpeed = speed) }
+
     fun onTemperature(temperature: Double) = _state.update { it.copy(temperature = temperature) }
 
     fun onHeartRate(heartRate: Double) = _state.update { it.copy(heartRate = heartRate) }
+
+    fun onAverageHeartRate(heartRate: Double) = _state.update { it.copy(averageHeartRate = heartRate) }
+
+    fun onMaxHeartRate(heartRate: Double) = _state.update { it.copy(maxHeartRate = heartRate) }
+
+    fun onCadence(cadence: Double) = _state.update { it.copy(cadence = cadence) }
+
+    fun onAverageCadence(cadence: Double) = _state.update { it.copy(averageCadence = cadence) }
+
+    fun onMaxCadence(cadence: Double) = _state.update { it.copy(maxCadence = cadence) }
 
     fun onAscent(ascent: Double) = _state.update { it.copy(ascent = ascent) }
 

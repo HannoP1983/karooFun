@@ -19,6 +19,7 @@ Wie die App per USB-Kabel auf den Karoo kommt, steht Schritt für Schritt auf de
 
 - **Comic-Cockpit** (eine ganze Fahrtseite): Tempo mit Schnitt, Hase oder Schnecke · Temperatur mit Sonnenstand, Mondphase, Wetter und Windsack · Puls nach Zonen · Distanz · live wachsendes Höhenprofil nach Steigung eingefärbt
 - **Comic-Aktionen**, die kurz den ganzen Bildschirm übernehmen: „Pokal oder Spital?!“ bei schnellen Abfahrten, „You're on fire!“ bei Vollgas, „Party-Pace wins the race!“ beim konstanten Fahren
+- **Einzelfelder** im Comic-Stil zum Selberbauen eigener Seiten, gemacht für 2 × 4: Geschwindigkeit (aktuell, Ø, Max), Distanz, Höhenprofil, Herzfrequenz (aktuell, Ø, Zone, Max, % Max), Trittfrequenz (aktuell, Ø, Max) und Temperatur mit Wetter. Im Karoo beim Seitenbau unter „Karoo Fun“, nach Kategorie sortiert
 - **Regenradar** (eigene Kachel): DWD-Radar auf einer grauen Deutschlandkarte, Zoom mit + und −, Prognose für die nächste Stunde in 10-Minuten-Schritten, Ansage für deinen Standort
 - **Einstellungen** am Karoo unter Einstellungen › Apps › Karoo Fun › Öffnen
 

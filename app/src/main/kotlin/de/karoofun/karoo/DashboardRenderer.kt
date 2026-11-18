@@ -3,6 +3,8 @@ package de.karoofun.karoo
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.LinearGradient
+import android.graphics.Matrix
+import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RadialGradient
 import android.graphics.RectF
@@ -55,33 +57,10 @@ class DashboardRenderer(texts: DashboardTexts, units: Units) {
         c.clipPath(Path().apply { addRoundRect(RectF(0f, 0f, w, h), CORNER, CORNER, Path.Direction.CW) })
 
         // Region fills
-        val above = isAboveAverage(data)
-        fill(c, Path().apply { moveTo(0f, 0f); lineTo(top.x0, 0f); top.forward(this); left.backward(this); close() }) {
-            color = when (above) { true -> 0xFF3FBF66.toInt(); false -> 0xFFF2564B.toInt(); null -> 0xFF8FA3B8.toInt() }
-        }
+        fill(c, Path().apply { moveTo(0f, 0f); lineTo(top.x0, 0f); top.forward(this); left.backward(this); close() }) { color = speedColor(data) }
         fill(c, Path().apply { moveTo(top.x0, 0f); lineTo(w, 0f); lineTo(w, right.y1); right.backward(this); top.backward(this); close() }) {
-            val dark = sky?.dark == true
-            val condition = weather?.condition ?: Condition.CLEAR
-            val grey = GREY_SKIES[condition]?.getValue(sky.daylight)
-            val state = tempState(data.temperature)
-            if (grey != null && (state == TempState.NORMAL || state == TempState.HOT && condition.wet)) {
-                shader = vertical(my, grey.first, grey.second)
-                return@fill
-            }
-            when (state) {
-                TempState.FREEZE -> shader = if (dark) vertical(my, 0xFF14203F.toInt(), 0xFF3A5A8C.toInt())
-                    else vertical(my, 0xFFE3F6FF.toInt(), 0xFF7FCBF0.toInt())
-                TempState.HOT -> shader = if (dark) vertical(my, 0xFF2A1E4A.toInt(), 0xFF7A2E3A.toInt())
-                    else RadialGradient(cx + (w - cx) * 0.55f, my, w * 0.5f,
-                        intArrayOf(0xFFFFC23D.toInt(), 0xFFFF7A2E.toInt(), 0xFFE9452E.toInt()), floatArrayOf(0f, 0.55f, 1f), Shader.TileMode.CLAMP)
-                TempState.NORMAL -> when (sky?.phase ?: SkyPhase.DAY) {
-                    SkyPhase.DAY -> color = 0xFFFFD23F.toInt()
-                    SkyPhase.LOW_SUN -> shader = vertical(my, 0xFFFFD866.toInt(), 0xFFFFB347.toInt())
-                    SkyPhase.GOLDEN -> shader = vertical(my, 0xFFFF9F45.toInt(), 0xFFFF7A59.toInt(), 0xFFF2566B.toInt(), middle = 0.6f)
-                    SkyPhase.DUSK -> shader = vertical(my, 0xFF3D3A8C.toInt(), 0xFF8E4B9C.toInt(), 0xFFFF8A65.toInt(), middle = 0.55f)
-                    SkyPhase.NIGHT -> shader = vertical(my, 0xFF14203F.toInt(), 0xFF2D3F72.toInt())
-                }
-            }
+            skyPaint(this, w - cx, my, data, sky, weather)
+            shader?.setLocalMatrix(Matrix().apply { setTranslate(cx, 0f) })
         }
         val lowerEdge: (Path) -> Unit = { p -> if (withProfile) profileLeft.backward(p) else { p.lineTo(bottom.x1, h); p.lineTo(0f, h) } }
         fill(c, Path().apply { moveTo(0f, left.y0); left.forward(this); bottom.forward(this); lowerEdge(this); close() }) {
@@ -91,13 +70,13 @@ class DashboardRenderer(texts: DashboardTexts, units: Units) {
             moveTo(cx, my); right.forward(this)
             if (withProfile) { lineTo(w, profileRight.y1); profileRight.backward(this) } else { lineTo(w, h); lineTo(bottom.x1, h) }
             bottom.backward(this); close()
-        }) { color = 0xFFA884F3.toInt() }
+        }) { color = DISTANCE_COLOR }
 
         val profileArea = RectF(0f, mh, w, h)
         val grades = if (data.points.size >= 2) smoothedGrades(data.points) else DoubleArray(0)
         if (withProfile) {
             fill(c, Path().apply { moveTo(0f, profileLeft.y0); profileLeft.forward(this); profileRight.forward(this); lineTo(w, h); lineTo(0f, h); close() }) {
-                shader = LinearGradient(0f, mh, 0f, h, 0xFF6EC3FF.toInt(), 0xFFCFEBFF.toInt(), Shader.TileMode.CLAMP)
+                shader = profileSky(mh, h)
             }
             profile.drawFills(c, profileArea, data, grades, frame)
         }
@@ -125,14 +104,7 @@ class DashboardRenderer(texts: DashboardTexts, units: Units) {
         c.drawRoundRect(RectF(BORDER / 2, BORDER / 2, w - BORDER / 2, h - BORDER / 2), CORNER, CORNER, comic.stroke)
     }
 
-    /** Top-to-bottom sky gradient over the upper cells, optionally with a third color at [middle]. */
-    private fun vertical(bottom: Float, top: Int, vararg below: Int, middle: Float = 0.5f): Shader {
-        val colors = intArrayOf(top, *below)
-        val positions = if (colors.size == 3) floatArrayOf(0f, middle, 1f) else null
-        return LinearGradient(0f, 0f, 0f, bottom, colors, positions, Shader.TileMode.CLAMP)
-    }
-
-    private inline fun fill(c: Canvas, path: Path, setup: android.graphics.Paint.() -> Unit) {
+    private inline fun fill(c: Canvas, path: Path, setup: Paint.() -> Unit) {
         comic.fill.shader = null
         comic.fill.setup()
         c.drawPath(path, comic.fill)
@@ -140,6 +112,54 @@ class DashboardRenderer(texts: DashboardTexts, units: Units) {
     }
 
     companion object {
+        /**
+         * Background of the temperature cell in cell coordinates ([w] × [h]): sky by time of day, grey when the
+         * weather is, ice blue in frost and a glowing furnace in the heat.
+         */
+        fun skyPaint(paint: Paint, w: Float, h: Float, data: RideSnapshot, sky: Sky?, weather: Weather?) {
+            val dark = sky?.dark == true
+            val condition = weather?.condition ?: Condition.CLEAR
+            val grey = GREY_SKIES[condition]?.getValue(sky.daylight)
+            val state = tempState(data.temperature)
+            if (grey != null && (state == TempState.NORMAL || state == TempState.HOT && condition.wet)) {
+                paint.shader = vertical(h, grey.first, grey.second)
+                return
+            }
+            when (state) {
+                TempState.FREEZE -> paint.shader = if (dark) vertical(h, 0xFF14203F.toInt(), 0xFF3A5A8C.toInt())
+                    else vertical(h, 0xFFE3F6FF.toInt(), 0xFF7FCBF0.toInt())
+                TempState.HOT -> paint.shader = if (dark) vertical(h, 0xFF2A1E4A.toInt(), 0xFF7A2E3A.toInt())
+                    else RadialGradient(w * 0.55f, h, w,
+                        intArrayOf(0xFFFFC23D.toInt(), 0xFFFF7A2E.toInt(), 0xFFE9452E.toInt()), floatArrayOf(0f, 0.55f, 1f), Shader.TileMode.CLAMP)
+                TempState.NORMAL -> when (sky?.phase ?: SkyPhase.DAY) {
+                    SkyPhase.DAY -> paint.color = 0xFFFFD23F.toInt()
+                    SkyPhase.LOW_SUN -> paint.shader = vertical(h, 0xFFFFD866.toInt(), 0xFFFFB347.toInt())
+                    SkyPhase.GOLDEN -> paint.shader = vertical(h, 0xFFFF9F45.toInt(), 0xFFFF7A59.toInt(), 0xFFF2566B.toInt(), middle = 0.6f)
+                    SkyPhase.DUSK -> paint.shader = vertical(h, 0xFF3D3A8C.toInt(), 0xFF8E4B9C.toInt(), 0xFFFF8A65.toInt(), middle = 0.55f)
+                    SkyPhase.NIGHT -> paint.shader = vertical(h, 0xFF14203F.toInt(), 0xFF2D3F72.toInt())
+                }
+            }
+        }
+
+        /** Background of the speed cell: green above the average, red below, grey without one. */
+        fun speedColor(data: RideSnapshot) = when (isAboveAverage(data)) {
+            true -> 0xFF3FBF66.toInt()
+            false -> 0xFFF2564B.toInt()
+            null -> 0xFF8FA3B8.toInt()
+        }
+
+        const val DISTANCE_COLOR = 0xFFA884F3.toInt()
+
+        /** Sky behind the elevation profile. */
+        fun profileSky(top: Float, bottom: Float): Shader = LinearGradient(0f, top, 0f, bottom, 0xFF6EC3FF.toInt(), 0xFFCFEBFF.toInt(), Shader.TileMode.CLAMP)
+
+        /** Top-to-bottom sky gradient, optionally with a third color at [middle]. */
+        private fun vertical(bottom: Float, top: Int, vararg below: Int, middle: Float = 0.5f): Shader {
+            val colors = intArrayOf(top, *below)
+            val positions = if (colors.size == 3) floatArrayOf(0f, middle, 1f) else null
+            return LinearGradient(0f, 0f, 0f, bottom, colors, positions, Shader.TileMode.CLAMP)
+        }
+
         val ZONE_COLORS = intArrayOf(0xFFA9B3BF.toInt(), 0xFF4FA3F0.toInt(), 0xFF8BD13F.toInt(), 0xFFFF9F1C.toInt(), 0xFFF2564B.toInt())
         private const val MAX_PIXELS = 320_000f
 

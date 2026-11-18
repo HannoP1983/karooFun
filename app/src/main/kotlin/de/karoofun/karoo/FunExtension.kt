@@ -21,7 +21,8 @@ class FunExtension : KarooExtension("karoo-fun", "1") {
     private var recording: Job? = null
 
     override val types by lazy {
-        listOf(DashboardDataType(karooSystem, extension), RadarDataType(karooSystem, extension))
+        listOf(DashboardDataType(karooSystem, extension), RadarDataType(karooSystem, extension)) +
+            ComicField.entries.map { FieldDataType(karooSystem, extension, it) { FunSettings.load(this) } }
     }
 
     override fun onCreate() {
@@ -48,8 +49,14 @@ class FunExtension : KarooExtension("karoo-fun", "1") {
             DataType.Type.DISTANCE to RideStore::onDistance,
             DataType.Type.SPEED to RideStore::onSpeed,
             DataType.Type.AVERAGE_SPEED to RideStore::onAverageSpeed,
+            DataType.Type.MAX_SPEED to RideStore::onMaxSpeed,
             DataType.Type.TEMPERATURE to RideStore::onTemperature,
             DataType.Type.HEART_RATE to RideStore::onHeartRate,
+            DataType.Type.AVERAGE_HR to RideStore::onAverageHeartRate,
+            DataType.Type.MAX_HR to RideStore::onMaxHeartRate,
+            DataType.Type.CADENCE to RideStore::onCadence,
+            DataType.Type.AVERAGE_CADENCE to RideStore::onAverageCadence,
+            DataType.Type.MAX_CADENCE to RideStore::onMaxCadence,
             DataType.Type.ELEVATION_GAIN to RideStore::onAscent,
             DataType.Type.ELEVATION_GRADE to RideStore::onGrade,
         )

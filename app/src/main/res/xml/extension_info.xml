@@ -16,4 +16,88 @@
         graphical="true"
         icon="@drawable/ic_fun"
         typeId="rain-radar" />
+    <DataType
+        description="@string/field_now_speed_description"
+        displayName="@string/field_now_speed_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-speed" />
+    <DataType
+        description="@string/field_avg_speed_description"
+        displayName="@string/field_avg_speed_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-avg-speed" />
+    <DataType
+        description="@string/field_max_speed_description"
+        displayName="@string/field_max_speed_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-max-speed" />
+    <DataType
+        description="@string/field_now_distance_description"
+        displayName="@string/field_now_distance_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-distance" />
+    <DataType
+        description="@string/field_now_profile_description"
+        displayName="@string/field_now_profile_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-elevation" />
+    <DataType
+        description="@string/field_now_hr_description"
+        displayName="@string/field_now_hr_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-heart-rate" />
+    <DataType
+        description="@string/field_avg_hr_description"
+        displayName="@string/field_avg_hr_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-avg-hr" />
+    <DataType
+        description="@string/field_hr_zone_description"
+        displayName="@string/field_hr_zone_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-hr-zone" />
+    <DataType
+        description="@string/field_max_hr_description"
+        displayName="@string/field_max_hr_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-max-hr" />
+    <DataType
+        description="@string/field_percent_max_hr_description"
+        displayName="@string/field_percent_max_hr_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-percent-max-hr" />
+    <DataType
+        description="@string/field_cadence_description"
+        displayName="@string/field_cadence_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-cadence" />
+    <DataType
+        description="@string/field_avg_cadence_description"
+        displayName="@string/field_avg_cadence_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-avg-cadence" />
+    <DataType
+        description="@string/field_max_cadence_description"
+        displayName="@string/field_max_cadence_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-max-cadence" />
+    <DataType
+        description="@string/field_now_temperature_description"
+        displayName="@string/field_now_temperature_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-temperature" />
 </ExtensionInfo>

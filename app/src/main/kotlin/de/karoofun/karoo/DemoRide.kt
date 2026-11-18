@@ -7,11 +7,11 @@ import kotlin.math.sin
 
 /** Made-up alpine rides, shown while the user edits ride pages and in the previews. */
 object DemoRide {
-    enum class Scenario(val speedKmh: Double, val averageKmh: Double, val temperature: Double, val heartRate: Double, val km: Double) {
-        COLD(21.4, 24.8, -3.2, 128.0, 12.37),
-        NORMAL(26.3, 25.2, 14.6, 151.0, 41.05),
-        HOT(32.6, 27.1, 31.7, 176.0, 68.42),
-        DESCENT(72.4, 27.8, 18.3, 141.0, 52.6),
+    enum class Scenario(val speedKmh: Double, val averageKmh: Double, val temperature: Double, val heartRate: Double, val km: Double, val cadence: Double) {
+        COLD(21.4, 24.8, -3.2, 128.0, 12.37, 64.0),
+        NORMAL(26.3, 25.2, 14.6, 151.0, 41.05, 88.0),
+        HOT(32.6, 27.1, 31.7, 176.0, 68.42, 104.0),
+        DESCENT(72.4, 27.8, 18.3, 141.0, 52.6, 0.0),
     }
 
     private val profiles = HashMap<Scenario, List<ProfilePoint>>()
@@ -26,8 +26,14 @@ object DemoRide {
         return RideSnapshot(
             speed = scenario.speedKmh / 3.6,
             averageSpeed = scenario.averageKmh / 3.6,
+            maxSpeed = max(scenario.speedKmh, 68.4) / 3.6,
             temperature = scenario.temperature,
             heartRate = scenario.heartRate,
+            averageHeartRate = scenario.heartRate - 14,
+            maxHeartRate = max(scenario.heartRate, 171.0),
+            cadence = scenario.cadence,
+            averageCadence = 84.0,
+            maxCadence = max(scenario.cadence, 118.0),
             distance = scenario.km * 1000 + frame * scenario.speedKmh / 3.6,
             points = points,
             elevation = points.last().elevation,

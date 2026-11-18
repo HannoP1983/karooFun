@@ -144,7 +144,7 @@ class TakeoverArt(private val texts: TakeoverTexts) {
         c.translate(if (trophyBig) 14f else 24f, if (trophyBig) 14f else 24f)
         c.scale(if (trophyBig) 1.15f else 0.95f, if (trophyBig) 1.15f else 0.95f)
         c.rotate(if (trophyBig) -8f else -2f, 60f, 60f)
-        trophy(c)
+        comic.trophy(c)
         c.restore()
         c.save()
         c.translate(if (trophyBig) 318f else 304f, if (trophyBig) 52f else 40f)
@@ -182,20 +182,6 @@ class TakeoverArt(private val texts: TakeoverTexts) {
         val saying = texts.pokalSayings[variant % texts.pokalSayings.size]
         comic.bubble(c, saying, 40f, 420f, size = 18f, rotation = if (t % 2 == 1) -5f else -2f)
         c.restore()
-    }
-
-    private fun trophy(c: Canvas) {
-        val gold = 0xFFFFC72C.toInt()
-        comic.stroke.color = INK
-        comic.stroke.strokeWidth = 4f
-        c.drawPath(Path().apply { moveTo(30f, 24f); cubicTo(10f, 22f, 8f, 52f, 34f, 58f); moveTo(90f, 24f); cubicTo(110f, 22f, 112f, 52f, 86f, 58f) }, comic.stroke)
-        comic.sticker(c, Path().apply { moveTo(30f, 14f); lineTo(90f, 14f); lineTo(90f, 44f); cubicTo(90f, 70f, 74f, 84f, 60f, 86f); cubicTo(46f, 84f, 30f, 70f, 30f, 44f); close() }, gold, 4f)
-        comic.sticker(c, Path().apply { addRect(52f, 86f, 68f, 100f, Path.Direction.CW) }, gold, 4f)
-        comic.sticker(c, Path().apply { addRect(36f, 100f, 84f, 116f, Path.Direction.CW) }, 0xFFB8742A.toInt(), 4f)
-        comic.sticker(c, star(60f, 42f, 12f, 5f), Color.WHITE, 2.5f)
-        comic.stroke.color = 0xFFFFF1B0.toInt()
-        comic.stroke.strokeWidth = 5f
-        c.drawLine(40f, 22f, 40f, 44f, comic.stroke)
     }
 
     private fun ambulance(c: Canvas, t: Int) {
@@ -272,7 +258,7 @@ class TakeoverArt(private val texts: TakeoverTexts) {
                 c.save()
                 c.translate(cx + r * cos(a).toFloat(), cy + r * sin(a).toFloat() * 0.9f)
                 c.rotate(t * 40f + i * 30)
-                comic.sticker(c, star(0f, 0f, size, size * 0.3f, points = 4), if (i % 2 == 0) Color.WHITE else 0xFFFFE135.toInt(), 2f)
+                comic.sticker(c, comic.star(0f, 0f, size, size * 0.3f, points = 4), if (i % 2 == 0) Color.WHITE else 0xFFFFE135.toInt(), 2f)
                 c.restore()
             }
         }
@@ -487,17 +473,6 @@ class TakeoverArt(private val texts: TakeoverTexts) {
             val a = i / (spikes * 2f) * 2 * PI.toFloat() + rot
             val x = cx + r * cos(a)
             val y = cy + r * sin(a) * squash
-            if (i == 0) moveTo(x, y) else lineTo(x, y)
-        }
-        close()
-    }
-
-    private fun star(cx: Float, cy: Float, rOut: Float, rIn: Float, points: Int = 5) = Path().apply {
-        for (i in 0 until points * 2) {
-            val r = if (i % 2 == 0) rOut else rIn
-            val a = i / (points * 2f) * 2 * PI.toFloat() - PI.toFloat() / 2
-            val x = cx + r * cos(a)
-            val y = cy + r * sin(a)
             if (i == 0) moveTo(x, y) else lineTo(x, y)
         }
         close()

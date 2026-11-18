@@ -32,6 +32,7 @@ import kotlin.math.roundToInt
  * or "takeover" to fire a takeover on the ride page. "page" = radar shows the radar tile instead, fetched directly
  * from the internet, at "lat"/"lon" (default Munich) with "bearing"; tapping +/- zooms like on the Karoo.
  * "lang" (e.g. de) renders the texts in that language, "zoom" (CITY, REGION, OVERVIEW) sets the radar zoom.
+ * "page" = fields shows single comic fields on a 2 × 4 page, "fields" picks them (comma-separated ComicField names, default the first eight; "ELEVATION:2" spans both columns).
  * "save" writes the page as <save>.png to the app's external files dir once "save_tick" is reached, for the promo page.
  */
 class PreviewActivity : Activity() {
@@ -47,6 +48,7 @@ class PreviewActivity : Activity() {
             return
         }
         if (intent.getStringExtra("page") == "radar") return showRadar()
+        if (intent.getStringExtra("page") == "fields") return showFields()
         val scenario = DemoRide.Scenario.valueOf(intent.getStringExtra("scenario") ?: "NORMAL")
         val fixed = intent.getIntExtra("frame", -1)
         val time = intent.getStringExtra("time")?.split(":")?.let { (hour, minute) ->
@@ -76,6 +78,49 @@ class PreviewActivity : Activity() {
                 val bitmap = renderer.render(KAROO_WIDTH, KAROO_HEIGHT, data, rider.zone(data.heartRate, FunSettings.load(this@PreviewActivity)) ?: 1, frame, now)
                 image.setImageBitmap(bitmap)
                 saveIfRequested(bitmap, frame)
+                if (fixed < 0) {
+                    frame++
+                    handler.postDelayed(this, 1_000)
+                }
+            }
+        }
+        tick.run()
+    }
+
+    private fun showFields() {
+        val scenario = DemoRide.Scenario.valueOf(intent.getStringExtra("scenario") ?: "NORMAL")
+        val fixed = intent.getIntExtra("frame", -1)
+        val fields = intent.getStringExtra("fields")?.split(",")?.map { entry ->
+            val (name, span) = (entry.trim().split(":") + "1").let { it[0] to it[1].toInt() }
+            ComicField.valueOf(name) to span
+        } ?: ComicField.entries.take(8).map { it to 1 }
+        val context = texts()
+        val renderer = FieldRenderer(context.fieldLabels(), context.dashboardTexts(), Units(locale = Locale.GERMANY))
+        val rider = Rider(Units(locale = Locale.GERMANY))
+        val image = ImageView(this).apply { scaleType = ImageView.ScaleType.FIT_XY }
+        val screen = resources.displayMetrics.widthPixels
+        val root = FrameLayout(this).apply { setBackgroundColor(0xFF333333.toInt()) }
+        root.addView(image, FrameLayout.LayoutParams(screen, (screen * KAROO_HEIGHT / KAROO_WIDTH.toFloat()).roundToInt(), Gravity.CENTER))
+        setContentView(root)
+
+        val cellWidth = KAROO_WIDTH / 2
+        val cellHeight = KAROO_HEIGHT / 4
+        var frame = if (fixed >= 0) fixed else 0
+        val tick = object : Runnable {
+            override fun run() {
+                val data = DemoRide.snapshot(scenario, frame)
+                val settings = FunSettings.load(this@PreviewActivity)
+                val page = Bitmap.createBitmap(KAROO_WIDTH, KAROO_HEIGHT, Bitmap.Config.ARGB_8888)
+                val canvas = android.graphics.Canvas(page)
+                canvas.drawColor(0xFF000000.toInt())
+                var slot = 0
+                for ((field, span) in fields) {
+                    val cell = renderer.render(cellWidth * span, cellHeight, field, data, rider, settings, frame)
+                    canvas.drawBitmap(cell, (slot % 2 * cellWidth).toFloat(), (slot / 2 * cellHeight).toFloat(), null)
+                    slot += span
+                }
+                image.setImageBitmap(page)
+                saveIfRequested(page, frame)
                 if (fixed < 0) {
                     frame++
                     handler.postDelayed(this, 1_000)

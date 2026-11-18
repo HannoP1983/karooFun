@@ -10,6 +10,7 @@ import android.graphics.PathMeasure
 import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.Typeface
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
@@ -197,6 +198,32 @@ class Comic {
             cubicTo(cx + 44 * s, cy, cx + 30 * s, cy + 16 * s, cx, cy + 38 * s)
             close()
         }
+    }
+
+    fun star(cx: Float, cy: Float, rOut: Float, rIn: Float, points: Int = 5) = Path().apply {
+        for (i in 0 until points * 2) {
+            val r = if (i % 2 == 0) rOut else rIn
+            val a = i / (points * 2f) * 2 * PI.toFloat() - PI.toFloat() / 2
+            val x = cx + r * cos(a)
+            val y = cy + r * sin(a)
+            if (i == 0) moveTo(x, y) else lineTo(x, y)
+        }
+        close()
+    }
+
+    /** Golden trophy in a 120 × 116 box. Translate and scale the canvas to place it. */
+    fun trophy(c: Canvas) {
+        val gold = 0xFFFFC72C.toInt()
+        stroke.color = INK
+        stroke.strokeWidth = 4f
+        c.drawPath(Path().apply { moveTo(30f, 24f); cubicTo(10f, 22f, 8f, 52f, 34f, 58f); moveTo(90f, 24f); cubicTo(110f, 22f, 112f, 52f, 86f, 58f) }, stroke)
+        sticker(c, Path().apply { moveTo(30f, 14f); lineTo(90f, 14f); lineTo(90f, 44f); cubicTo(90f, 70f, 74f, 84f, 60f, 86f); cubicTo(46f, 84f, 30f, 70f, 30f, 44f); close() }, gold, 4f)
+        sticker(c, Path().apply { addRect(52f, 86f, 68f, 100f, Path.Direction.CW) }, gold, 4f)
+        sticker(c, Path().apply { addRect(36f, 100f, 84f, 116f, Path.Direction.CW) }, 0xFFB8742A.toInt(), 4f)
+        sticker(c, star(60f, 42f, 12f, 5f), Color.WHITE, 2.5f)
+        stroke.color = 0xFFFFF1B0.toInt()
+        stroke.strokeWidth = 5f
+        c.drawLine(40f, 22f, 40f, 44f, stroke)
     }
 
     /** Six-armed snowflake: ink first, white on top, so it reads on any background. */

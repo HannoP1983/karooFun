@@ -1,12 +1,13 @@
 # Karoo Fun
 
-**Dein Hammerhead Karoo 3 wird zum Comic.** Tempo, Temperatur, Puls, Distanz und das gefahrene Höhenprofil auf einer knallbunten Seite, mit echtem Himmel, Live-Wetter und Comic-Aktionen. Dazu ein Regenradar als eigene Kachel.
+**Dein Hammerhead Karoo 3 wird zum Comic.** Tempo, Temperatur, Puls, Distanz und das gefahrene Höhenprofil auf einer knallbunten Seite, mit echtem Himmel, Live-Wetter und Comic-Aktionen. Dazu ein Regenradar als eigene Kachel und alle Werte als Einzelfelder für eigene Seiten.
 
 <p>
   <img src="promo/img/normal.png" width="200" alt="Comic-Cockpit am Mittag">
   <img src="promo/img/night.png" width="200" alt="Comic-Cockpit bei Nacht">
   <img src="promo/img/rain.png" width="200" alt="Regen mit Windsack">
   <img src="promo/img/radar.png" width="200" alt="Regenradar">
+  <img src="promo/img/fields_new.png" width="200" alt="Einzelfelder auf einer 2 × 4 Seite">
 </p>
 
 ## Download
@@ -25,6 +26,25 @@ Wie die App per USB-Kabel auf den Karoo kommt, steht Schritt für Schritt auf de
 
 Wetter und Radar brauchen eine Verbindung (Hammerhead Companion-App auf dem Handy oder WLAN am Karoo). Radar und Karte gibt es für Deutschland und die Grenzgebiete.
 
+## Auf den Karoo legen
+
+Am Karoo im Fahrprofil unter **Seiten** eine Seite anlegen:
+
+- **Comic-Cockpit:** Aufteilung mit einem einzigen Feld, dann **Karoo Fun › Comic-Cockpit**
+- **Regenradar:** ebenso, mit **Karoo Fun › Regenradar**
+- **Eigene Seite:** z. B. Aufteilung 2 × 4 und jedes Feld einzeln belegen. Die Felder stehen unter **Karoo Fun** und sind nach Kategorie benannt:
+
+| Kategorie | Felder |
+|---|---|
+| Geschwindigkeit | aktuell · Ø · Max |
+| Distanz | gefahren |
+| Höhe | Profil (am schönsten in einem breiten Feld) |
+| Herzfrequenz | aktuell · Ø · Zone · Max · % Max |
+| Trittfrequenz | aktuell · Ø · Max |
+| Wetter | Temperatur |
+
+Pulszonen und Max-Puls stellst du unter Einstellungen › Apps › Karoo Fun › Öffnen ein; sie gelten für das Cockpit und die Einzelfelder.
+
 ## Selbst bauen
 
 Voraussetzung: JDK 17 oder neuer und das Android SDK (z. B. über Android Studio).
@@ -34,7 +54,7 @@ Voraussetzung: JDK 17 oder neuer und das Android SDK (z. B. über Android Studio
 ./gradlew assembleDebug       # Test-APK: app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Die Debug-Variante enthält zusätzlich `PreviewActivity` zum Ansehen der Seiten auf einem Emulator ohne Karoo.
+Die Debug-Variante enthält zusätzlich `PreviewActivity` zum Ansehen der Seiten auf einem Emulator ohne Karoo, mit `--es page fields` auch die Einzelfelder auf einer 2 × 4 Seite.
 
 ## Neue Version veröffentlichen
 

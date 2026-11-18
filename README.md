@@ -1,83 +1,85 @@
 # Karoo Fun
 
-**Dein Hammerhead Karoo 3 wird zum Comic.** Tempo, Temperatur, Puls, Distanz und das gefahrene Höhenprofil auf einer knallbunten Seite, mit echtem Himmel, Live-Wetter und Comic-Aktionen. Dazu ein Regenradar als eigene Kachel und alle Werte als Einzelfelder für eigene Seiten.
+**English** | [Deutsch](README.de.md)
+
+**Your Hammerhead Karoo 3 turns into a comic.** Speed, temperature, heart rate, distance and the elevation profile you ride on one bright page, with the real sky, live weather and comic actions. Plus a rain radar tile and every value as a single field for your own pages.
 
 <p>
-  <img src="promo/img/normal.png" width="200" alt="Comic-Cockpit am Mittag">
-  <img src="promo/img/night.png" width="200" alt="Comic-Cockpit bei Nacht">
-  <img src="promo/img/rain.png" width="200" alt="Regen mit Windsack">
-  <img src="promo/img/radar.png" width="200" alt="Regenradar">
-  <img src="promo/img/fields_new.png" width="200" alt="Einzelfelder auf einer 2 × 4 Seite">
+  <img src="promo/img/en/normal.png" width="200" alt="Comic Cockpit at noon">
+  <img src="promo/img/en/night.png" width="200" alt="Comic Cockpit at night">
+  <img src="promo/img/en/rain.png" width="200" alt="Rain with windsock">
+  <img src="promo/img/en/radar.png" width="200" alt="Rain radar">
+  <img src="promo/img/en/fields_new.png" width="200" alt="Single fields on a 2 × 4 page">
 </p>
 
 ## Download
 
-👉 **[Neueste Version herunterladen](https://github.com/HannoP1983/karooFun/releases/latest)**: die Datei `karoo-fun-….apk` unter „Assets“.
+👉 **[Download the latest version](https://github.com/HannoP1983/karooFun/releases/latest)**: the file `karoo-fun-….apk` under "Assets".
 
-Wie die App per USB-Kabel auf den Karoo kommt, steht Schritt für Schritt auf der [Promo-Seite](promo/index.html) unter „Keine Ahnung von Technik? Kein Problem!“ (auch als [PDF](promo/Karoo-Fun.pdf)).
+How to get the app onto the Karoo with a USB cable is explained step by step on the [promo page](promo/en/index.html) (also as [PDF](promo/Karoo-Fun-en.pdf)). In German: [promo page](promo/index.html) and [PDF](promo/Karoo-Fun.pdf).
 
-## Was drin ist
+## What's inside
 
-- **Comic-Cockpit** (eine ganze Fahrtseite): Tempo mit Schnitt, Hase oder Schnecke · Temperatur mit Sonnenstand, Mondphase, Wetter und Windsack · Puls nach Zonen · Distanz · live wachsendes Höhenprofil nach Steigung eingefärbt
-- **Comic-Aktionen**, die kurz den ganzen Bildschirm übernehmen: „Pokal oder Spital?!“ bei schnellen Abfahrten, „You're on fire!“ bei Vollgas, „Party-Pace wins the race!“ beim konstanten Fahren
-- **Einzelfelder** im Comic-Stil zum Selberbauen eigener Seiten, gemacht für 2 × 4: Geschwindigkeit (aktuell, Ø, Max), Distanz, Höhenprofil, Herzfrequenz (aktuell, Ø, Zone, Max, % Max), Trittfrequenz (aktuell, Ø, Max) und Temperatur mit Wetter. Im Karoo beim Seitenbau unter „Karoo Fun“, nach Kategorie sortiert
-- **Regenradar** (eigene Kachel): DWD-Radar auf einer grauen Deutschlandkarte, Zoom mit + und −, Prognose für die nächste Stunde in 10-Minuten-Schritten, Ansage für deinen Standort
-- **Einstellungen** am Karoo unter Einstellungen › Apps › Karoo Fun › Öffnen
+- **Comic Cockpit** (a whole ride page): speed with average, bunny or snail · temperature with the sun's position, moon phase, weather and windsock · heart rate by zone · distance · elevation profile growing live, colored by grade
+- **Comic actions** that take over the whole screen for a moment: "Pokal oder Spital?!" (trophy or hospital) on fast descents, "You're on fire!" at full gas, "Party-Pace wins the race!" when riding steadily
+- **Single fields** in comic style for building your own pages, made for 2 × 4: speed (now, average, max), distance, elevation profile, heart rate (now, average, zone, max, % of max), cadence (now, average, max) and temperature with weather. On the Karoo under "Karoo Fun" when editing a page, sorted by category
+- **Rain radar** (its own tile): DWD radar on a grey map of Germany, zoom with + and −, forecast for the next hour in 10-minute steps, outlook for your position
+- **Settings** on the Karoo under Settings › Apps › Karoo Fun › Open, including the language: German, English or automatic like the Karoo
 
-Wetter und Radar brauchen eine Verbindung (Hammerhead Companion-App auf dem Handy oder WLAN am Karoo). Radar und Karte gibt es für Deutschland und die Grenzgebiete.
+Weather and radar need a connection (Hammerhead Companion app on the phone or WiFi on the Karoo). Radar and map cover Germany and its border regions.
 
-## Auf den Karoo legen
+## Putting it on the Karoo
 
-Am Karoo im Fahrprofil unter **Seiten** eine Seite anlegen:
+On the Karoo, open **Pages** in your ride profile and add a page:
 
-- **Comic-Cockpit:** Aufteilung mit einem einzigen Feld, dann **Karoo Fun › Comic-Cockpit**
-- **Regenradar:** ebenso, mit **Karoo Fun › Regenradar**
-- **Eigene Seite:** z. B. Aufteilung 2 × 4 und jedes Feld einzeln belegen. Die Felder stehen unter **Karoo Fun** und sind nach Kategorie benannt:
+- **Comic Cockpit:** layout with a single field, then **Karoo Fun › Comic Cockpit**
+- **Rain Radar:** the same with **Karoo Fun › Rain Radar**
+- **Your own page:** e.g. a 2 × 4 layout, then pick each field on its own. They are listed under **Karoo Fun** and named by category:
 
-| Kategorie | Felder |
+| Category | Fields |
 |---|---|
-| Geschwindigkeit | aktuell · Ø · Max |
-| Distanz | gefahren |
-| Höhe | Profil (am schönsten in einem breiten Feld) |
-| Herzfrequenz | aktuell · Ø · Zone · Max · % Max |
-| Trittfrequenz | aktuell · Ø · Max |
-| Wetter | Temperatur |
+| Speed | Now · Avg · Max |
+| Distance | Ride |
+| Elevation | Profile (looks best in a wide field) |
+| Heart rate | Now · Avg · Zone · Max · % max |
+| Cadence | Now · Avg · Max |
+| Weather | Temperature |
 
-Pulszonen und Max-Puls stellst du unter Einstellungen › Apps › Karoo Fun › Öffnen ein; sie gelten für das Cockpit und die Einzelfelder.
+Set heart rate zones and max heart rate under Settings › Apps › Karoo Fun › Open; they apply to the cockpit and the single fields. The language chosen there applies to everything the app draws. The names in the Karoo's field list always follow the Karoo's system language.
 
-## Selbst bauen
+## Building it yourself
 
-Voraussetzung: JDK 17 oder neuer und das Android SDK (z. B. über Android Studio).
+Requirements: JDK 17 or newer and the Android SDK (e.g. via Android Studio).
 
 ```sh
-./gradlew testDebugUnitTest   # Tests
-./gradlew assembleDebug       # Test-APK: app/build/outputs/apk/debug/app-debug.apk
+./gradlew testDebugUnitTest   # tests
+./gradlew assembleDebug       # test APK: app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Die Debug-Variante enthält zusätzlich `PreviewActivity` zum Ansehen der Seiten auf einem Emulator ohne Karoo, mit `--es page fields` auch die Einzelfelder auf einer 2 × 4 Seite.
+The debug build also contains `PreviewActivity` to look at the pages on an emulator without a Karoo; `--es page fields` shows the single fields on a 2 × 4 page, `--es lang en` renders in English.
 
-## Neue Version veröffentlichen
+## Releasing a new version
 
-1. In `app/build.gradle.kts` `versionCode` um 1 erhöhen und `versionName` setzen, z. B. `1.2`.
-2. Committen und einen Tag mit derselben Version setzen, z. B. `v1.2`, beides pushen.
-3. GitHub Actions testet, baut die signierte APK und legt das Release `Karoo Fun 1.2` mit `karoo-fun-1.2.apk` an.
+1. In `app/build.gradle.kts`, increase `versionCode` by 1 and set `versionName`, e.g. `1.2`.
+2. Commit and add a tag with the same version, e.g. `v1.2`, and push both.
+3. GitHub Actions runs the tests, builds the signed APK and creates the release `Karoo Fun 1.2` with `karoo-fun-1.2.apk`.
 
-Der Build braucht zwei Repository-Secrets (Settings › Secrets and variables › Actions):
+The build needs two repository secrets (Settings › Secrets and variables › Actions):
 
-| Secret | Inhalt |
+| Secret | Content |
 |---|---|
-| `KEYSTORE_BASE64` | der Release-Schlüssel als Base64 |
-| `KEYSTORE_PASSWORD` | das Passwort des Schlüssels |
+| `KEYSTORE_BASE64` | the release key as Base64 |
+| `KEYSTORE_PASSWORD` | the key's password |
 
-Der Schlüssel selbst liegt nie im Repo. Lokal zeigt `local.properties` mit `signing.properties=/pfad/zur/signing.properties` auf ihn.
+The key itself is never in the repo. Locally, `local.properties` points to it with `signing.properties=/path/to/signing.properties`.
 
-## Datenquellen
+## Data sources
 
-- Regenradar: [Deutscher Wetterdienst](https://www.dwd.de) (GeoServer, Datenbasis DWD)
-- Karte: © [basemap.de](https://basemap.de) / BKG
-- Wetter: [Open-Meteo.com](https://open-meteo.com) (CC BY 4.0)
-- Karoo-Schnittstelle: [karoo-ext](https://github.com/hammerheadnav/karoo-ext) von Hammerhead
+- Rain radar: [Deutscher Wetterdienst](https://www.dwd.de) (GeoServer, data basis DWD)
+- Map: © [basemap.de](https://basemap.de) / BKG
+- Weather: [Open-Meteo.com](https://open-meteo.com) (CC BY 4.0)
+- Karoo interface: [karoo-ext](https://github.com/hammerheadnav/karoo-ext) by Hammerhead
 
-## Lizenz
+## License
 
-Siehe [LICENSE](LICENSE).
+See [LICENSE](LICENSE).

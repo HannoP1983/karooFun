@@ -177,11 +177,17 @@
   details.trouble div { padding: 0 16px 14px; }
   @media screen and (max-width: 900px) { .os { grid-template-columns: 1fr; } .guide-step { grid-template-columns: 1fr; } }
 
+  /* ---------- Language switch ---------- */
+  .lang { position: absolute; top: 16px; right: 24px; z-index: 2; display: flex; gap: 10px; }
+  .lang a { color: var(--ink); text-decoration: none; }
+  .lang .bubble::after { display: none; }
+
   /* ---------- Print / PDF ---------- */
   @page { size: A4; margin: 8mm; }
   @media print {
     html { zoom: .66; }
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .lang { display: none; }
     .sticker, .guide-step, .action, .trio figure, .tile, .battery > div, ol.steps li, details.trouble { break-inside: avoid; }
     h2, .kicker { break-after: avoid; }
     section { padding-top: 40px; }
@@ -191,6 +197,7 @@
 <body>
 
 <header class="hero">
+  <nav class="lang"><span class="bubble">🇩🇪 Deutsch</span><a class="bubble" href="en/index.html">🇬🇧 English</a></nav>
   <div class="wrap">
     <div>
       <h1 class="outline">Karoo<span>Fun!</span></h1>
@@ -399,6 +406,7 @@
             <li><b>Dauer</b> der Aktionen: 1 bis 3 Sekunden</li>
             <li>Jede Aktion <b>einzeln an/aus</b>, mit eigenen Schwellen für Tempo, Gefälle, Pulszone und Zeit</li>
             <li><b>Vorschau-Knopf</b>, um jede Aktion zu Hause anzuschauen</li>
+            <li><b>Sprache:</b> Deutsch, Englisch oder automatisch wie der Karoo</li>
             <li><b>Versionsnummer</b> oben rechts, damit du siehst, welche Version auf deinem Karoo läuft</li>
           </ul>
         </div>
@@ -447,7 +455,7 @@
           <li>Deinen <b>Hammerhead Karoo 3</b>, geladen</li>
           <li>Einen <b>Computer</b> mit Windows oder macOS</li>
           <li>Ein <b>USB-C-Kabel, das Daten kann</b>. Am besten das Kabel, das beim Karoo dabei war. Manche billigen Kabel können nur laden, damit klappt es nicht.</li>
-          <li>Die Datei <b>karoo-fun-1.1.apk</b>, das ist die App selbst. Du lädst sie auf <a href="https://github.com/HannoP1983/karooFun/releases/latest">github.com/HannoP1983/karooFun › Releases</a> unter „Assets“ herunter.
+          <li>Die Datei <b>karoo-fun-1.2.apk</b>, das ist die App selbst. Du lädst sie auf <a href="https://github.com/HannoP1983/karooFun/releases/latest">github.com/HannoP1983/karooFun › Releases</a> unter „Assets“ herunter.
             Gibt es schon eine neuere Version, steht dort eine höhere Nummer, dann diese Nummer auch in den Befehlen unten verwenden.</li>
         </ul>
       </div>
@@ -505,7 +513,7 @@
               </ol>
             </div>
           </div>
-          <p class="ok"><b>Trick, der alles einfacher macht:</b> Kopiere die Datei <b>karoo-fun-1.1.apk</b> in genau diesen Ordner <b>platform-tools</b>.
+          <p class="ok"><b>Trick, der alles einfacher macht:</b> Kopiere die Datei <b>karoo-fun-1.2.apk</b> in genau diesen Ordner <b>platform-tools</b>.
             Dann liegt alles an einem Ort.</p>
         </div>
       </div>
@@ -564,8 +572,8 @@
           <h3>Die App installieren</h3>
           <p>Diese Zeile eintippen und Enter drücken:</p>
           <div class="os">
-            <div><h4>🪟 Windows</h4><pre class="cmd">adb install -r karoo-fun-1.1.apk</pre></div>
-            <div><h4>🍎 Mac</h4><pre class="cmd">./adb install -r karoo-fun-1.1.apk</pre></div>
+            <div><h4>🪟 Windows</h4><pre class="cmd">adb install -r karoo-fun-1.2.apk</pre></div>
+            <div><h4>🍎 Mac</h4><pre class="cmd">./adb install -r karoo-fun-1.2.apk</pre></div>
           </div>
           <p>Nach ein paar Sekunden erscheint das Wort <b>Success</b>. Das war's, die App ist drauf! 🥳</p>
           <p class="ok">Später eine neue Version bekommen? Genau dieselbe Zeile noch einmal, mit der neuen Datei. Deine Einstellungen bleiben erhalten.</p>

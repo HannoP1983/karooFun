@@ -27,6 +27,8 @@ data class FunSettings(
     val partyMaxZone: Int = 3,
     val partyMinutes: Int = 20,
     val partyTolerancePercent: Int = 5,
+    /** "de" or "en" for a fixed language, empty for the system language. */
+    val language: String = LANGUAGE_AUTO,
 ) {
     /** Zone starts for Z1..Z5, used when [ownZones] is on. */
     val zoneStarts get() = listOf(0, zone2From, zone3From, zone4From, zone5From)
@@ -62,6 +64,7 @@ data class FunSettings(
             .putInt(PARTY_MAX_ZONE, partyMaxZone)
             .putInt(PARTY_MINUTES, partyMinutes)
             .putInt(PARTY_TOLERANCE, partyTolerancePercent)
+            .putString(LANGUAGE, language)
             .apply()
     }
 
@@ -78,6 +81,8 @@ data class FunSettings(
         val FIRE_SECONDS_RANGE = 0..60
         val PARTY_MINUTES_RANGE = 5..60
         val PARTY_TOLERANCE_RANGE = 1..15
+        const val LANGUAGE_AUTO = ""
+        val LANGUAGES = listOf(LANGUAGE_AUTO, "de", "en")
 
         fun load(context: Context): FunSettings {
             val p = prefs(context)
@@ -103,6 +108,7 @@ data class FunSettings(
                 partyMaxZone = p.getInt(PARTY_MAX_ZONE, d.partyMaxZone).coerceIn(ZONE_RANGE),
                 partyMinutes = p.getInt(PARTY_MINUTES, d.partyMinutes).coerceIn(PARTY_MINUTES_RANGE),
                 partyTolerancePercent = p.getInt(PARTY_TOLERANCE, d.partyTolerancePercent).coerceIn(PARTY_TOLERANCE_RANGE),
+                language = p.getString(LANGUAGE, d.language).takeIf { it in LANGUAGES } ?: d.language,
             )
         }
 
@@ -128,5 +134,6 @@ data class FunSettings(
         private const val PARTY_MAX_ZONE = "party_max_zone"
         private const val PARTY_MINUTES = "party_minutes"
         private const val PARTY_TOLERANCE = "party_tolerance_percent"
+        private const val LANGUAGE = "language"
     }
 }

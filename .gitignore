@@ -8,9 +8,8 @@ local.properties
 .DS_Store
 .claude/
 
-# Raw emulator screenshots; the sheet*.png overviews are kept
-mockups/device_*/*.png
-!mockups/device_*/sheet*.png
+# Design mockups and emulator screenshots stay local
+mockups/
 
 # Signing keys stay outside the repo; these patterns are a safety net
 *.jks

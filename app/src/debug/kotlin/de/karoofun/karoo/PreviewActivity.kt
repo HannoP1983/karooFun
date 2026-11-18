@@ -57,7 +57,7 @@ class PreviewActivity : Activity() {
                 set(Calendar.MINUTE, minute.toInt())
             }.timeInMillis
         }
-        val units = Units(locale = Locale.GERMANY)
+        val units = Units(locale = numberLocale())
         val renderer = DashboardRenderer(texts().dashboardTexts(), units)
         val rider = Rider(units)
         val image = ImageView(this).apply { scaleType = ImageView.ScaleType.FIT_XY }
@@ -95,8 +95,8 @@ class PreviewActivity : Activity() {
             ComicField.valueOf(name) to span
         } ?: ComicField.entries.take(8).map { it to 1 }
         val context = texts()
-        val renderer = FieldRenderer(context.fieldLabels(), context.dashboardTexts(), Units(locale = Locale.GERMANY))
-        val rider = Rider(Units(locale = Locale.GERMANY))
+        val renderer = FieldRenderer(context.fieldLabels(), context.dashboardTexts(), Units(locale = numberLocale()))
+        val rider = Rider(Units(locale = numberLocale()))
         val image = ImageView(this).apply { scaleType = ImageView.ScaleType.FIT_XY }
         val screen = resources.displayMetrics.widthPixels
         val root = FrameLayout(this).apply { setBackgroundColor(0xFF333333.toInt()) }
@@ -175,6 +175,9 @@ class PreviewActivity : Activity() {
             }
         }
     }
+
+    /** Decimal separator to match "lang": German by default, like on a German Karoo. */
+    private fun numberLocale(): Locale = intent.getStringExtra("lang")?.let { Locale(it) } ?: Locale.GERMANY
 
     private fun texts(): Context {
         val lang = intent.getStringExtra("lang") ?: return this

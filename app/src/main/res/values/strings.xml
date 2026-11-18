@@ -106,6 +106,9 @@
     <string name="settings_preview">Play preview</string>
     <string name="toggle_on">ON</string>
     <string name="toggle_off">OFF</string>
+    <string name="settings_language">🌍 Language</string>
+    <string name="settings_language_hint">For everything Karoo Fun draws. The names in the Karoo\'s field list always follow the Karoo\'s system language.</string>
+    <string name="settings_language_auto">Auto</string>
     <string name="settings_zones">❤ Heart rate zones</string>
     <string name="settings_zones_hint">ON: these zones drive colors and animations. OFF: zones from the Karoo profile.</string>
     <string name="settings_max_hr">Max heart rate</string>

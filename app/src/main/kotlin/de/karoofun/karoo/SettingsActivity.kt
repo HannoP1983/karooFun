@@ -1,6 +1,7 @@
 package de.karoofun.karoo
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Typeface
@@ -31,6 +32,10 @@ class SettingsActivity : Activity() {
     private val handler = Handler(Looper.getMainLooper())
     private var preview: FrameLayout? = null
 
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(newBase.localized())
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         settings = FunSettings.load(this)
@@ -40,6 +45,7 @@ class SettingsActivity : Activity() {
             setPadding(0, 0, 0, dp(24))
         }
         column.addView(header())
+        column.addView(card(getString(R.string.settings_language), getString(R.string.settings_language_hint), null, null, languages()))
         column.addView(card(getString(R.string.settings_zones), getString(R.string.settings_zones_hint),
             Toggle({ it.ownZones }) { s, v -> s.copy(ownZones = v) }, null,
             stepper(getString(R.string.settings_max_hr), "bpm", { it.maxHr }, FunSettings.MAX_HR_RANGE) { s, v -> s.withMaxHr(v) },
@@ -177,6 +183,29 @@ class SettingsActivity : Activity() {
         refreshers += ::refresh
         refresh()
         setOnClickListener { update { s -> toggle.set(s, !toggle.get(s)) } }
+    }
+
+    /** One chip per language; switching rebuilds the screen in the new language. */
+    private fun languages() = LinearLayout(this).apply {
+        setPadding(0, dp(14), 0, 0)
+        val names = mapOf(FunSettings.LANGUAGE_AUTO to getString(R.string.settings_language_auto), "de" to "Deutsch", "en" to "English")
+        for ((code, name) in names) {
+            val on = settings.language == code
+            addView(TextView(context).apply {
+                text = name
+                typeface = numbers
+                setTextSize(TypedValue.COMPLEX_UNIT_PX, 15f * scale)
+                setTextColor(if (on) Color.WHITE else INK)
+                gravity = Gravity.CENTER
+                setPadding(dp(12), dp(8), dp(12), dp(8))
+                background = sticker(if (on) 0xFF3FBF66.toInt() else 0xFFE4E0D6.toInt(), 18, shadow = 2)
+                setOnClickListener {
+                    if (on) return@setOnClickListener
+                    update { s -> s.copy(language = code) }
+                    recreate()
+                }
+            }, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f).apply { setMargins(0, 0, dp(8), 0) })
+        }
     }
 
     private fun round(symbol: String, onClick: () -> Unit) = TextView(this).apply {

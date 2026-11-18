@@ -41,9 +41,10 @@ class DashboardDataType(
         if (!config.preview) RideStore.visibleViews.incrementAndGet()
         val job = CoroutineScope(Dispatchers.IO).launch {
             val rider = karooSystem.rider()
-            val renderer = DashboardRenderer(context.dashboardTexts(), rider.units)
-            val art = TakeoverArt(context.takeoverTexts())
-            val frames = FrameStore(context, art)
+            val texts = context.localized()
+            val renderer = DashboardRenderer(texts.dashboardTexts(), rider.units)
+            val art = TakeoverArt(texts.takeoverTexts())
+            val frames = FrameStore(context, art, texts.language)
             if (!config.preview) launch(Dispatchers.Default) { prepareFrames(context, frames, width, height) }
 
             var frame = 0
@@ -61,7 +62,7 @@ class DashboardDataType(
                         child.setImageViewUri(R.id.frame_image, uri)
                         views.addView(R.id.frames, child)
                     }
-                    views.setImageViewBitmap(R.id.panel, art.renderPanel(takeover.type, width, context.panelInfo(takeover, data, settings, rider.units)))
+                    views.setImageViewBitmap(R.id.panel, art.renderPanel(takeover.type, width, texts.panelInfo(takeover, data, settings, rider.units)))
                     emitter.updateView(views)
                     // The flipper animates on its own in the Karoo app; we only wait until it is over
                     delay(settings.durationSeconds * 1_000L)

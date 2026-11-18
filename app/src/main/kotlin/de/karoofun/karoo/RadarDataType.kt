@@ -44,7 +44,7 @@ class RadarDataType(
         RadarStore.load(context)
         val (width, height) = config.viewSize
         val layout = RadarLayout(width, height)
-        val renderer = RadarRenderer(context.radarTexts())
+        val renderer = RadarRenderer(context.localized().radarTexts())
         if (!config.preview) RadarStore.use(context, background, layout.mapWidth, layout.mapHeight, { karooSystem.httpGet(it) }, ::riderPosition)
         val job = CoroutineScope(Dispatchers.IO).launch {
             var tick = 0

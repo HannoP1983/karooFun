@@ -14,7 +14,8 @@ import java.io.FileNotFoundException
  * Pre-rendered takeover frames as PNG files. The Karoo app loads them itself through [FramesProvider],
  * so a takeover sends only a list of URIs instead of megabytes of bitmaps.
  */
-class FrameStore(context: Context, private val art: TakeoverArt) {
+/** [language] is part of the file names, since the frames carry text. */
+class FrameStore(context: Context, private val art: TakeoverArt, private val language: String) {
     private val dir = File(context.filesDir, DIR).apply { mkdirs() }
 
     /** Frame URIs for one takeover, rendering the files first if they are missing. */
@@ -31,15 +32,15 @@ class FrameStore(context: Context, private val art: TakeoverArt) {
         Uri.Builder().scheme("content").authority(AUTHORITY).appendPath(file.name).build()
     }
 
-    /** Drops frames of other sizes or durations, so the cache does not grow when settings change. */
+    /** Drops frames of other languages, sizes or durations, so the cache does not grow when settings change. */
     @Synchronized
     fun keepOnly(width: Int, height: Int, count: Int) {
-        val suffix = "_${width}x${height}_${count}_"
+        val suffix = "_${language}_${width}x${height}_${count}_"
         dir.listFiles()?.filter { !it.name.contains(suffix) }?.forEach { it.delete() }
     }
 
     private fun name(type: Takeover, variant: Int, width: Int, height: Int, count: Int, index: Int) =
-        "${type.name.lowercase()}_${variant}_${width}x${height}_${count}_${index}_v$VERSION.png"
+        "${type.name.lowercase()}_${variant}_${language}_${width}x${height}_${count}_${index}_v$VERSION.png"
 
     companion object {
         const val AUTHORITY = "de.karoofun.karoo.frames"
@@ -72,6 +73,6 @@ class FramesProvider : ContentProvider() {
     override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<out String>?) = 0
 
     private companion object {
-        val NAME = Regex("[a-z]+_\\d+_\\d+x\\d+_\\d+_\\d+_v\\d+\\.png")
+        val NAME = Regex("[a-z]+_\\d+_[a-z]+_\\d+x\\d+_\\d+_\\d+_v\\d+\\.png")
     }
 }

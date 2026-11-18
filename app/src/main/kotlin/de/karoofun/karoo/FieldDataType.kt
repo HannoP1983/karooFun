@@ -43,7 +43,8 @@ class FieldDataType(
         val (width, height) = config.viewSize
         val job = CoroutineScope(Dispatchers.IO).launch {
             val rider = karooSystem.rider()
-            val renderer = FieldRenderer(context.fieldLabels(), context.dashboardTexts(), rider.units)
+            val texts = context.localized()
+            val renderer = FieldRenderer(texts.fieldLabels(), texts.dashboardTexts(), rider.units)
             var frame = 0
             while (isActive) {
                 val data = if (config.preview) DemoRide.snapshot(DemoRide.Scenario.NORMAL, frame) else RideStore.state.value

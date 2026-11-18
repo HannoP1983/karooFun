@@ -60,6 +60,12 @@
   .hero .pitch { margin-top: 26px; padding: 18px 22px; font-size: 19px; transform: rotate(1deg); }
   .hero .device { transform: rotate(3deg); }
   .badges { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
+  .download {
+    display: inline-block; margin-top: 26px; font-family: var(--num); font-size: 24px; color: var(--ink); text-decoration: none;
+    background: var(--yellow); border: 4px solid var(--ink); border-radius: 20px; box-shadow: 6px 6px 0 var(--ink); padding: 12px 26px;
+    transform: rotate(-1.5deg);
+  }
+  .download:hover { transform: rotate(-1.5deg) translate(-2px, -2px); box-shadow: 8px 8px 0 var(--ink); }
   .badges span {
     font-family: var(--num); font-size: 16px; padding: 7px 14px; border: 3px solid var(--ink); border-radius: 16px;
     background: #fff; box-shadow: 3px 3px 0 var(--ink);
@@ -194,6 +200,7 @@
         Dazu ein Regenradar als eigene Kachel. Und wenn du es krachen lässt, explodiert der ganze Bildschirm.
         Fahrradcomputer können auch Spaß machen.
       </p>
+      <a class="download" href="https://github.com/HannoP1983/karooFun/releases/latest">⬇️ App herunterladen</a>
       <div class="badges">
         <span>🎨 Comic-Look</span><span>🏔 Höhenprofil</span><span>🌦 Live-Wetter</span><span>🛰 Regenradar</span><span>💥 3 Comic-Aktionen</span><span>🔋 Akku-schonend</span>
       </div>
@@ -415,7 +422,8 @@
           <li>Deinen <b>Hammerhead Karoo 3</b>, geladen</li>
           <li>Einen <b>Computer</b> mit Windows oder macOS</li>
           <li>Ein <b>USB-C-Kabel, das Daten kann</b>. Am besten das Kabel, das beim Karoo dabei war. Manche billigen Kabel können nur laden, damit klappt es nicht.</li>
-          <li>Die Datei <b>app-release.apk</b>, das ist die App selbst. Die bekommst du von der Person, die dir diese Seite geschickt hat.</li>
+          <li>Die Datei <b>karoo-fun-1.1.apk</b>, das ist die App selbst. Du lädst sie auf <a href="https://github.com/HannoP1983/karooFun/releases/latest">github.com/HannoP1983/karooFun › Releases</a> unter „Assets“ herunter.
+            Gibt es schon eine neuere Version, steht dort eine höhere Nummer, dann diese Nummer auch in den Befehlen unten verwenden.</li>
         </ul>
       </div>
 
@@ -472,7 +480,7 @@
               </ol>
             </div>
           </div>
-          <p class="ok"><b>Trick, der alles einfacher macht:</b> Kopiere die Datei <b>app-release.apk</b> in genau diesen Ordner <b>platform-tools</b>.
+          <p class="ok"><b>Trick, der alles einfacher macht:</b> Kopiere die Datei <b>karoo-fun-1.1.apk</b> in genau diesen Ordner <b>platform-tools</b>.
             Dann liegt alles an einem Ort.</p>
         </div>
       </div>
@@ -531,11 +539,13 @@
           <h3>Die App installieren</h3>
           <p>Diese Zeile eintippen und Enter drücken:</p>
           <div class="os">
-            <div><h4>🪟 Windows</h4><pre class="cmd">adb install -r app-release.apk</pre></div>
-            <div><h4>🍎 Mac</h4><pre class="cmd">./adb install -r app-release.apk</pre></div>
+            <div><h4>🪟 Windows</h4><pre class="cmd">adb install -r karoo-fun-1.1.apk</pre></div>
+            <div><h4>🍎 Mac</h4><pre class="cmd">./adb install -r karoo-fun-1.1.apk</pre></div>
           </div>
           <p>Nach ein paar Sekunden erscheint das Wort <b>Success</b>. Das war's, die App ist drauf! 🥳</p>
           <p class="ok">Später eine neue Version bekommen? Genau dieselbe Zeile noch einmal, mit der neuen Datei. Deine Einstellungen bleiben erhalten.</p>
+          <p class="warn">Hattest du Karoo Fun schon vor Version 1.1 drauf und es kommt <b>INSTALL_FAILED_UPDATE_INCOMPATIBLE</b>? Die alte Version wurde anders signiert.
+            Einmal deinstallieren (siehe „Hilfe, es klappt nicht“), dann klappt es. Die Einstellungen musst du danach neu eintragen.</p>
         </div>
       </div>
 

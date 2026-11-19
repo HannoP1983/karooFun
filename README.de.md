@@ -28,6 +28,16 @@ Wie die App per USB-Kabel auf den Karoo kommt, steht Schritt für Schritt auf de
 
 Wetter und Radar brauchen eine Verbindung (Hammerhead Companion-App auf dem Handy oder WLAN am Karoo). Radar und Karte gibt es für Deutschland und die Grenzgebiete.
 
+### Einzelfelder
+
+<p>
+  <img src="promo/img/fields_new.png" width="240" alt="Felder für Schnitt, Max, Zone und Trittfrequenz">
+  <img src="promo/img/fields_power.png" width="240" alt="Felder für Leistung, Gang, Steigung und Gipfel (neu in 1.4)">
+  <img src="promo/img/fields_sky.png" width="240" alt="Felder für Regen, Wind, Licht, Sonne und Abbiegen (neu in 1.4)">
+</p>
+
+Links: Tempo, Puls und Trittfrequenz. Mitte und rechts, neu in 1.4: Leistung, Gang mit Antrieb von oben, Steigung, Bis zum Gipfel, Kalorien in Brezn, Regen aus dem Radar, Wind, Licht an, Sonnenaufgang und Abbiegen.
+
 ## Auf den Karoo legen
 
 Am Karoo im Fahrprofil unter **Seiten** eine Seite anlegen:

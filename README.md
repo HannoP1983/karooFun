@@ -28,6 +28,16 @@ How to get the app onto the Karoo with a USB cable is explained step by step on 
 
 Weather and radar need a connection (Hammerhead Companion app on the phone or WiFi on the Karoo). Radar and map cover Germany and its border regions.
 
+### Single fields
+
+<p>
+  <img src="promo/img/en/fields_new.png" width="240" alt="Average, max, zone and cadence fields">
+  <img src="promo/img/en/fields_power.png" width="240" alt="Power, gear, grade and summit fields (new in 1.4)">
+  <img src="promo/img/en/fields_sky.png" width="240" alt="Rain, wind, lights, sunset and next turn fields (new in 1.4)">
+</p>
+
+Left: speed, heart rate and cadence. Middle and right, new in 1.4: power, gear with the drivetrain seen from above, grade, to the summit, calories in pretzels, rain from the radar, wind, lights on, sunrise and next turn.
+
 ## Putting it on the Karoo
 
 On the Karoo, open **Pages** in your ride profile and add a page:

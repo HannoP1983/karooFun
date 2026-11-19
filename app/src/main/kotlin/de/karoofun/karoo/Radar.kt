@@ -133,6 +133,16 @@ sealed class RainOutlook {
     data class DryFrom(val time: Long) : RainOutlook()
 
     companion object {
+        /** Outlook at the rider's position on the loaded map, null outside the radar or before the first fix. */
+        fun at(state: RadarState, rider: RideSnapshot): RainOutlook? {
+            if (state.outside) return null
+            val window = state.window ?: return Unknown
+            val (dx, dy) = window.offsetOf(rider.latitude ?: return Unknown, rider.longitude ?: return Unknown)
+            val u = 0.5f + dx / window.widthPx
+            val v = 0.5f + dy / window.heightPx
+            return of(state.now, RadarTimeline.OFFSETS_MIN.indices.map { i -> state.frames[RadarTimeline.time(state.now, i)]?.rainAt(u, v) })
+        }
+
         /** [rain] per timeline index, null where the frame is missing. */
         fun of(now: Long, rain: List<Boolean?>): RainOutlook {
             val current = rain.getOrNull(RadarTimeline.NOW_INDEX) ?: return Unknown

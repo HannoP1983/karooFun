@@ -47,6 +47,18 @@
         icon="@drawable/ic_fun"
         typeId="fun-elevation" />
     <DataType
+        description="@string/field_grade_description"
+        displayName="@string/field_grade_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-grade" />
+    <DataType
+        description="@string/field_to_summit_description"
+        displayName="@string/field_to_summit_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-to-summit" />
+    <DataType
         description="@string/field_now_hr_description"
         displayName="@string/field_now_hr_name"
         graphical="true"
@@ -95,9 +107,75 @@
         icon="@drawable/ic_fun"
         typeId="fun-max-cadence" />
     <DataType
+        description="@string/field_power_description"
+        displayName="@string/field_power_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-power" />
+    <DataType
+        description="@string/field_avg_power_description"
+        displayName="@string/field_avg_power_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-avg-power" />
+    <DataType
+        description="@string/field_power_zone_description"
+        displayName="@string/field_power_zone_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-power-zone" />
+    <DataType
+        description="@string/field_percent_ftp_description"
+        displayName="@string/field_percent_ftp_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-percent-ftp" />
+    <DataType
+        description="@string/field_gear_description"
+        displayName="@string/field_gear_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-gear" />
+    <DataType
+        description="@string/field_calories_description"
+        displayName="@string/field_calories_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-calories" />
+    <DataType
+        description="@string/field_next_turn_description"
+        displayName="@string/field_next_turn_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-next-turn" />
+    <DataType
         description="@string/field_now_temperature_description"
         displayName="@string/field_now_temperature_name"
         graphical="true"
         icon="@drawable/ic_fun"
         typeId="fun-temperature" />
+    <DataType
+        description="@string/field_rain_description"
+        displayName="@string/field_rain_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-rain" />
+    <DataType
+        description="@string/field_wind_description"
+        displayName="@string/field_wind_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-wind" />
+    <DataType
+        description="@string/field_lights_on_description"
+        displayName="@string/field_lights_on_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-lights-on" />
+    <DataType
+        description="@string/field_sunset_description"
+        displayName="@string/field_sunset_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-sunset" />
 </ExtensionInfo>

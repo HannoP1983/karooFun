@@ -58,6 +58,11 @@ class SettingsActivity : Activity() {
             stepper(getString(R.string.settings_zone_from, 5), "bpm", { it.zone5From }, FunSettings.ZONE_START_RANGE) { s, v ->
                 s.copy(zone5From = v.coerceAtLeast(s.zone4From + 1)) },
         ))
+        column.addView(card(getString(R.string.settings_gears), getString(R.string.settings_gears_hint),
+            Toggle({ it.ownGears }) { s, v -> s.copy(ownGears = v) }, null,
+            stepper(getString(R.string.settings_front_gears), "", { it.frontGears }, FunSettings.FRONT_GEARS_RANGE) { s, v -> s.copy(frontGears = v) },
+            stepper(getString(R.string.settings_rear_gears), "", { it.rearGears }, FunSettings.REAR_GEARS_RANGE) { s, v -> s.copy(rearGears = v) },
+        ))
         column.addView(card(getString(R.string.settings_all), getString(R.string.settings_all_hint), null, null,
             stepper(getString(R.string.settings_cooldown), "min", { it.cooldownMinutes }, FunSettings.COOLDOWN_RANGE, 5) { s, v -> s.copy(cooldownMinutes = v) },
             stepper(getString(R.string.settings_duration), "s", { it.durationSeconds }, FunSettings.DURATION_RANGE) { s, v -> s.copy(durationSeconds = v) },

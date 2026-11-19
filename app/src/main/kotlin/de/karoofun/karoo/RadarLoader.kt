@@ -97,6 +97,15 @@ object RadarStore {
         start(context, scope, prefs.getInt(KEY_WIDTH, DEFAULT_WIDTH), prefs.getInt(KEY_HEIGHT, DEFAULT_HEIGHT), get, position)
     }
 
+    /** Called by the rain field: keeps loading running, with the radar tile's map size if it was ever shown. */
+    @Synchronized
+    fun ensure(context: Context, scope: CoroutineScope, get: suspend (String) -> ByteArray?, position: () -> Pair<Double, Double>?) {
+        if (loader != null && job?.isActive == true) return
+        val prefs = prefs(context)
+        prefs.edit().putBoolean(KEY_USED, true).apply()
+        start(context, scope, prefs.getInt(KEY_WIDTH, DEFAULT_WIDTH), prefs.getInt(KEY_HEIGHT, DEFAULT_HEIGHT), get, position)
+    }
+
     /** Called by the tile: remembers its map size and makes sure loading runs for it. */
     @Synchronized
     fun use(context: Context, scope: CoroutineScope, mapWidth: Int, mapHeight: Int, get: suspend (String) -> ByteArray?, position: () -> Pair<Double, Double>?) {

@@ -226,6 +226,28 @@ class Comic {
         c.drawLine(40f, 22f, 40f, 44f, stroke)
     }
 
+    /** Brezn with salt, centered on (x, y); it hops on odd [t]. */
+    fun pretzel(c: Canvas, x: Float, y: Float, scale: Float, t: Int) {
+        c.save()
+        c.translate(x, y + if (t % 2 == 1) -4f else 0f)
+        c.rotate(if (t % 2 == 1) -8f else 4f)
+        c.scale(scale, scale)
+        val loops = Path().apply {
+            moveTo(-26f, 16f); cubicTo(-48f, -4f, -32f, -38f, -4f, -24f); cubicTo(10f, -16f, 8f, 6f, -16f, 20f)
+            moveTo(26f, 16f); cubicTo(48f, -4f, 32f, -38f, 4f, -24f); cubicTo(-10f, -16f, -8f, 6f, 16f, 20f)
+            moveTo(-30f, 24f); quadTo(0f, 2f, 30f, 24f)
+        }
+        stroke.color = INK
+        stroke.strokeWidth = 16f
+        c.drawPath(loops, stroke)
+        stroke.color = 0xFFB8742A.toInt()
+        stroke.strokeWidth = 10f
+        c.drawPath(loops, stroke)
+        fill.color = Color.WHITE
+        for ((sx, sy) in listOf(-30f to -6f, -14f to -28f, 16f to -27f, 32f to -4f, 0f to 12f)) c.drawCircle(sx, sy, 2f, fill)
+        c.restore()
+    }
+
     /** Six-armed snowflake: ink first, white on top, so it reads on any background. */
     fun snowflake(c: Canvas, cx: Float, cy: Float, r: Float, angle: Float = 0f, color: Int = Color.WHITE) {
         val arms = Path()

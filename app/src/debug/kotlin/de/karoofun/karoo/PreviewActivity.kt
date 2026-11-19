@@ -95,27 +95,45 @@ class PreviewActivity : Activity() {
             ComicField.valueOf(name) to span
         } ?: ComicField.entries.take(8).map { it to 1 }
         val context = texts()
-        val renderer = FieldRenderer(context.fieldLabels(), context.dashboardTexts(), Units(locale = numberLocale()))
-        val rider = Rider(Units(locale = numberLocale()))
+        val renderer = FieldRenderer(context.fieldTexts(), context.dashboardTexts(), Units(locale = numberLocale()))
+        // An FTP of 240 W, so the power fields show their zones
+        val rider = Rider(Units(locale = numberLocale()), ftp = 240)
+        val time = intent.getStringExtra("time")?.split(":")?.let { (hour, minute) ->
+            Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, hour.toInt())
+                set(Calendar.MINUTE, minute.toInt())
+            }.timeInMillis
+        }
         val image = ImageView(this).apply { scaleType = ImageView.ScaleType.FIT_XY }
         val screen = resources.displayMetrics.widthPixels
         val root = FrameLayout(this).apply { setBackgroundColor(0xFF333333.toInt()) }
         root.addView(image, FrameLayout.LayoutParams(screen, (screen * KAROO_HEIGHT / KAROO_WIDTH.toFloat()).roundToInt(), Gravity.CENTER))
         setContentView(root)
 
+        // The rain field needs the radar, fetched directly from the internet around the demo ride
+        if (fields.any { it.first == ComicField.RAIN }) {
+            val demo = DemoRide.snapshot(scenario, 0)
+            RadarStore.ensure(this, scope, { url -> withContext(Dispatchers.IO) { runCatching { URL(url).readBytes() }.getOrNull() } }) {
+                demo.latitude!! to demo.longitude!!
+            }
+        }
         val cellWidth = KAROO_WIDTH / 2
         val cellHeight = KAROO_HEIGHT / 4
         var frame = if (fixed >= 0) fixed else 0
         val tick = object : Runnable {
             override fun run() {
-                val data = DemoRide.snapshot(scenario, frame)
+                val data = DemoRide.snapshot(scenario, frame).let { demo ->
+                    intent.getStringExtra("weather")?.let {
+                        demo.copy(weather = Weather(Condition.valueOf(it), intent.getIntExtra("wind", 0).toDouble(), intent.getIntExtra("wind_from", 270).toDouble(), time ?: System.currentTimeMillis()))
+                    } ?: demo
+                }
                 val settings = FunSettings.load(this@PreviewActivity)
                 val page = Bitmap.createBitmap(KAROO_WIDTH, KAROO_HEIGHT, Bitmap.Config.ARGB_8888)
                 val canvas = android.graphics.Canvas(page)
                 canvas.drawColor(0xFF000000.toInt())
                 var slot = 0
                 for ((field, span) in fields) {
-                    val cell = renderer.render(cellWidth * span, cellHeight, field, data, rider, settings, frame)
+                    val cell = renderer.render(cellWidth * span, cellHeight, field, data, rider, settings, frame, time ?: System.currentTimeMillis())
                     canvas.drawBitmap(cell, (slot % 2 * cellWidth).toFloat(), (slot / 2 * cellHeight).toFloat(), null)
                     slot += span
                 }

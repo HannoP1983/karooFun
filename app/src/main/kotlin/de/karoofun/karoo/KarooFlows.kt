@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -24,6 +25,14 @@ fun KarooSystemService.streamDataFlow(dataTypeId: String): Flow<StreamState> = c
 /** Only the numeric value of a data type, skipping searching/idle/unavailable states. */
 fun KarooSystemService.valueFlow(dataTypeId: String): Flow<Double> =
     streamDataFlow(dataTypeId).mapNotNull { (it as? StreamState.Streaming)?.dataPoint?.singleValue }
+
+/** Like [valueFlow], but null while the Karoo has no value, so fields like "to the summit" clear when it ends. */
+fun KarooSystemService.optionalValueFlow(dataTypeId: String): Flow<Double?> =
+    streamDataFlow(dataTypeId).map { (it as? StreamState.Streaming)?.dataPoint?.singleValue }
+
+/** All fields of a data type while it streams, null otherwise. */
+fun KarooSystemService.fieldsFlow(dataTypeId: String): Flow<Map<String, Double>?> =
+    streamDataFlow(dataTypeId).map { (it as? StreamState.Streaming)?.dataPoint?.values }
 
 inline fun <reified T : KarooEvent> KarooSystemService.consumerFlow(): Flow<T> = callbackFlow {
     val id = addConsumer<T> { trySend(it) }

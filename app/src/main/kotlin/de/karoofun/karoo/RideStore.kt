@@ -21,6 +21,13 @@ data class RideSnapshot(
     val cadence: Double? = null,
     val averageCadence: Double? = null,
     val maxCadence: Double? = null,
+    val power: Double? = null,
+    val averagePower: Double? = null,
+    val calories: Double? = null,
+    val distanceToTop: Double? = null,
+    val elevationToTop: Double? = null,
+    val distanceToNextTurn: Double? = null,
+    val gears: Gears = Gears(),
     val distance: Double? = null,
     val points: List<ProfilePoint> = emptyList(),
     val elevation: Double? = null,
@@ -30,6 +37,19 @@ data class RideSnapshot(
     val longitude: Double? = null,
     val bearing: Double? = null,
     val weather: Weather? = null,
+)
+
+/**
+ * Electronic shifting as the Karoo reports it: gear numbers count from 1, front 1 is the small ring and rear 1
+ * the biggest cog. Max is the number of rings or cogs, teeth belong to the gear in use. Null without shifting.
+ */
+data class Gears(
+    val front: Int? = null,
+    val frontMax: Int? = null,
+    val frontTeeth: Int? = null,
+    val rear: Int? = null,
+    val rearMax: Int? = null,
+    val rearTeeth: Int? = null,
 )
 
 /** A takeover that fired and waits to be shown. [variant] picks the saying, [steadyMinutes] feeds the party panel. */
@@ -92,6 +112,26 @@ object RideStore {
     fun onAverageCadence(cadence: Double) = _state.update { it.copy(averageCadence = cadence) }
 
     fun onMaxCadence(cadence: Double) = _state.update { it.copy(maxCadence = cadence) }
+
+    fun onPower(power: Double?) = _state.update { it.copy(power = power) }
+
+    fun onAveragePower(power: Double?) = _state.update { it.copy(averagePower = power) }
+
+    fun onCalories(calories: Double?) = _state.update { it.copy(calories = calories) }
+
+    fun onDistanceToTop(meters: Double?) = _state.update { it.copy(distanceToTop = meters) }
+
+    fun onElevationToTop(meters: Double?) = _state.update { it.copy(elevationToTop = meters) }
+
+    fun onDistanceToNextTurn(meters: Double?) = _state.update { it.copy(distanceToNextTurn = meters) }
+
+    fun onFrontGear(gear: Int?, max: Int?, teeth: Int?) = _state.update {
+        it.copy(gears = it.gears.copy(front = gear, frontMax = max ?: it.gears.frontMax, frontTeeth = teeth))
+    }
+
+    fun onRearGear(gear: Int?, max: Int?, teeth: Int?) = _state.update {
+        it.copy(gears = it.gears.copy(rear = gear, rearMax = max ?: it.gears.rearMax, rearTeeth = teeth))
+    }
 
     fun onAscent(ascent: Double) = _state.update { it.copy(ascent = ascent) }
 

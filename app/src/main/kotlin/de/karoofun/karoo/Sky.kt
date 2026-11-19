@@ -43,6 +43,10 @@ data class Sky(val sunElevation: Double, val moonPhase: Double, val southern: Bo
         const val GOLDEN_HOUR = 6.0
         const val SUNSET = -1.0
         const val NAUTICAL_DUSK = -8.0
+        /** Upper edge of the sun touching the horizon, with refraction. */
+        const val SUNSET_ELEVATION = -0.833
+        /** Civil dusk: from here on bike lights are needed. */
+        const val CIVIL_DUSK = -6.0
         private const val NEW_MOON = 0.03
 
         fun at(latitude: Double, longitude: Double, millis: Long) =
@@ -69,6 +73,25 @@ object Astronomy {
         val lat = Math.toRadians(latitude)
         return Math.toDegrees(asin(sin(lat) * sin(dec) + cos(lat) * cos(dec) * cos(hourAngle)))
     }
+
+    /**
+     * When the sun next sinks below (or with [rising] climbs above) [elevation] degrees, searched minute by minute
+     * over the next day; null if it does not happen, e.g. in polar summer.
+     */
+    fun nextCrossing(latitude: Double, longitude: Double, from: Long, elevation: Double, rising: Boolean): Long? {
+        var above = sunElevation(latitude, longitude, from) >= elevation
+        var t = from
+        while (t - from < SEARCH_MS) {
+            t += STEP_MS
+            val nowAbove = sunElevation(latitude, longitude, t) >= elevation
+            if (nowAbove != above && nowAbove == rising) return t
+            above = nowAbove
+        }
+        return null
+    }
+
+    private const val STEP_MS = 60_000L
+    private const val SEARCH_MS = 26 * 3_600_000L
 
     fun moonPhase(millis: Long): Double {
         val cycles = (julianDay(millis) - NEW_MOON_JD) / SYNODIC_MONTH

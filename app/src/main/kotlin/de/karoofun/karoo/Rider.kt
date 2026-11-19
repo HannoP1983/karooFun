@@ -7,8 +7,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.math.roundToInt
 
-/** What we need from the rider's Karoo profile: display units and heart rate zones. */
-data class Rider(val units: Units = Units(), val zoneStarts: List<Int> = emptyList(), val maxHr: Int = 0) {
+/** What we need from the rider's Karoo profile: display units, heart rate zones, FTP and power zones. */
+data class Rider(
+    val units: Units = Units(),
+    val zoneStarts: List<Int> = emptyList(),
+    val maxHr: Int = 0,
+    val ftp: Int = 0,
+    val powerZoneStarts: List<Int> = emptyList(),
+) {
     /** Heart rate zone 1..5: the zones from the app settings, or the Karoo profile's when they are switched off. */
     fun zone(heartRate: Double?, settings: FunSettings): Int? = heartRate?.let {
         if (settings.ownZones) heartRateZone(it, settings.zoneStarts, settings.maxHr) else heartRateZone(it, zoneStarts, maxHr)
@@ -21,7 +27,19 @@ data class Rider(val units: Units = Units(), val zoneStarts: List<Int> = emptyLi
         else -> DEFAULT_MAX_HR
     }
 
+    /** Power zone from 1 to the number of zones: the Karoo profile's, else the usual 7 zones from the FTP. */
+    fun powerZone(watts: Double?): Int? {
+        watts ?: return null
+        val starts = powerZoneStarts.takeIf { it.size >= 2 }
+            ?: ftp.takeIf { it > 0 }?.let { f -> COGGAN_PERCENT.map { percentOf(f, it) } }
+            ?: return null
+        return starts.indexOfLast { watts >= it }.coerceAtLeast(0) + 1
+    }
+
     companion object {
+        /** Starts of the 7 classic power zones in percent of FTP. */
+        val COGGAN_PERCENT = listOf(0, 56, 76, 91, 106, 121, 151)
+
         fun from(profile: UserProfile?): Rider {
             if (profile == null) return Rider()
             val imperial = UserProfile.PreferredUnit.UnitType.IMPERIAL
@@ -33,6 +51,8 @@ data class Rider(val units: Units = Units(), val zoneStarts: List<Int> = emptyLi
                 ),
                 zoneStarts = profile.heartRateZones.map { it.min },
                 maxHr = profile.maxHr,
+                ftp = profile.ftp,
+                powerZoneStarts = profile.powerZones.map { it.min },
             )
         }
     }
@@ -54,6 +74,41 @@ fun Context.dashboardTexts() = DashboardTexts(
 )
 
 fun Context.fieldLabels() = ComicField.entries.associateWith { getString(it.labelRes) }
+
+fun Context.fieldTexts() = FieldTexts(
+    labels = fieldLabels(),
+    front = getString(R.string.field_gear_front),
+    rear = getString(R.string.field_gear_rear),
+    crossChain = getString(R.string.field_cross_chain),
+    kcal = getString(R.string.field_kcal),
+    pretzels = { resources.getQuantityString(R.plurals.field_pretzels, it, it) },
+    noRoute = getString(R.string.field_no_route),
+    noClimb = getString(R.string.field_no_climb),
+    stillToGo = getString(R.string.field_still_to_go),
+    turnNow = getString(R.string.field_turn_now),
+    rain = getString(R.string.field_rain_tag),
+    dryFrom = getString(R.string.field_dry_from),
+    dry = getString(R.string.field_dry),
+    wet = getString(R.string.field_wet),
+    nextHour = getString(R.string.field_next_hour),
+    dryFor = getString(R.string.field_dry_for),
+    wetFor = getString(R.string.field_wet_for),
+    radarLoading = getString(R.string.radar_loading),
+    radarOutside = getString(R.string.radar_outside),
+    tailwind = getString(R.string.field_tailwind),
+    headwind = getString(R.string.field_headwind),
+    crosswind = getString(R.string.field_crosswind),
+    noWeather = getString(R.string.field_no_weather),
+    lightsOnNow = getString(R.string.field_lights_on_now),
+    on = getString(R.string.field_on),
+    dusk = getString(R.string.field_dusk),
+    brightFrom = getString(R.string.field_bright_from),
+    waitingForGps = getString(R.string.radar_waiting_gps),
+    sunriseIn = getString(R.string.field_sunrise_in),
+    sunsetAt = getString(R.string.field_sunset_at),
+    sunriseAt = getString(R.string.field_sunrise_at),
+    noFtp = getString(R.string.field_no_ftp),
+)
 
 fun Context.radarTexts() = RadarTexts(
     title = getString(R.string.radar_title),

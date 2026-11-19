@@ -44,7 +44,11 @@ class FieldDataType(
         val job = CoroutineScope(Dispatchers.IO).launch {
             val rider = karooSystem.rider()
             val texts = context.localized()
-            val renderer = FieldRenderer(texts.fieldLabels(), texts.dashboardTexts(), rider.units)
+            val renderer = FieldRenderer(texts.fieldTexts(), texts.dashboardTexts(), rider.units)
+            // The rain field needs the radar loading in the background, even without the radar tile on a page
+            if (field == ComicField.RAIN && !config.preview) {
+                RadarStore.ensure(context, RadarDataType.background, { karooSystem.httpGet(it) }, RadarDataType::riderPosition)
+            }
             var frame = 0
             while (isActive) {
                 val data = if (config.preview) DemoRide.snapshot(DemoRide.Scenario.NORMAL, frame) else RideStore.state.value

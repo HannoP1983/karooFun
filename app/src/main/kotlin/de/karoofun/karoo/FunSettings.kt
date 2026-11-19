@@ -27,6 +27,10 @@ data class FunSettings(
     val partyMaxZone: Int = 3,
     val partyMinutes: Int = 20,
     val partyTolerancePercent: Int = 5,
+    /** Own number of chainrings and cogs for the gear field; off uses what the shifting reports. */
+    val ownGears: Boolean = false,
+    val frontGears: Int = 2,
+    val rearGears: Int = 12,
     /** "de" or "en" for a fixed language, empty for the system language. */
     val language: String = LANGUAGE_AUTO,
 ) {
@@ -65,6 +69,9 @@ data class FunSettings(
             .putInt(PARTY_MINUTES, partyMinutes)
             .putInt(PARTY_TOLERANCE, partyTolerancePercent)
             .putString(LANGUAGE, language)
+            .putBoolean(OWN_GEARS, ownGears)
+            .putInt(FRONT_GEARS, frontGears)
+            .putInt(REAR_GEARS, rearGears)
             .apply()
     }
 
@@ -81,6 +88,8 @@ data class FunSettings(
         val FIRE_SECONDS_RANGE = 0..60
         val PARTY_MINUTES_RANGE = 5..60
         val PARTY_TOLERANCE_RANGE = 1..15
+        val FRONT_GEARS_RANGE = 1..2
+        val REAR_GEARS_RANGE = 8..14
         const val LANGUAGE_AUTO = ""
         val LANGUAGES = listOf(LANGUAGE_AUTO, "de", "en")
 
@@ -109,6 +118,9 @@ data class FunSettings(
                 partyMinutes = p.getInt(PARTY_MINUTES, d.partyMinutes).coerceIn(PARTY_MINUTES_RANGE),
                 partyTolerancePercent = p.getInt(PARTY_TOLERANCE, d.partyTolerancePercent).coerceIn(PARTY_TOLERANCE_RANGE),
                 language = p.getString(LANGUAGE, d.language).takeIf { it in LANGUAGES } ?: d.language,
+                ownGears = p.getBoolean(OWN_GEARS, d.ownGears),
+                frontGears = p.getInt(FRONT_GEARS, d.frontGears).coerceIn(FRONT_GEARS_RANGE),
+                rearGears = p.getInt(REAR_GEARS, d.rearGears).coerceIn(REAR_GEARS_RANGE),
             )
         }
 
@@ -135,5 +147,8 @@ data class FunSettings(
         private const val PARTY_MINUTES = "party_minutes"
         private const val PARTY_TOLERANCE = "party_tolerance_percent"
         private const val LANGUAGE = "language"
+        private const val OWN_GEARS = "own_gears"
+        private const val FRONT_GEARS = "front_gears"
+        private const val REAR_GEARS = "rear_gears"
     }
 }

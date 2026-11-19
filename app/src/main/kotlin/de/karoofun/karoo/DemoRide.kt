@@ -7,11 +7,14 @@ import kotlin.math.sin
 
 /** Made-up alpine rides, shown while the user edits ride pages and in the previews. */
 object DemoRide {
-    enum class Scenario(val speedKmh: Double, val averageKmh: Double, val temperature: Double, val heartRate: Double, val km: Double, val cadence: Double) {
-        COLD(21.4, 24.8, -3.2, 128.0, 12.37, 64.0),
-        NORMAL(26.3, 25.2, 14.6, 151.0, 41.05, 88.0),
-        HOT(32.6, 27.1, 31.7, 176.0, 68.42, 104.0),
-        DESCENT(72.4, 27.8, 18.3, 141.0, 52.6, 0.0),
+    enum class Scenario(
+        val speedKmh: Double, val averageKmh: Double, val temperature: Double, val heartRate: Double, val km: Double,
+        val cadence: Double, val power: Double, val gear: Int,
+    ) {
+        COLD(21.4, 24.8, -3.2, 128.0, 12.37, 64.0, 162.0, 3),
+        NORMAL(26.3, 25.2, 14.6, 151.0, 41.05, 88.0, 248.0, 7),
+        HOT(32.6, 27.1, 31.7, 176.0, 68.42, 104.0, 312.0, 11),
+        DESCENT(72.4, 27.8, 18.3, 141.0, 52.6, 0.0, 0.0, 1),
     }
 
     private val profiles = HashMap<Scenario, List<ProfilePoint>>()
@@ -34,6 +37,13 @@ object DemoRide {
             cadence = scenario.cadence,
             averageCadence = 84.0,
             maxCadence = max(scenario.cadence, 118.0),
+            power = scenario.power,
+            averagePower = 196.0,
+            calories = 1240.0 + frame,
+            distanceToTop = 2100.0,
+            elevationToTop = 184.0,
+            distanceToNextTurn = 240.0,
+            gears = Gears(front = if (scenario == Scenario.COLD) 1 else 2, frontMax = 2, rear = scenario.gear, rearMax = 12),
             distance = scenario.km * 1000 + frame * scenario.speedKmh / 3.6,
             points = points,
             elevation = points.last().elevation,

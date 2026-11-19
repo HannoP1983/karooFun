@@ -327,7 +327,7 @@ class TakeoverArt(private val texts: TakeoverTexts) {
             }
             comic.bubble(c, texts.prost, 40f, 34f, size = 16f, rotation = -6f, tailRight = true)
         }
-        pretzel(c, 404f, 140f, 1.1f, t)
+        comic.pretzel(c, 404f, 140f, 1.1f, t)
         beer(c, 62f, 436f, 0.95f, if (t % 2 == 1) -8f else 6f, t, 2, mirrored = false)
         beer(c, 418f, 436f, 0.95f, if (t % 2 == 1) 8f else -6f, t, 3, mirrored = true)
         discoBall(c, t)
@@ -404,27 +404,6 @@ class TakeoverArt(private val texts: TakeoverTexts) {
             cubicTo(34f, -34f, 36f, -14f, 25f, -14f); lineTo(25f, -4f); quadTo(20f, 4f, 15f, -4f); lineTo(15f, -12f)
             quadTo(8f, -8f, -2f, -12f); quadTo(-14f, -8f, -28f, -16f); close()
         }, Color.WHITE, 3f)
-        c.restore()
-    }
-
-    private fun pretzel(c: Canvas, x: Float, y: Float, scale: Float, t: Int) {
-        c.save()
-        c.translate(x, y + if (t % 2 == 1) -4f else 0f)
-        c.rotate(if (t % 2 == 1) -8f else 4f)
-        c.scale(scale, scale)
-        val loops = Path().apply {
-            moveTo(-26f, 16f); cubicTo(-48f, -4f, -32f, -38f, -4f, -24f); cubicTo(10f, -16f, 8f, 6f, -16f, 20f)
-            moveTo(26f, 16f); cubicTo(48f, -4f, 32f, -38f, 4f, -24f); cubicTo(-10f, -16f, -8f, 6f, 16f, 20f)
-            moveTo(-30f, 24f); quadTo(0f, 2f, 30f, 24f)
-        }
-        comic.stroke.color = INK
-        comic.stroke.strokeWidth = 16f
-        c.drawPath(loops, comic.stroke)
-        comic.stroke.color = 0xFFB8742A.toInt()
-        comic.stroke.strokeWidth = 10f
-        c.drawPath(loops, comic.stroke)
-        comic.fill.color = Color.WHITE
-        for ((sx, sy) in listOf(-30f to -6f, -14f to -28f, 16f to -27f, 32f to -4f, 0f to 12f)) c.drawCircle(sx, sy, 2f, comic.fill)
         c.restore()
     }
 

@@ -63,6 +63,30 @@ class FunExtension : KarooExtension("karoo-fun", "1") {
         for ((type, update) in values) {
             launch { karooSystem.valueFlow(type).collect { update(it) } }
         }
+        // Values that may end (no power meter, climb over, route done) clear instead of keeping the last one
+        val optional = mapOf(
+            DataType.Type.SMOOTHED_3S_AVERAGE_POWER to RideStore::onPower,
+            DataType.Type.AVERAGE_POWER to RideStore::onAveragePower,
+            DataType.Type.CALORIES to RideStore::onCalories,
+            DataType.Type.DISTANCE_TO_TOP to RideStore::onDistanceToTop,
+            DataType.Type.ELEVATION_TO_TOP to RideStore::onElevationToTop,
+            DataType.Type.DISTANCE_TO_NEXT_TURN to RideStore::onDistanceToNextTurn,
+        )
+        for ((type, update) in optional) {
+            launch { karooSystem.optionalValueFlow(type).collect { update(it) } }
+        }
+        launch {
+            karooSystem.fieldsFlow(DataType.Type.SHIFTING_FRONT_GEAR).collect { values ->
+                RideStore.onFrontGear(values?.get(DataType.Field.SHIFTING_FRONT_GEAR)?.toInt(),
+                    values?.get(DataType.Field.SHIFTING_FRONT_GEAR_MAX)?.toInt(), values?.get(DataType.Field.SHIFTING_FRONT_GEAR_TEETH)?.toInt())
+            }
+        }
+        launch {
+            karooSystem.fieldsFlow(DataType.Type.SHIFTING_REAR_GEAR).collect { values ->
+                RideStore.onRearGear(values?.get(DataType.Field.SHIFTING_REAR_GEAR)?.toInt(),
+                    values?.get(DataType.Field.SHIFTING_REAR_GEAR_MAX)?.toInt(), values?.get(DataType.Field.SHIFTING_REAR_GEAR_TEETH)?.toInt())
+            }
+        }
         launch {
             karooSystem.streamDataFlow(DataType.Type.LOCATION).collect { state ->
                 val values = (state as? StreamState.Streaming)?.dataPoint?.values ?: return@collect

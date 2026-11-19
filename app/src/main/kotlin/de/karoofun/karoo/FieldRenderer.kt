@@ -21,6 +21,8 @@ enum class ComicField(val typeId: String, val nameRes: Int, val descriptionRes: 
     MAX_SPEED("fun-max-speed", R.string.field_max_speed_name, R.string.field_max_speed_description, R.string.field_max_speed),
     DISTANCE("fun-distance", R.string.field_now_distance_name, R.string.field_now_distance_description, R.string.field_distance),
     ELEVATION("fun-elevation", R.string.field_now_profile_name, R.string.field_now_profile_description, R.string.field_profile_short),
+    GRADE("fun-grade", R.string.field_grade_name, R.string.field_grade_description, R.string.field_grade),
+    TO_SUMMIT("fun-to-summit", R.string.field_to_summit_name, R.string.field_to_summit_description, R.string.field_to_summit),
     HEART_RATE("fun-heart-rate", R.string.field_now_hr_name, R.string.field_now_hr_description, R.string.field_heart_rate),
     AVERAGE_HR("fun-avg-hr", R.string.field_avg_hr_name, R.string.field_avg_hr_description, R.string.field_avg_hr),
     HR_ZONE("fun-hr-zone", R.string.field_hr_zone_name, R.string.field_hr_zone_description, R.string.field_hr_zone),
@@ -29,10 +31,24 @@ enum class ComicField(val typeId: String, val nameRes: Int, val descriptionRes: 
     CADENCE("fun-cadence", R.string.field_cadence_name, R.string.field_cadence_description, R.string.field_cadence),
     AVERAGE_CADENCE("fun-avg-cadence", R.string.field_avg_cadence_name, R.string.field_avg_cadence_description, R.string.field_avg_cadence),
     MAX_CADENCE("fun-max-cadence", R.string.field_max_cadence_name, R.string.field_max_cadence_description, R.string.field_max_cadence),
-    TEMPERATURE("fun-temperature", R.string.field_now_temperature_name, R.string.field_now_temperature_description, R.string.field_temperature);
+    POWER("fun-power", R.string.field_power_name, R.string.field_power_description, R.string.field_power),
+    AVERAGE_POWER("fun-avg-power", R.string.field_avg_power_name, R.string.field_avg_power_description, R.string.field_avg_power),
+    POWER_ZONE("fun-power-zone", R.string.field_power_zone_name, R.string.field_power_zone_description, R.string.field_power_zone),
+    PERCENT_FTP("fun-percent-ftp", R.string.field_percent_ftp_name, R.string.field_percent_ftp_description, R.string.field_percent_ftp),
+    GEAR("fun-gear", R.string.field_gear_name, R.string.field_gear_description, R.string.field_gear),
+    CALORIES("fun-calories", R.string.field_calories_name, R.string.field_calories_description, R.string.field_calories),
+    NEXT_TURN("fun-next-turn", R.string.field_next_turn_name, R.string.field_next_turn_description, R.string.field_next_turn),
+    TEMPERATURE("fun-temperature", R.string.field_now_temperature_name, R.string.field_now_temperature_description, R.string.field_temperature),
+    RAIN("fun-rain", R.string.field_rain_name, R.string.field_rain_description, R.string.field_rain),
+    WIND("fun-wind", R.string.field_wind_name, R.string.field_wind_description, R.string.field_wind),
+    LIGHTS_ON("fun-lights-on", R.string.field_lights_on_name, R.string.field_lights_on_description, R.string.field_lights_on),
+    SUNSET("fun-sunset", R.string.field_sunset_name, R.string.field_sunset_description, R.string.field_sunset);
 
-    /** The field's number in base units (m/s, bpm, rpm, zone 1..5, percent), or null while there is none. */
-    fun value(s: RideSnapshot, rider: Rider, settings: FunSettings): Double? = when (this) {
+    /**
+     * The field's number in base units (m/s, bpm, rpm, W, kcal, m, zone, percent, km/h wind, minutes for rain
+     * and daylight countdowns), or null while there is none.
+     */
+    fun value(s: RideSnapshot, rider: Rider, settings: FunSettings, now: Long = System.currentTimeMillis()): Double? = when (this) {
         SPEED -> s.speed
         DISTANCE -> s.distance
         ELEVATION -> s.elevation
@@ -47,6 +63,31 @@ enum class ComicField(val typeId: String, val nameRes: Int, val descriptionRes: 
         CADENCE -> s.cadence
         AVERAGE_CADENCE -> s.averageCadence
         MAX_CADENCE -> s.maxCadence
+        GRADE -> s.grade
+        TO_SUMMIT -> s.elevationToTop
+        POWER -> s.power
+        AVERAGE_POWER -> s.averagePower
+        POWER_ZONE -> rider.powerZone(s.power)?.toDouble()
+        PERCENT_FTP -> percentFtpOf(s.power, rider.ftp)?.toDouble()
+        GEAR -> s.gears.rear?.toDouble()
+        CALORIES -> s.calories
+        NEXT_TURN -> s.distanceToNextTurn
+        RAIN -> when (val outlook = SensorFields.rainOutlook(s)) {
+            is RainOutlook.RainFrom -> SensorFields.minutesUntil(outlook.time, now).toDouble()
+            is RainOutlook.DryFrom -> SensorFields.minutesUntil(outlook.time, now).toDouble()
+            else -> null
+        }
+        WIND -> s.weather?.takeIf { it.freshAt(now) }?.windKmh
+        LIGHTS_ON -> sunMinutes(s, now, Sky.CIVIL_DUSK)
+        SUNSET -> sunMinutes(s, now, Sky.SUNSET_ELEVATION)
+    }
+
+    /** Minutes until the sun sinks below [elevation], null at night or without a GPS fix. */
+    private fun sunMinutes(s: RideSnapshot, now: Long, elevation: Double): Double? {
+        val lat = s.latitude ?: return null
+        val lon = s.longitude ?: return null
+        if (Astronomy.sunElevation(lat, lon, now) <= elevation) return null
+        return Astronomy.nextCrossing(lat, lon, now, elevation, rising = false)?.let { SensorFields.minutesUntil(it, now).toDouble() }
     }
 }
 
@@ -71,8 +112,10 @@ private const val SPINNING_FROM = 100
  * small animated sticker in the top right. Designed on a 239 × 160 cell (one eighth of a Karoo 3 page) and
  * scaled by height, so wider cells just get more room left and right.
  */
-class FieldRenderer(private val labels: Map<ComicField, String>, texts: DashboardTexts, private val units: Units) {
+class FieldRenderer(private val fieldTexts: FieldTexts, texts: DashboardTexts, private val units: Units) {
+    private val labels = fieldTexts.labels
     private val comic = Comic()
+    private val sensors = SensorFields(comic, fieldTexts, units)
     private val critters = Critters(comic)
     private val metrics = MetricsPanel(comic, texts, units)
     private val profile = ProfilePanel(comic, texts, units)
@@ -136,6 +179,19 @@ class FieldRenderer(private val labels: Map<ComicField, String>, texts: Dashboar
             ComicField.CADENCE -> cadence(c, w, h, s.cadence, frame, record = false)
             ComicField.AVERAGE_CADENCE -> averageCadence(c, w, h, s.averageCadence, frame)
             ComicField.MAX_CADENCE -> cadence(c, w, h, s.maxCadence, frame, record = true)
+            ComicField.GRADE -> sensors.grade(c, w, h, s, frame)
+            ComicField.TO_SUMMIT -> sensors.toSummit(c, w, h, s)
+            ComicField.POWER -> sensors.power(c, w, h, s, rider, frame)
+            ComicField.AVERAGE_POWER -> sensors.averagePower(c, w, h, s)
+            ComicField.POWER_ZONE -> sensors.powerZone(c, w, h, s, rider, frame)
+            ComicField.PERCENT_FTP -> sensors.percentFtp(c, w, h, s, rider)
+            ComicField.GEAR -> sensors.gear(c, w, h, s, settings, frame)
+            ComicField.CALORIES -> sensors.calories(c, w, h, s, frame)
+            ComicField.NEXT_TURN -> sensors.nextTurn(c, w, h, s, frame)
+            ComicField.RAIN -> sensors.rain(c, w, h, s, now, frame)
+            ComicField.WIND -> sensors.wind(c, w, h, s, now, frame)
+            ComicField.LIGHTS_ON -> sensors.lightsOn(c, w, h, s, now, frame)
+            ComicField.SUNSET -> sensors.sunset(c, w, h, s, now, frame)
         }
         c.restore()
         comic.stroke.color = INK

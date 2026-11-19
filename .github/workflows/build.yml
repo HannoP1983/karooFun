@@ -22,6 +22,8 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+          # Keeps Gradle and the dependencies between runs, so Maven Central does not throttle us (HTTP 429)
+          cache: gradle
 
       - name: Unit tests
         run: ./gradlew --no-daemon testDebugUnitTest

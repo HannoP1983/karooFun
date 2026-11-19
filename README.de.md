@@ -22,7 +22,7 @@ Wie die App per USB-Kabel auf den Karoo kommt, steht Schritt für Schritt auf de
 
 - **Comic-Cockpit** (eine ganze Fahrtseite): Tempo mit Schnitt, Hase oder Schnecke · Temperatur mit Sonnenstand, Mondphase, Wetter und Windsack · Puls nach Zonen · Distanz · live wachsendes Höhenprofil nach Steigung eingefärbt
 - **Comic-Aktionen**, die kurz den ganzen Bildschirm übernehmen: „Pokal oder Spital?!“ bei schnellen Abfahrten, „You're on fire!“ bei Vollgas, „Party-Pace wins the race!“ beim konstanten Fahren
-- **Einzelfelder** im Comic-Stil zum Selberbauen eigener Seiten, gemacht für 2 × 4: Geschwindigkeit (aktuell, Ø, Max), Distanz, Höhenprofil, Herzfrequenz (aktuell, Ø, Zone, Max, % Max), Trittfrequenz (aktuell, Ø, Max) und Temperatur mit Wetter. Im Karoo beim Seitenbau unter „Karoo Fun“, nach Kategorie sortiert
+- **Einzelfelder** im Comic-Stil zum Selberbauen eigener Seiten, gemacht für 2 × 4: Geschwindigkeit (aktuell, Ø, Max), Distanz, Höhenprofil, Herzfrequenz (aktuell, Ø, Zone, Max, % Max), Trittfrequenz (aktuell, Ø, Max), Temperatur mit Wetter und seit 1.4 auch Leistung (Watt, Ø, Zone, % FTP), Gang mit Antrieb von oben, Steigung, Bis zum Gipfel, Abbiegen, Kalorien in Brezn, Regen, Wind, Licht an und Sonnenuntergang. Im Karoo beim Seitenbau unter „Karoo Fun“, nach Kategorie sortiert
 - **Regenradar** (eigene Kachel): DWD-Radar auf einer grauen Deutschlandkarte, Zoom mit + und −, Prognose für die nächste Stunde in 10-Minuten-Schritten, Ansage für deinen Standort
 - **Einstellungen** am Karoo unter Einstellungen › Apps › Karoo Fun › Öffnen, mit Sprachwahl: Deutsch, Englisch oder automatisch wie der Karoo
 
@@ -40,12 +40,17 @@ Am Karoo im Fahrprofil unter **Seiten** eine Seite anlegen:
 |---|---|
 | Geschwindigkeit | aktuell · Ø · Max |
 | Distanz | gefahren |
-| Höhe | Profil (am schönsten in einem breiten Feld) |
+| Höhe | Profil (am schönsten in einem breiten Feld) · Steigung · Bis zum Gipfel |
 | Herzfrequenz | aktuell · Ø · Zone · Max · % Max |
 | Trittfrequenz | aktuell · Ø · Max |
-| Wetter | Temperatur |
+| Leistung | Watt · Ø · Zone · % FTP (braucht einen Powermeter) |
+| Schaltung | Gang (braucht eine elektronische Schaltung, z. B. Di2 oder AXS) |
+| Energie | Kalorien |
+| Navigation | Abbiegen in (braucht eine Route) |
+| Wetter | Temperatur · Regen · Wind |
+| Himmel | Licht an in · Sonne weg in |
 
-Pulszonen und Max-Puls stellst du unter Einstellungen › Apps › Karoo Fun › Öffnen ein; sie gelten für das Cockpit und die Einzelfelder. Die Sprache dort gilt für alles, was die App zeichnet. Die Namen in der Feldliste des Karoo folgen immer seiner Systemsprache.
+Pulszonen und Max-Puls stellst du unter Einstellungen › Apps › Karoo Fun › Öffnen ein; sie gelten für das Cockpit und die Einzelfelder. Dort stellst du auch ein, wie viele Kettenblätter und Ritzel das Gang-Feld zeichnet (bis 2 × 14), falls die Schaltung das nicht selbst meldet. FTP und Leistungszonen kommen aus deinem Karoo-Profil. Die Sprache dort gilt für alles, was die App zeichnet. Die Namen in der Feldliste des Karoo folgen immer seiner Systemsprache.
 
 ## Selbst bauen
 

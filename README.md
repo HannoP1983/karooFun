@@ -22,7 +22,7 @@ How to get the app onto the Karoo with a USB cable is explained step by step on 
 
 - **Comic Cockpit** (a whole ride page): speed with average, bunny or snail · temperature with the sun's position, moon phase, weather and windsock · heart rate by zone · distance · elevation profile growing live, colored by grade
 - **Comic actions** that take over the whole screen for a moment: "Pokal oder Spital?!" (trophy or hospital) on fast descents, "You're on fire!" at full gas, "Party-Pace wins the race!" when riding steadily
-- **Single fields** in comic style for building your own pages, made for 2 × 4: speed (now, average, max), distance, elevation profile, heart rate (now, average, zone, max, % of max), cadence (now, average, max) and temperature with weather. On the Karoo under "Karoo Fun" when editing a page, sorted by category
+- **Single fields** in comic style for building your own pages, made for 2 × 4: speed (now, average, max), distance, elevation profile, heart rate (now, average, zone, max, % of max), cadence (now, average, max), temperature with weather and, since 1.4, power (watts, average, zone, % FTP), gear with the drivetrain seen from above, grade, to the summit, next turn, calories in pretzels, rain, wind, lights on and sunset. On the Karoo under "Karoo Fun" when editing a page, sorted by category
 - **Rain radar** (its own tile): DWD radar on a grey map of Germany, zoom with + and −, forecast for the next hour in 10-minute steps, outlook for your position
 - **Settings** on the Karoo under Settings › Apps › Karoo Fun › Open, including the language: German, English or automatic like the Karoo
 
@@ -40,12 +40,17 @@ On the Karoo, open **Pages** in your ride profile and add a page:
 |---|---|
 | Speed | Now · Avg · Max |
 | Distance | Ride |
-| Elevation | Profile (looks best in a wide field) |
+| Elevation | Profile (looks best in a wide field) · Grade · To summit |
 | Heart rate | Now · Avg · Zone · Max · % max |
 | Cadence | Now · Avg · Max |
-| Weather | Temperature |
+| Power | Watts · Avg · Zone · % FTP (needs a power meter) |
+| Shifting | Gear (needs electronic shifting, e.g. Di2 or AXS) |
+| Energy | Calories |
+| Navigation | Next turn (needs a route) |
+| Weather | Temperature · Rain · Wind |
+| Sky | Lights on in · Sunset in |
 
-Set heart rate zones and max heart rate under Settings › Apps › Karoo Fun › Open; they apply to the cockpit and the single fields. The language chosen there applies to everything the app draws. The names in the Karoo's field list always follow the Karoo's system language.
+Set heart rate zones and max heart rate under Settings › Apps › Karoo Fun › Open; they apply to the cockpit and the single fields. That is also where you set how many chainrings and cogs the gear field draws (up to 2 × 14) if your shifting does not report it. FTP and power zones come from your Karoo profile. The language chosen there applies to everything the app draws. The names in the Karoo's field list always follow the Karoo's system language.
 
 ## Building it yourself
 

@@ -374,9 +374,33 @@
 
   <section>
     <div class="wrap">
+      <span class="bubble kicker">Neu in 1.5</span>
+      <h2>Felder mit Humor.</h2>
+      <p class="lead">Die Einzelfelder machen jetzt Witze. Die Zahl bleibt groß und lesbar, die Sprüche wechseln sich alle paar Sekunden mit dem Feldnamen ab.</p>
+      <div class="radar">
+        <figure><img class="screen" src="img/fields_fun.png" alt="Watt als Haushaltsgeräte, Espresso, Zonen-Charaktere, Kochtopf"><figcaption><span class="bubble">Watt, Zonen &amp; Kochtopf</span></figcaption></figure>
+        <figure><img class="screen" src="img/fields_fun2.png" alt="Bergsteiger, Gipfelbier, die Wand, Gummienten"><figcaption><span class="bubble">Berg, Route &amp; Wetter</span></figcaption></figure>
+        <div class="text sticker">
+          <h3>Was dazukommt</h3>
+          <ul>
+            <li><b>Watt</b> als Haushaltsgerät: Glühbirnen, Standmixer, Toaster, Föhn, Wasserkocher. <b>Ø Watt</b> in Espresso umgerechnet. ☕</li>
+            <li><b>Leistungszone</b> mit Charakter, vom Faultier bis zur Rakete. <b>% FTP</b> als Kochtopf, der ab 110 % überkocht.</li>
+            <li><b>Gang:</b> „Kaffeemühle!“, „Traktor!“, „KRRRK!“ und nach 20 min „Schon mal geschaltet?“</li>
+            <li><b>Kalorien</b> in Brezn, Bratwurst, Pizza, Döner und Weißbier. <b>Steigung</b> mit Schweiß und „DIE WAND!“.</li>
+            <li><b>Bis zum Gipfel</b> mit Bergsteiger und Gipfelbier. <b>Abbiegen</b> mit „Neuberechnung …“ neben der Route.</li>
+            <li><b>Regen</b> mit Jacken-Countdown und Gummienten, <b>Wind</b> mit Gratis-Watt und Föhnfrisur, <b>Sonne</b> mit Foto-Stopp.</li>
+            <li><b>Regenradar</b> in 5-Minuten-Schritten, mit runden Regengebieten und einer Ansage dort, wo du gleich fährst.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
       <span class="bubble kicker">Comic-Aktionen</span>
       <h2>Wenn's knallt, dann richtig.</h2>
-      <p class="lead">Drei Momente übernehmen für bis zu 3 Sekunden den ganzen Bildschirm, mit 5 Bildern pro Sekunde. Unten bleibt eine feste,
+      <p class="lead">Sechs Momente übernehmen für bis zu 3 Sekunden den ganzen Bildschirm, mit 5 Bildern pro Sekunde. Unten bleibt eine feste,
         ruhige Kachel mit deinen Werten stehen, damit du auch dann alles lesen kannst.</p>
 
       <div class="action">
@@ -411,6 +435,36 @@
           <div class="when"><b>Kommt, wenn</b> dein Puls 20 min lang konstant in Zone 2–3 liegt und du dabei dein Schnitt-Tempo (± 5 %) hältst.</div>
         </div>
       </div>
+
+      <div class="action">
+        <div class="shot"><img class="screen" src="img/takeover_3.png" alt="Gipfel"></div>
+        <div class="text sticker">
+          <span class="tag" style="background:#3FBF66">Neu in 1.5 · Gipfel</span>
+          <h3>🏔 Gipfel!</h3>
+          <p>Gipfelkreuz, Konfetti und ein jubelndes Männchen, zwei Maßkrüge stoßen an: „Gipfelbier verdient!“ Unten stehen die Höhenmeter des Anstiegs.</p>
+          <div class="when"><b>Kommt, wenn</b> du oben auf einem Anstieg deiner Route ankommst, der mindestens 50 Höhenmeter hat.</div>
+        </div>
+      </div>
+
+      <div class="action">
+        <div class="shot"><img class="screen" src="img/takeover_4.png" alt="Kilowatt-Club"></div>
+        <div class="text sticker">
+          <span class="tag" style="background:#A884F3">Neu in 1.5 · Sprint</span>
+          <h3>⚡ Kilowatt-Club</h3>
+          <p>Blitze zucken an den Rändern, ein Riesenblitz leuchtet: „Willkommen im Kilowatt-Club!“ Unten deine Spitzenleistung und welches Haushaltsgerät du gerade antreibst.</p>
+          <div class="when"><b>Kommt, wenn</b> deine 3-s-Leistung 1000 W knackt (Powermeter).</div>
+        </div>
+      </div>
+
+      <div class="action">
+        <div class="shot"><img class="screen" src="img/takeover_5.png" alt="Überkocht"></div>
+        <div class="text sticker">
+          <span class="tag" style="background:#FF7A2E">Neu in 1.5 · Schwelle</span>
+          <h3>🍲 Überkocht</h3>
+          <p>Der Deckel fliegt, Dampf steigt auf, Schaum läuft über den Rand. Unten steht, wie lange du schon über der Schwelle bist.</p>
+          <div class="when"><b>Kommt, wenn</b> du 2 Minuten lang über 105 % deiner FTP fährst (Powermeter, FTP im Karoo-Profil).</div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -426,7 +480,7 @@
             <li><b>Eigene Pulszonen</b> aus deinem Max-Puls, jede Grenze einzeln anpassbar, oder die Zonen aus dem Karoo-Profil</li>
             <li><b>Pause für alle Aktionen:</b> höchstens alle 25 min eine (einstellbar), damit's besonders bleibt</li>
             <li><b>Dauer</b> der Aktionen: 1 bis 3 Sekunden</li>
-            <li>Jede Aktion <b>einzeln an/aus</b>, mit eigenen Schwellen für Tempo, Gefälle, Pulszone und Zeit</li>
+            <li>Jede Aktion <b>einzeln an/aus</b>, mit eigenen Schwellen für Tempo, Gefälle, Pulszone, Zeit, Watt, % FTP und Höhenmeter</li>
             <li><b>Vorschau-Knopf</b>, um jede Aktion zu Hause anzuschauen</li>
             <li><b>Sprache:</b> Deutsch, Englisch oder automatisch wie der Karoo</li>
             <li><b>Schaltung:</b> wie viele Kettenblätter und Ritzel das Gang-Feld zeichnet, bis 2 × 14</li>
@@ -478,7 +532,7 @@
           <li>Deinen <b>Hammerhead Karoo 3</b>, geladen</li>
           <li>Einen <b>Computer</b> mit Windows oder macOS</li>
           <li>Ein <b>USB-C-Kabel, das Daten kann</b>. Am besten das Kabel, das beim Karoo dabei war. Manche billigen Kabel können nur laden, damit klappt es nicht.</li>
-          <li>Die Datei <b>karoo-fun-1.4.apk</b>, das ist die App selbst. Du lädst sie auf <a href="https://github.com/HannoP1983/karooFun/releases/latest">github.com/HannoP1983/karooFun › Releases</a> unter „Assets“ herunter.
+          <li>Die Datei <b>karoo-fun-1.5.apk</b>, das ist die App selbst. Du lädst sie auf <a href="https://github.com/HannoP1983/karooFun/releases/latest">github.com/HannoP1983/karooFun › Releases</a> unter „Assets“ herunter.
             Gibt es schon eine neuere Version, steht dort eine höhere Nummer, dann diese Nummer auch in den Befehlen unten verwenden.</li>
         </ul>
       </div>
@@ -536,7 +590,7 @@
               </ol>
             </div>
           </div>
-          <p class="ok"><b>Trick, der alles einfacher macht:</b> Kopiere die Datei <b>karoo-fun-1.4.apk</b> in genau diesen Ordner <b>platform-tools</b>.
+          <p class="ok"><b>Trick, der alles einfacher macht:</b> Kopiere die Datei <b>karoo-fun-1.5.apk</b> in genau diesen Ordner <b>platform-tools</b>.
             Dann liegt alles an einem Ort.</p>
         </div>
       </div>
@@ -595,8 +649,8 @@
           <h3>Die App installieren</h3>
           <p>Diese Zeile eintippen und Enter drücken:</p>
           <div class="os">
-            <div><h4>🪟 Windows</h4><pre class="cmd">adb install -r karoo-fun-1.4.apk</pre></div>
-            <div><h4>🍎 Mac</h4><pre class="cmd">./adb install -r karoo-fun-1.4.apk</pre></div>
+            <div><h4>🪟 Windows</h4><pre class="cmd">adb install -r karoo-fun-1.5.apk</pre></div>
+            <div><h4>🍎 Mac</h4><pre class="cmd">./adb install -r karoo-fun-1.5.apk</pre></div>
           </div>
           <p>Nach ein paar Sekunden erscheint das Wort <b>Success</b>. Das war's, die App ist drauf! 🥳</p>
           <p class="ok">Später eine neue Version bekommen? Genau dieselbe Zeile noch einmal, mit der neuen Datei. Deine Einstellungen bleiben erhalten.</p>
@@ -659,7 +713,7 @@
 <footer>
   <div class="wrap">
     <div class="big outline">Zack! Bumm! Losfahren!</div>
-    <p>Karoo Fun 1.4 · Extension für den Hammerhead Karoo 3</p>
+    <p>Karoo Fun 1.5 · Extension für den Hammerhead Karoo 3</p>
     <p class="credits">Radar: Deutscher Wetterdienst · Karte: © basemap.de / BKG · Wetter: Open-Meteo.com (CC BY 4.0)</p>
   </div>
 </footer>

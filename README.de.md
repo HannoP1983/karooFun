@@ -10,19 +10,22 @@
   <img src="promo/img/rain.png" width="200" alt="Regen mit Windsack">
   <img src="promo/img/radar.png" width="200" alt="Regenradar">
   <img src="promo/img/fields_new.png" width="200" alt="Einzelfelder auf einer 2 × 4 Seite">
+  <img src="promo/img/fields_fun.png" width="200" alt="Leistungsfelder mit Haushaltsgeräten, Zonen-Charakteren und Kochtopf (neu in 1.5)">
 </p>
 
 ## Download
 
 👉 **[Neueste Version herunterladen](https://github.com/HannoP1983/karooFun/releases/latest)**: die Datei `karoo-fun-….apk` unter „Assets“.
 
+Was sich in jeder Version geändert hat: [Änderungen](CHANGELOG.de.md).
+
 Wie die App per USB-Kabel auf den Karoo kommt, steht Schritt für Schritt auf der [Promo-Seite](promo/index.html) unter „Keine Ahnung von Technik? Kein Problem!“ (auch als [PDF](promo/Karoo-Fun.pdf)). Auf Englisch: [Promo-Seite](promo/en/index.html) und [PDF](promo/Karoo-Fun-en.pdf).
 
 ## Was drin ist
 
 - **Comic-Cockpit** (eine ganze Fahrtseite): Tempo mit Schnitt, Hase oder Schnecke · Temperatur mit Sonnenstand, Mondphase, Wetter und Windsack · Puls nach Zonen · Distanz · live wachsendes Höhenprofil nach Steigung eingefärbt
-- **Comic-Aktionen**, die kurz den ganzen Bildschirm übernehmen: „Pokal oder Spital?!“ bei schnellen Abfahrten, „You're on fire!“ bei Vollgas, „Party-Pace wins the race!“ beim konstanten Fahren
-- **Einzelfelder** im Comic-Stil zum Selberbauen eigener Seiten, gemacht für 2 × 4: Geschwindigkeit (aktuell, Ø, Max), Distanz, Höhenprofil, Herzfrequenz (aktuell, Ø, Zone, Max, % Max), Trittfrequenz (aktuell, Ø, Max), Temperatur mit Wetter und seit 1.4 auch Leistung (Watt, Ø, Zone, % FTP), Gang mit Antrieb von oben, Steigung, Bis zum Gipfel, Abbiegen, Kalorien in Brezn, Regen, Wind, Licht an und Sonnenuntergang. Im Karoo beim Seitenbau unter „Karoo Fun“, nach Kategorie sortiert
+- **Comic-Aktionen**, die kurz den ganzen Bildschirm übernehmen: „Pokal oder Spital?!“ bei schnellen Abfahrten, „You're on fire!“ bei Vollgas, „Party-Pace wins the race!“ beim konstanten Fahren und neu in 1.5 „Gipfel!“ oben am Anstieg, der „Kilowatt-Club“ ab 1000 W und „Überkocht“ über deiner FTP
+- **Einzelfelder** im Comic-Stil zum Selberbauen eigener Seiten, gemacht für 2 × 4: Geschwindigkeit (aktuell, Ø, Max), Distanz, Höhenprofil, Herzfrequenz (aktuell, Ø, Zone, Max, % Max), Trittfrequenz (aktuell, Ø, Max), Temperatur mit Wetter und seit 1.4 auch Leistung (Watt, Ø, Zone, % FTP), Gang mit Antrieb von oben, Steigung, Bis zum Gipfel, Abbiegen, Kalorien in Brezn, Regen, Wind, Licht an und Sonnenuntergang. Seit 1.5 mit Sprüchen und Gags: Watt als Haushaltsgeräte, Espresso, Zonen-Charaktere, Kochtopf, Bergsteiger mit Gipfelbier, Gummienten im Regen und mehr. Im Karoo beim Seitenbau unter „Karoo Fun“, nach Kategorie sortiert
 - **Regenradar** (eigene Kachel): DWD-Radar auf einer grauen Deutschlandkarte, Zoom mit + und −, Prognose für die nächste Stunde in 5-Minuten-Schritten, Ansage für deinen Standort
 - **Einstellungen** am Karoo unter Einstellungen › Apps › Karoo Fun › Öffnen, mit Sprachwahl: Deutsch, Englisch oder automatisch wie der Karoo
 
@@ -37,6 +40,13 @@ Wetter und Radar brauchen eine Verbindung (Hammerhead Companion-App auf dem Hand
 </p>
 
 Links: Tempo, Puls und Trittfrequenz. Mitte und rechts, neu in 1.4: Leistung, Gang mit Antrieb von oben, Steigung, Bis zum Gipfel, Kalorien in Brezn, Regen aus dem Radar, Wind, Licht an, Sonnenaufgang und Abbiegen.
+
+<p>
+  <img src="promo/img/fields_fun.png" width="240" alt="Watt als Haushaltsgeräte, Espresso, Zonen-Charaktere, Kochtopf, Kaffeemühle, Bratwürste (neu in 1.5)">
+  <img src="promo/img/fields_fun2.png" width="240" alt="Bergsteiger, Gipfelbier, die Wand, Neuberechnung, Jacken-Countdown, Gummienten, Gratis-Watt, Foto-Stopp (neu in 1.5)">
+</p>
+
+Neu in 1.5: Die Felder machen Witze. Watt werden zu Glühbirnen oder einem Föhn, die geleistete Arbeit zu Espresso, jede Leistungszone bekommt einen Charakter vom Faultier bis zur Rakete, und % FTP kocht im Topf über. Das Gang-Feld erkennt Kaffeemühle und Traktor, die Kalorien wechseln zwischen Brezn, Bratwurst, Pizza, Döner und Weißbier. Am Berg klettert ein Bergsteiger mit bis zum Gipfelbier, neben der Route rechnet der Karoo neu, Regen bringt einen Jacken-Countdown und Gummienten, Rückenwind Gratis-Watt. Die Sprüche wechseln sich mit dem Feldnamen ab, damit die große Zahl frei bleibt.
 
 ## Auf den Karoo legen
 
@@ -60,7 +70,7 @@ Am Karoo im Fahrprofil unter **Seiten** eine Seite anlegen:
 | Wetter | Temperatur · Regen · Wind |
 | Himmel | Licht an in · Sonne weg in |
 
-Pulszonen und Max-Puls stellst du unter Einstellungen › Apps › Karoo Fun › Öffnen ein; sie gelten für das Cockpit und die Einzelfelder. Dort stellst du auch ein, wie viele Kettenblätter und Ritzel das Gang-Feld zeichnet (bis 2 × 14), falls die Schaltung das nicht selbst meldet. FTP und Leistungszonen kommen aus deinem Karoo-Profil. Die Sprache dort gilt für alles, was die App zeichnet. Die Namen in der Feldliste des Karoo folgen immer seiner Systemsprache.
+Pulszonen und Max-Puls stellst du unter Einstellungen › Apps › Karoo Fun › Öffnen ein; sie gelten für das Cockpit und die Einzelfelder. Dort legst du auch fest, welche Comic-Aktionen wann kommen. Dort stellst du auch ein, wie viele Kettenblätter und Ritzel das Gang-Feld zeichnet (bis 2 × 14), falls die Schaltung das nicht selbst meldet. FTP und Leistungszonen kommen aus deinem Karoo-Profil. Die Sprache dort gilt für alles, was die App zeichnet. Die Namen in der Feldliste des Karoo folgen immer seiner Systemsprache.
 
 ## Selbst bauen
 

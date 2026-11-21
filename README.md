@@ -10,19 +10,22 @@
   <img src="promo/img/en/rain.png" width="200" alt="Rain with windsock">
   <img src="promo/img/en/radar.png" width="200" alt="Rain radar">
   <img src="promo/img/en/fields_new.png" width="200" alt="Single fields on a 2 × 4 page">
+  <img src="promo/img/en/fields_fun.png" width="200" alt="Power fields with household appliances, zone characters and a boiling pot (new in 1.5)">
 </p>
 
 ## Download
 
 👉 **[Download the latest version](https://github.com/HannoP1983/karooFun/releases/latest)**: the file `karoo-fun-….apk` under "Assets".
 
+What's new in each version: [changelog](CHANGELOG.md).
+
 How to get the app onto the Karoo with a USB cable is explained step by step on the [promo page](promo/en/index.html) (also as [PDF](promo/Karoo-Fun-en.pdf)). In German: [promo page](promo/index.html) and [PDF](promo/Karoo-Fun.pdf).
 
 ## What's inside
 
 - **Comic Cockpit** (a whole ride page): speed with average, bunny or snail · temperature with the sun's position, moon phase, weather and windsock · heart rate by zone · distance · elevation profile growing live, colored by grade
-- **Comic actions** that take over the whole screen for a moment: "Pokal oder Spital?!" (trophy or hospital) on fast descents, "You're on fire!" at full gas, "Party-Pace wins the race!" when riding steadily
-- **Single fields** in comic style for building your own pages, made for 2 × 4: speed (now, average, max), distance, elevation profile, heart rate (now, average, zone, max, % of max), cadence (now, average, max), temperature with weather and, since 1.4, power (watts, average, zone, % FTP), gear with the drivetrain seen from above, grade, to the summit, next turn, calories in pretzels, rain, wind, lights on and sunset. On the Karoo under "Karoo Fun" when editing a page, sorted by category
+- **Comic actions** that take over the whole screen for a moment: "Pokal oder Spital?!" (trophy or hospital) on fast descents, "You're on fire!" at full gas, "Party-Pace wins the race!" when riding steadily and, new in 1.5, "Summit!" on top of a climb, the "Kilowatt club" from 1000 W and "Boiling over" above your FTP
+- **Single fields** in comic style for building your own pages, made for 2 × 4: speed (now, average, max), distance, elevation profile, heart rate (now, average, zone, max, % of max), cadence (now, average, max), temperature with weather and, since 1.4, power (watts, average, zone, % FTP), gear with the drivetrain seen from above, grade, to the summit, next turn, calories in pretzels, rain, wind, lights on and sunset. Since 1.5 they crack jokes: watts as household appliances, espressos, zone characters, a boiling pot, a climber with summit beer, rubber ducks in the rain and more. On the Karoo under "Karoo Fun" when editing a page, sorted by category
 - **Rain radar** (its own tile): DWD radar on a grey map of Germany, zoom with + and −, forecast for the next hour in 5-minute steps, outlook for your position
 - **Settings** on the Karoo under Settings › Apps › Karoo Fun › Open, including the language: German, English or automatic like the Karoo
 
@@ -37,6 +40,13 @@ Weather and radar need a connection (Hammerhead Companion app on the phone or Wi
 </p>
 
 Left: speed, heart rate and cadence. Middle and right, new in 1.4: power, gear with the drivetrain seen from above, grade, to the summit, calories in pretzels, rain from the radar, wind, lights on, sunrise and next turn.
+
+<p>
+  <img src="promo/img/en/fields_fun.png" width="240" alt="Watts as appliances, espressos, zone characters, boiling pot, coffee grinder, bratwursts (new in 1.5)">
+  <img src="promo/img/en/fields_fun2.png" width="240" alt="Climber, summit beer, the wall, recalculating, jacket countdown, rubber ducks, free watts, photo stop (new in 1.5)">
+</p>
+
+New in 1.5: the fields crack jokes. Watts become light bulbs or a hair dryer, the ride's work espressos, every power zone gets a character from sloth to rocket and % FTP boils over in a pot. The gear field spots coffee grinders and tractors, calories take turns as pretzels, bratwursts, pizza, döner and wheat beer. On the mountain a climber moves up towards the summit beer, off the route the Karoo recalculates, rain brings a jacket countdown and rubber ducks, tailwind free watts. Remarks take turns with the field name, so the big number stays free.
 
 ## Putting it on the Karoo
 
@@ -60,7 +70,7 @@ On the Karoo, open **Pages** in your ride profile and add a page:
 | Weather | Temperature · Rain · Wind |
 | Sky | Lights on in · Sunset in |
 
-Set heart rate zones and max heart rate under Settings › Apps › Karoo Fun › Open; they apply to the cockpit and the single fields. That is also where you set how many chainrings and cogs the gear field draws (up to 2 × 14) if your shifting does not report it. FTP and power zones come from your Karoo profile. The language chosen there applies to everything the app draws. The names in the Karoo's field list always follow the Karoo's system language.
+Set heart rate zones and max heart rate under Settings › Apps › Karoo Fun › Open; they apply to the cockpit and the single fields. That is also where you choose which comic actions come and when. That is also where you set how many chainrings and cogs the gear field draws (up to 2 × 14) if your shifting does not report it. FTP and power zones come from your Karoo profile. The language chosen there applies to everything the app draws. The names in the Karoo's field list always follow the Karoo's system language.
 
 ## Building it yourself
 

@@ -23,6 +23,8 @@ data class RadarTexts(
     val outsideHint: String,
     val staysDry: String,
     val staysWet: String,
+    val dryUntil: String,
+    val wetUntil: String,
     val rainFrom: String,
     val dryFrom: String,
     val offline: String,
@@ -77,7 +79,7 @@ class RadarRenderer(private val texts: RadarTexts) {
         val window = state.window ?: state.previous?.window
         when {
             state.outside -> notice(c, layout, texts.outside, texts.outsideHint)
-            rider.latitude == null || rider.longitude == null -> notice(c, layout, texts.waitingForGps, null)
+            !rider.hasFix -> notice(c, layout, texts.waitingForGps, null)
             window != null -> drawRider(c, layout, window, rider)
         }
         if (!state.outside) {
@@ -86,7 +88,7 @@ class RadarRenderer(private val texts: RadarTexts) {
             comic.plain(c, ATTRIBUTION, layout.map.right - 8, layout.map.bottom - 6, 10f, 0xFF444444.toInt(), comic.numbers, Paint.Align.RIGHT)
         }
         drawHeader(c, layout, state, index, stale, paused = selected != null)
-        if (layout.footer > 0) drawFooter(c, layout, state, index, stale, riderOnMap(state.window, rider))
+        if (layout.footer > 0) drawFooter(c, layout, state, index, stale, rider)
         c.restore()
 
         comic.stroke.color = INK
@@ -182,14 +184,7 @@ class RadarRenderer(private val texts: RadarTexts) {
         comic.plain(c, label, box.centerX(), box.bottom - 10, 18f, typeface = comic.numbers, align = Paint.Align.CENTER)
     }
 
-    /** Rider position as fraction of the map, for checking rain right there. */
-    private fun riderOnMap(window: RadarWindow?, rider: RideSnapshot): Pair<Float, Float>? {
-        window ?: return null
-        val (dx, dy) = window.offsetOf(rider.latitude ?: return null, rider.longitude ?: return null)
-        return 0.5f + dx / window.widthPx to 0.5f + dy / window.heightPx
-    }
-
-    private fun drawFooter(c: Canvas, layout: RadarLayout, state: RadarState, index: Int, stale: Boolean, rider: Pair<Float, Float>?) {
+    private fun drawFooter(c: Canvas, layout: RadarLayout, state: RadarState, index: Int, stale: Boolean, rider: RideSnapshot) {
         val top = layout.map.bottom
         comic.fill.color = PAPER
         c.drawRect(0f, top, layout.width.toFloat(), layout.height.toFloat(), comic.fill)
@@ -198,12 +193,10 @@ class RadarRenderer(private val texts: RadarTexts) {
         val message = when {
             state.outside -> ""
             stale -> String.format(texts.offline, clock.format(Date(state.loadedAt)))
-            else -> when (val outlook = RainOutlook.of(state.now, RadarTimeline.OFFSETS_MIN.indices.map { i ->
-                rider?.let { (u, v) -> state.frames[RadarTimeline.time(state.now, i)]?.rainAt(u, v) }
-            })) {
-                RainOutlook.Unknown -> texts.loading
-                RainOutlook.StaysDry -> texts.staysDry
-                RainOutlook.StaysWet -> texts.staysWet
+            else -> when (val outlook = RainOutlook.at(state, rider)) {
+                null, RainOutlook.Unknown -> texts.loading
+                is RainOutlook.StaysDry -> outlook.until?.let { String.format(texts.dryUntil, clock.format(Date(it))) } ?: texts.staysDry
+                is RainOutlook.StaysWet -> outlook.until?.let { String.format(texts.wetUntil, clock.format(Date(it))) } ?: texts.staysWet
                 is RainOutlook.RainFrom -> String.format(texts.rainFrom, clock.format(Date(outlook.time)))
                 is RainOutlook.DryFrom -> String.format(texts.dryFrom, clock.format(Date(outlook.time)))
             }
@@ -220,14 +213,20 @@ class RadarRenderer(private val texts: RadarTexts) {
         RadarTimeline.OFFSETS_MIN.forEachIndexed { i, minutes ->
             val x = layout.timelineX(minutes)
             val on = i == index
+            val labeled = RadarTimeline.isLabeled(i)
             val forecast = RadarTimeline.isForecast(i)
             val fill = when {
                 on && forecast -> 0xFFFFD23F.toInt()
                 on -> 0xFF4FA8F2.toInt()
                 else -> Color.WHITE
             }
-            comic.sticker(c, Path().apply { addCircle(x, y, if (on) 10f else 6f, Path.Direction.CW) }, fill, 2.5f)
-            comic.plain(c, if (minutes == 0) texts.now else "+$minutes", x, y + 23, 13f, align = Paint.Align.CENTER)
+            val radius = when {
+                on -> 10f
+                labeled -> 6f
+                else -> 4f
+            }
+            comic.sticker(c, Path().apply { addCircle(x, y, radius, Path.Direction.CW) }, fill, if (labeled || on) 2.5f else 2f)
+            if (labeled) comic.plain(c, if (minutes == 0) texts.now else "+$minutes", x, y + 23, 13f, align = Paint.Align.CENTER)
         }
     }
 
@@ -252,7 +251,8 @@ class RadarRenderer(private val texts: RadarTexts) {
 
     private companion object {
         const val ATTRIBUTION = "© basemap.de / BKG · DWD"
-        const val STALE_MS = 15 * 60_000L
+        /** Two reload rounds missed. */
+        const val STALE_MS = 2 * RadarTimeline.RELOAD_MS
         const val RADAR_ALPHA = 153
         const val STALE_ALPHA = 70
         const val CORNER = 18f

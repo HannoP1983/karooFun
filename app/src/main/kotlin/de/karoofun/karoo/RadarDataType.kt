@@ -74,8 +74,10 @@ class RadarDataType(
         /** Outlives single views: radar keeps loading in the background once the tile was used. */
         val background = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+        /** Position for loading the radar, only with a real GPS fix. */
         fun riderPosition(): Pair<Double, Double>? {
             val data = RideStore.state.value
+            if (!data.hasFix) return null
             return data.latitude?.let { lat -> data.longitude?.let { lat to it } }
         }
     }

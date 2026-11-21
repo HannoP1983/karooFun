@@ -12,6 +12,7 @@ import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
+import kotlin.math.sin
 import kotlin.math.tan
 
 /** Map width of the radar tile; the scale bar shows a round part of it. */
@@ -76,7 +77,7 @@ data class RadarWindow(val latitude: Double, val longitude: Double, val zoom: Ra
 
     companion object {
         private const val EARTH_RADIUS = 6378137.0
-        private const val RADAR_PX_PER_KM = 4
+        const val RADAR_PX_PER_KM = 4
         private const val GRID_STEPS = 8
         private const val GRID_LATITUDE = 51.0
 
@@ -100,16 +101,19 @@ data class RadarWindow(val latitude: Double, val longitude: Double, val zoom: Ra
 }
 
 /**
- * The radar animation: "now" and the DWD forecast for the next hour in 10 minute steps. The layer holds
- * both, analysis up to now and forecast for about two hours, in 5 minute steps.
+ * The radar animation: "now" and the DWD forecast for the next hour in 5 minute steps, the steps the DWD
+ * measures and forecasts in. The layer holds analysis up to now and forecast for about two hours.
  */
 object RadarTimeline {
-    val OFFSETS_MIN = intArrayOf(0, 10, 20, 30, 40, 50, 60)
+    val OFFSETS_MIN = IntArray(13) { it * 5 }
     const val NOW_INDEX = 0
     private const val STEP_MS = 5 * 60_000L
 
+    /** A new round of frames every 10 minutes: half the requests of every scan, still fresh enough for a ride. */
+    const val RELOAD_MS = 10 * 60_000L
+
     /** One pass through all frames, then a few seconds on "now". */
-    private val SEQUENCE = intArrayOf(0, 1, 2, 3, 4, 5, 6, 0, 0, 0)
+    private val SEQUENCE = OFFSETS_MIN.indices.toList().toIntArray() + intArrayOf(0, 0, 0)
 
     /** Latest 5 minute slot that is surely published: the DWD needs a few minutes per scan. */
     fun now(millis: Long) = (millis - STEP_MS) / STEP_MS * STEP_MS
@@ -122,38 +126,72 @@ object RadarTimeline {
 
     /** The frame after [index], back to "now" after the last one. */
     fun next(index: Int) = (index + 1) % OFFSETS_MIN.size
+
+    /** Every other step gets a label on the timeline, the 5 minute steps between are only dots. */
+    fun isLabeled(index: Int) = OFFSETS_MIN[index] % 10 == 0
 }
 
-/** What the bottom line tells the rider, from rain at the map center now and in the forecast frames. */
+/** What the bottom line tells the rider, from rain where the rider is now and will be in the forecast frames. */
 sealed class RainOutlook {
     data object Unknown : RainOutlook()
-    data object StaysDry : RainOutlook()
-    data object StaysWet : RainOutlook()
+
+    /** No change up to [until]; null means the whole hour, else only that far is known (frames missing or off the map). */
+    data class StaysDry(val until: Long? = null) : RainOutlook()
+    data class StaysWet(val until: Long? = null) : RainOutlook()
     data class RainFrom(val time: Long) : RainOutlook()
     data class DryFrom(val time: Long) : RainOutlook()
 
     companion object {
-        /** Outlook at the rider's position on the loaded map, null outside the radar or before the first fix. */
+        private const val EARTH_RADIUS = 6371000.0
+
+        /** Below this speed (m/s) the rider counts as standing, and the bearing as meaningless. */
+        private const val MOVING_SPEED = 1.5
+
+        /**
+         * Outlook for the rider on the loaded map: each forecast frame is checked where the rider will be by then,
+         * null outside the radar, Unknown before the first fix.
+         */
         fun at(state: RadarState, rider: RideSnapshot): RainOutlook? {
             if (state.outside) return null
             val window = state.window ?: return Unknown
-            val (dx, dy) = window.offsetOf(rider.latitude ?: return Unknown, rider.longitude ?: return Unknown)
-            val u = 0.5f + dx / window.widthPx
-            val v = 0.5f + dy / window.heightPx
-            return of(state.now, RadarTimeline.OFFSETS_MIN.indices.map { i -> state.frames[RadarTimeline.time(state.now, i)]?.rainAt(u, v) })
+            if (!rider.hasFix) return Unknown
+            return of(state.now, RadarTimeline.OFFSETS_MIN.indices.map { i ->
+                val (lat, lon) = ahead(rider, RadarTimeline.OFFSETS_MIN[i]) ?: return@map null
+                val (dx, dy) = window.offsetOf(lat, lon)
+                state.frames[RadarTimeline.time(state.now, i)]?.rainAt(0.5f + dx / window.widthPx, 0.5f + dy / window.heightPx)
+            })
         }
 
-        /** [rain] per timeline index, null where the frame is missing. */
+        /**
+         * Where the rider will be [minutes] from now, keeping the bearing at the ride's average speed (steadier than
+         * the current one at traffic lights). A standing rider stays where they are.
+         */
+        fun ahead(rider: RideSnapshot, minutes: Int): Pair<Double, Double>? {
+            val lat = rider.latitude ?: return null
+            val lon = rider.longitude ?: return null
+            val bearing = rider.bearing
+            val speed = rider.speed
+            if (minutes == 0 || bearing == null || speed == null || speed < MOVING_SPEED) return lat to lon
+            val meters = (rider.averageSpeed?.takeIf { it >= MOVING_SPEED } ?: speed) * minutes * 60
+            val angle = Math.toRadians(bearing)
+            val north = meters * cos(angle) / EARTH_RADIUS
+            val east = meters * sin(angle) / (EARTH_RADIUS * cos(Math.toRadians(lat)))
+            return lat + Math.toDegrees(north) to lon + Math.toDegrees(east)
+        }
+
+        /** [rain] per timeline index, null where unknown; a gap ends what can be said. */
         fun of(now: Long, rain: List<Boolean?>): RainOutlook {
             val current = rain.getOrNull(RadarTimeline.NOW_INDEX) ?: return Unknown
             for (i in RadarTimeline.NOW_INDEX + 1 until rain.size) {
-                val later = rain[i] ?: continue
+                val later = rain[i] ?: return if (i - 1 == RadarTimeline.NOW_INDEX) Unknown else stays(current, RadarTimeline.time(now, i - 1))
                 if (later != current) {
                     val time = RadarTimeline.time(now, i)
                     return if (later) RainFrom(time) else DryFrom(time)
                 }
             }
-            return if (current) StaysWet else StaysDry
+            return stays(current, null)
         }
+
+        private fun stays(wet: Boolean, until: Long?) = if (wet) StaysWet(until) else StaysDry(until)
     }
 }

@@ -16,18 +16,25 @@ import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.coroutines.coroutineContext
 
-/** A radar frame as delivered: about four pixels per kilometer, drawn soft and blob-like when scaled up. */
-class RadarFrame(val bitmap: Bitmap, val fetchedFor: Long) {
-    /** Rain at a point given as fraction of the map width and height; outside the map counts as unknown. */
-    fun rainAt(u: Float, v: Float): Boolean? {
-        val x = (u * bitmap.width).toInt()
-        val y = (v * bitmap.height).toInt()
-        if (x !in 0 until bitmap.width || y !in 0 until bitmap.height) return null
-        return (bitmap.getPixel(x, y) ushr 24) > RAIN_ALPHA
-    }
+/** A radar frame: the cells as delivered (four pixels per kilometer) for asking about rain, and the smoothed picture for the tile. */
+class RadarFrame(val cells: RadarCells, val bitmap: Bitmap, val fetchedFor: Long) {
+    /** Rain at a point given as fraction of the map width and height; outside the map or without data unknown. */
+    fun rainAt(u: Float, v: Float): Boolean? = cells.rainAt(u, v)
 
-    private companion object {
-        const val RAIN_ALPHA = 64
+    companion object {
+        /** Decodes a frame and smooths it for a map [mapWidth] pixels wide, null if the bytes are no image. */
+        fun decode(bytes: ByteArray, mapWidth: Int, fetchedFor: Long): RadarFrame? {
+            val raw = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+            val width = raw.width
+            val height = raw.height
+            val pixels = IntArray(width * height)
+            raw.getPixels(pixels, 0, width, 0, 0, width, height)
+            raw.recycle()
+            val factor = RadarImage.factorFor(width, mapWidth)
+            val smooth = RadarImage.smooth(pixels, width, height, factor)
+            val bitmap = Bitmap.createBitmap(smooth, width * factor, height * factor, Bitmap.Config.ARGB_8888)
+            return RadarFrame(RadarCells.of(pixels, width, height), bitmap, fetchedFor)
+        }
     }
 }
 
@@ -46,8 +53,9 @@ data class RadarState(
 )
 
 /**
- * Process-wide radar: zoom level, tile size and the loader. Once the radar tile was shown, loading keeps
- * running in the background for the whole ride (and after restarts), so the tile is ready when swiped to.
+ * Process-wide radar: zoom level, tile size and the loader. Once the radar tile or the rain field was shown,
+ * loading keeps running in the background for the whole ride (and after restarts), so both are ready when
+ * swiped to. The base map is only loaded once the tile was shown, the rain field needs just the radar.
  */
 object RadarStore {
     private val _zoom = MutableStateFlow(RadarZoom.REGION)
@@ -94,7 +102,7 @@ object RadarStore {
     fun startIfUsed(context: Context, scope: CoroutineScope, get: suspend (String) -> ByteArray?, position: () -> Pair<Double, Double>?) {
         val prefs = prefs(context)
         if (!prefs.getBoolean(KEY_USED, false)) return
-        start(context, scope, prefs.getInt(KEY_WIDTH, DEFAULT_WIDTH), prefs.getInt(KEY_HEIGHT, DEFAULT_HEIGHT), get, position)
+        start(context, scope, prefs.getInt(KEY_WIDTH, DEFAULT_WIDTH), prefs.getInt(KEY_HEIGHT, DEFAULT_HEIGHT), prefs.contains(KEY_WIDTH), get, position)
     }
 
     /** Called by the rain field: keeps loading running, with the radar tile's map size if it was ever shown. */
@@ -103,7 +111,7 @@ object RadarStore {
         if (loader != null && job?.isActive == true) return
         val prefs = prefs(context)
         prefs.edit().putBoolean(KEY_USED, true).apply()
-        start(context, scope, prefs.getInt(KEY_WIDTH, DEFAULT_WIDTH), prefs.getInt(KEY_HEIGHT, DEFAULT_HEIGHT), get, position)
+        start(context, scope, prefs.getInt(KEY_WIDTH, DEFAULT_WIDTH), prefs.getInt(KEY_HEIGHT, DEFAULT_HEIGHT), prefs.contains(KEY_WIDTH), get, position)
     }
 
     /** Called by the tile: remembers its map size and makes sure loading runs for it. */
@@ -111,15 +119,21 @@ object RadarStore {
     fun use(context: Context, scope: CoroutineScope, mapWidth: Int, mapHeight: Int, get: suspend (String) -> ByteArray?, position: () -> Pair<Double, Double>?) {
         prefs(context).edit().putBoolean(KEY_USED, true).putInt(KEY_WIDTH, mapWidth).putInt(KEY_HEIGHT, mapHeight).apply()
         val current = loader
-        if (current != null && current.mapWidth == mapWidth && current.mapHeight == mapHeight && job?.isActive == true) return
-        start(context, scope, mapWidth, mapHeight, get, position)
+        if (current != null && current.mapWidth == mapWidth && current.mapHeight == mapHeight && job?.isActive == true) {
+            current.withMap = true
+            return
+        }
+        start(context, scope, mapWidth, mapHeight, true, get, position)
     }
 
     @Synchronized
-    private fun start(context: Context, scope: CoroutineScope, width: Int, height: Int, get: suspend (String) -> ByteArray?, position: () -> Pair<Double, Double>?) {
+    private fun start(
+        context: Context, scope: CoroutineScope, width: Int, height: Int, withMap: Boolean,
+        get: suspend (String) -> ByteArray?, position: () -> Pair<Double, Double>?,
+    ) {
         load(context)
         job?.cancel()
-        val next = RadarLoader(width, height, File(context.cacheDir, "radar-maps"), get)
+        val next = RadarLoader(width, height, File(context.cacheDir, "radar-maps"), withMap, get)
         loader = next
         job = scope.launch { next.run(position) }
     }
@@ -135,11 +149,20 @@ object RadarStore {
 }
 
 /**
- * Loads base map and radar frames. Forecast frames are fetched again with every new 5 minute slot. Requests
- * run one after another, "now" first, since they share the slow Bluetooth link to the phone. Base maps are kept
+ * Loads base map and radar frames. All frames are fetched again every [RadarTimeline.RELOAD_MS], since each
+ * DWD run brings a new forecast. Requests run one after another, "now" first, since they share the slow
+ * Bluetooth link to the phone. The first round shows each frame as it arrives; later rounds swap all frames
+ * at once, so tile and field never mix two forecasts. A failed frame is skipped and fetched again a minute
+ * later, the old one standing in meanwhile. [withMap] is set once the tile is shown. Base maps are kept
  * on disk, so places ridden before show up at once.
  */
-class RadarLoader(val mapWidth: Int, val mapHeight: Int, private val cache: File?, private val get: suspend (String) -> ByteArray?) {
+class RadarLoader(
+    val mapWidth: Int,
+    val mapHeight: Int,
+    private val cache: File?,
+    @Volatile var withMap: Boolean = true,
+    private val get: suspend (String) -> ByteArray?,
+) {
     private val _state = MutableStateFlow(RadarState())
     val state: StateFlow<RadarState> = _state.asStateFlow()
 
@@ -152,40 +175,69 @@ class RadarLoader(val mapWidth: Int, val mapHeight: Int, private val cache: File
             when {
                 here == null -> Unit
                 !RadarWindow.covers(here.first, here.second) -> _state.value = RadarState(outside = true)
-                millis >= retryAt || zoomChanged() -> refresh(here.first, here.second, millis)
+                // A new window doesn't wait for the retry: after a fix following a stale position it is needed right away
+                millis >= retryAt || _state.value.window?.let { wrong(it, here) } == true -> refresh(here.first, here.second, millis, position)
             }
             delay(TICK_MS)
         }
     }
 
-    private fun zoomChanged() = _state.value.window?.zoom?.let { it != RadarStore.zoom.value } ?: false
+    /** [window] no longer fits: zoom changed, or the rider got away from it. */
+    private fun wrong(window: RadarWindow, here: Pair<Double, Double>?) =
+        window.zoom != RadarStore.zoom.value || here != null && window.needsRecenter(here.first, here.second)
 
-    private suspend fun refresh(lat: Double, lon: Double, millis: Long) {
+    /**
+     * One pass of loading. It stops as soon as the window it loads for no longer fits, for example when the
+     * first real GPS fix arrives while a round for the Karoo's stale position is still running.
+     */
+    private suspend fun refresh(lat: Double, lon: Double, millis: Long, position: () -> Pair<Double, Double>?) {
         val zoom = RadarStore.zoom.value
         val current = _state.value
         val window = current.window
         if (window == null || window.zoom != zoom || window.needsRecenter(lat, lon)) {
             val next = RadarWindow.around(lat, lon, zoom, mapWidth, mapHeight)
             _state.value = RadarState(window = next, previous = current.takeIf { it.base != null }?.copy(previous = null))
-            val base = loadBase(next) ?: return retryLater(millis)
-            if (_state.value.window != next) return
-            _state.update { it.copy(base = base) }
         }
-        val now = RadarTimeline.now(millis)
-        for (index in RadarTimeline.OFFSETS_MIN.indices) {
-            val state = _state.value
+        var failed = false
+        val mapWindow = _state.value.window ?: return
+        if (withMap && _state.value.base == null) {
+            val base = loadBase(mapWindow)
+            if (_state.value.window != mapWindow || wrong(mapWindow, position())) return
+            if (base != null) _state.update { it.copy(base = base) } else failed = true
+        }
+
+        val state = _state.value
+        val latest = RadarTimeline.now(millis)
+        val now = if (state.now == 0L || latest - state.now >= RadarTimeline.RELOAD_MS) latest else state.now
+        val missing = RadarTimeline.OFFSETS_MIN.indices.filter { state.frames[RadarTimeline.time(now, it)]?.fetchedFor != now }
+        val firstRound = state.frames.isEmpty()
+        val loaded = mutableMapOf<Long, RadarFrame>()
+        var failures = 0
+        for (index in missing) {
+            val window = _state.value.window ?: return
             val time = RadarTimeline.time(now, index)
-            val frame = state.frames[time]
-            if (frame != null && (time <= now || frame.fetchedFor == now)) continue
-            val window = state.window ?: return
-            val bitmap = get(window.radarUrl(time))?.let(::decode) ?: return retryLater(millis)
-            if (_state.value.window != window) return
-            _state.update { s ->
-                val kept = s.frames.filterKeys { it >= RadarTimeline.time(now, 0) }
-                s.copy(frames = kept + (time to RadarFrame(bitmap, now)), now = now, loadedAt = millis, previous = null)
+            val frame = get(window.radarUrl(time))?.let { RadarFrame.decode(it, mapWidth, now) }
+            if (_state.value.window != window || wrong(window, position())) return
+            if (frame == null) {
+                failed = true
+                // Two misses in a row: the connection is likely gone, so don't wait out every request's timeout
+                if (++failures >= MAX_FAILURES) break
+                continue
             }
+            failures = 0
+            loaded[time] = frame
+            if (firstRound) publish(loaded, now, millis)
         }
-        _state.update { it.copy(now = now) }
+        publish(loaded, now, millis)
+        if (failed) retryLater(millis, nothingShown = _state.value.frames.isEmpty())
+    }
+
+    /** Adds [loaded] frames, drops those older than [now], and clears [loaded]. */
+    private fun publish(loaded: MutableMap<Long, RadarFrame>, now: Long, millis: Long) {
+        if (loaded.isEmpty()) return
+        val frames = loaded.toMap()
+        loaded.clear()
+        _state.update { s -> s.copy(frames = s.frames.filterKeys { it >= now } + frames, now = now, loadedAt = millis, previous = null) }
     }
 
     private suspend fun loadBase(window: RadarWindow): Bitmap? {
@@ -194,7 +246,7 @@ class RadarLoader(val mapWidth: Int, val mapHeight: Int, private val cache: File
             file.setLastModified(System.currentTimeMillis())
             return it
         }
-        val halves = (0..1).map { half -> get(window.baseMapUrl(half))?.let(::decode) ?: return null }
+        val halves = (0..1).map { half -> get(window.baseMapUrl(half))?.let { BitmapFactory.decodeByteArray(it, 0, it.size) } ?: return null }
         val base = Bitmap.createBitmap(mapWidth, mapHeight, Bitmap.Config.RGB_565).also {
             val c = Canvas(it)
             c.drawBitmap(halves[0], 0f, 0f, null)
@@ -211,15 +263,16 @@ class RadarLoader(val mapWidth: Int, val mapHeight: Int, private val cache: File
         file.parentFile?.listFiles()?.sortedByDescending { it.lastModified() }?.drop(MAX_CACHED_MAPS)?.forEach { it.delete() }
     }
 
-    private fun retryLater(millis: Long) {
-        retryAt = millis + RETRY_MS
+    /** Soon while nothing is shown yet (the phone link often comes up only after start), else in a minute. */
+    private fun retryLater(millis: Long, nothingShown: Boolean) {
+        retryAt = millis + if (nothingShown) FIRST_RETRY_MS else RETRY_MS
     }
-
-    private fun decode(bytes: ByteArray): Bitmap? = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
 
     private companion object {
         const val TICK_MS = 1_000L
         const val RETRY_MS = 60_000L
+        const val FIRST_RETRY_MS = 15_000L
+        const val MAX_FAILURES = 2
         const val MAX_CACHED_MAPS = 60
     }
 }

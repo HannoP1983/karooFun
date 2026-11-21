@@ -23,7 +23,7 @@ Wie die App per USB-Kabel auf den Karoo kommt, steht Schritt für Schritt auf de
 - **Comic-Cockpit** (eine ganze Fahrtseite): Tempo mit Schnitt, Hase oder Schnecke · Temperatur mit Sonnenstand, Mondphase, Wetter und Windsack · Puls nach Zonen · Distanz · live wachsendes Höhenprofil nach Steigung eingefärbt
 - **Comic-Aktionen**, die kurz den ganzen Bildschirm übernehmen: „Pokal oder Spital?!“ bei schnellen Abfahrten, „You're on fire!“ bei Vollgas, „Party-Pace wins the race!“ beim konstanten Fahren
 - **Einzelfelder** im Comic-Stil zum Selberbauen eigener Seiten, gemacht für 2 × 4: Geschwindigkeit (aktuell, Ø, Max), Distanz, Höhenprofil, Herzfrequenz (aktuell, Ø, Zone, Max, % Max), Trittfrequenz (aktuell, Ø, Max), Temperatur mit Wetter und seit 1.4 auch Leistung (Watt, Ø, Zone, % FTP), Gang mit Antrieb von oben, Steigung, Bis zum Gipfel, Abbiegen, Kalorien in Brezn, Regen, Wind, Licht an und Sonnenuntergang. Im Karoo beim Seitenbau unter „Karoo Fun“, nach Kategorie sortiert
-- **Regenradar** (eigene Kachel): DWD-Radar auf einer grauen Deutschlandkarte, Zoom mit + und −, Prognose für die nächste Stunde in 10-Minuten-Schritten, Ansage für deinen Standort
+- **Regenradar** (eigene Kachel): DWD-Radar auf einer grauen Deutschlandkarte, Zoom mit + und −, Prognose für die nächste Stunde in 5-Minuten-Schritten, Ansage für deinen Standort
 - **Einstellungen** am Karoo unter Einstellungen › Apps › Karoo Fun › Öffnen, mit Sprachwahl: Deutsch, Englisch oder automatisch wie der Karoo
 
 Wetter und Radar brauchen eine Verbindung (Hammerhead Companion-App auf dem Handy oder WLAN am Karoo). Radar und Karte gibt es für Deutschland und die Grenzgebiete.

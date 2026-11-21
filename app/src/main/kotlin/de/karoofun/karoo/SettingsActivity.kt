@@ -116,7 +116,7 @@ class SettingsActivity : Activity() {
         title.addView(TextView(context).apply {
             text = getString(R.string.app_name)
             typeface = numbers
-            setTextSize(TypedValue.COMPLEX_UNIT_PX, 30f * scale)
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, 30f * textScale)
             setTextColor(Color.WHITE)
             setShadowLayer(1f, dp(3).toFloat(), dp(3).toFloat(), INK)
         }, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f))
@@ -159,7 +159,7 @@ class SettingsActivity : Activity() {
         addView(label(title, 16f), LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f))
         val value = TextView(context).apply {
             typeface = numbers
-            setTextSize(TypedValue.COMPLEX_UNIT_PX, 23f * scale)
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, 23f * textScale)
             setTextColor(INK)
             gravity = Gravity.CENTER
         }
@@ -170,13 +170,13 @@ class SettingsActivity : Activity() {
         refreshers += ::refresh
         refresh()
         addView(round("–") { update { s -> set(s, (get(s) - step).coerceIn(range)) } })
-        addView(value, LinearLayout.LayoutParams(dp(124), WRAP_CONTENT))
+        addView(value, LinearLayout.LayoutParams(dp(140), WRAP_CONTENT))
         addView(round("+") { update { s -> set(s, (get(s) + step).coerceIn(range)) } })
     }
 
     private fun toggleView(toggle: Toggle) = TextView(this).apply {
         typeface = numbers
-        setTextSize(TypedValue.COMPLEX_UNIT_PX, 14f * scale)
+        setTextSize(TypedValue.COMPLEX_UNIT_PX, 14f * textScale)
         gravity = Gravity.CENTER
         setPadding(dp(14), dp(6), dp(14), dp(6))
         fun refresh() {
@@ -199,7 +199,7 @@ class SettingsActivity : Activity() {
             addView(TextView(context).apply {
                 text = name
                 typeface = numbers
-                setTextSize(TypedValue.COMPLEX_UNIT_PX, 15f * scale)
+                setTextSize(TypedValue.COMPLEX_UNIT_PX, 15f * textScale)
                 setTextColor(if (on) Color.WHITE else INK)
                 gravity = Gravity.CENTER
                 setPadding(dp(12), dp(8), dp(12), dp(8))
@@ -216,7 +216,7 @@ class SettingsActivity : Activity() {
     private fun round(symbol: String, onClick: () -> Unit) = TextView(this).apply {
         text = symbol
         typeface = numbers
-        setTextSize(TypedValue.COMPLEX_UNIT_PX, 24f * scale)
+        setTextSize(TypedValue.COMPLEX_UNIT_PX, 24f * textScale)
         setTextColor(INK)
         gravity = Gravity.CENTER
         background = sticker(0xFFFFD23F.toInt(), 24, shadow = 3)
@@ -243,7 +243,7 @@ class SettingsActivity : Activity() {
     private fun button(text: String, onClick: () -> Unit) = TextView(this).apply {
         this.text = text
         typeface = numbers
-        setTextSize(TypedValue.COMPLEX_UNIT_PX, 19f * scale)
+        setTextSize(TypedValue.COMPLEX_UNIT_PX, 19f * textScale)
         setTextColor(Color.WHITE)
         setShadowLayer(1f, dp(2).toFloat(), dp(2).toFloat(), INK)
         gravity = Gravity.CENTER
@@ -255,7 +255,7 @@ class SettingsActivity : Activity() {
     private fun label(text: String, size: Float, bold: Boolean = true) = TextView(this).apply {
         this.text = text
         typeface = if (bold) hand else Typeface.create("casual", Typeface.NORMAL)
-        setTextSize(TypedValue.COMPLEX_UNIT_PX, size * scale)
+        setTextSize(TypedValue.COMPLEX_UNIT_PX, size * textScale)
         setTextColor(INK)
     }
 
@@ -322,6 +322,9 @@ class SettingsActivity : Activity() {
     /** Sizes are designed for the Karoo's 480 px wide screen and scaled to the actual width. */
     private val scale get() = resources.displayMetrics.widthPixels / 480f
 
+    /** Text a bit larger than the layout, for reading at arm's length on the bike. */
+    private val textScale get() = scale * TEXT_ZOOM
+
     private fun dp(value: Int) = (value * scale).roundToInt()
 
     companion object {
@@ -329,5 +332,6 @@ class SettingsActivity : Activity() {
         const val EXTRA_FRAME = "frame"
         private const val REPEAT_DELAY_MS = 400L
         private const val REPEAT_MS = 70L
+        private const val TEXT_ZOOM = 1.2f
     }
 }

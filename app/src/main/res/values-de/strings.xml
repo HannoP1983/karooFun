@@ -15,6 +15,8 @@
     <string name="radar_outside_hint">Nur Deutschland und Grenzgebiete</string>
     <string name="radar_stays_dry">Trocken – bleibt so</string>
     <string name="radar_stays_wet">Nass – und es bleibt nass</string>
+    <string name="radar_dry_until">Trocken – mindestens bis %s</string>
+    <string name="radar_wet_until">Nass – mindestens bis %s</string>
     <string name="radar_rain_from">Noch trocken · Regen ab ca. %s</string>
     <string name="radar_dry_from">Nass! Trocken ab ca. %s</string>
     <string name="radar_offline">Kein Netz · Bild von %s</string>
@@ -120,6 +122,7 @@
     <string name="field_dry">TROCKEN</string>
     <string name="field_wet">NASS</string>
     <string name="field_next_hour">die nächste Stunde</string>
+    <string name="field_next_minutes">die nächsten %d min</string>
     <string name="field_dry_for">noch %d min trocken</string>
     <string name="field_wet_for">noch %d min nass</string>
     <string name="field_tailwind">Rückenwind 😎</string>

@@ -34,6 +34,7 @@ data class FieldTexts(
     val dry: String,
     val wet: String,
     val nextHour: String,
+    val nextMinutes: String,
     val dryFor: String,
     val wetFor: String,
     val radarLoading: String,
@@ -305,19 +306,19 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
                 number(c, w, h, null, captioned = true)
                 caption(c, w, h, if (outlook == null) texts.radarOutside else texts.radarLoading)
             }
-            RainOutlook.StaysDry -> {
+            is RainOutlook.StaysDry -> {
                 background(c, w, h, 0xFFFFD23F.toInt())
                 sun(c, w - 34, 30f, frame)
                 comic.fieldTag(c, texts.rain)
                 word(c, w, h, texts.dry)
-                caption(c, w, h, texts.nextHour)
+                caption(c, w, h, horizon(outlook.until, now))
             }
-            RainOutlook.StaysWet -> {
+            is RainOutlook.StaysWet -> {
                 background(c, w, h, 0xFF6E7E92.toInt())
                 rainCloud(c, w, frame)
                 comic.fieldTag(c, texts.rain)
                 word(c, w, h, texts.wet)
-                caption(c, w, h, texts.nextHour)
+                caption(c, w, h, horizon(outlook.until, now))
             }
             is RainOutlook.RainFrom -> {
                 gradient(c, w, h, 0xFF8C9AAB.toInt(), 0xFF6E7E92.toInt())
@@ -336,6 +337,9 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
             }
         }
     }
+
+    /** "the next hour", or how far the outlook reaches when frames are missing or the way ahead leaves the map. */
+    private fun horizon(until: Long?, now: Long) = until?.let { String.format(texts.nextMinutes, minutesUntil(it, now)) } ?: texts.nextHour
 
     /** Wind speed with the windsock from the temperature cell; the color says whether it helps. */
     fun wind(c: Canvas, w: Float, h: Float, s: RideSnapshot, now: Long, frame: Int) {

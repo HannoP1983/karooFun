@@ -36,8 +36,20 @@ data class RideSnapshot(
     val latitude: Double? = null,
     val longitude: Double? = null,
     val bearing: Double? = null,
+    /** How exact the position is, in meters; null if the Karoo doesn't say. */
+    val accuracy: Double? = null,
     val weather: Weather? = null,
-)
+) {
+    /**
+     * A real GPS fix. Before one the Karoo may report a coarse or old position, and loading radar there
+     * only holds up loading at the real one.
+     */
+    val hasFix get() = latitude != null && longitude != null && (accuracy == null || accuracy <= FIX_ACCURACY)
+
+    private companion object {
+        const val FIX_ACCURACY = 50.0
+    }
+}
 
 /**
  * Electronic shifting as the Karoo reports it: gear numbers count from 1, front 1 is the small ring and rear 1
@@ -137,8 +149,8 @@ object RideStore {
 
     fun onGrade(grade: Double) = _state.update { it.copy(grade = grade) }
 
-    fun onLocation(latitude: Double, longitude: Double, bearing: Double?) = _state.update {
-        it.copy(latitude = latitude, longitude = longitude, bearing = bearing ?: it.bearing)
+    fun onLocation(latitude: Double, longitude: Double, bearing: Double?, accuracy: Double?) = _state.update {
+        it.copy(latitude = latitude, longitude = longitude, bearing = bearing ?: it.bearing, accuracy = accuracy)
     }
 
     fun onWeather(weather: Weather) = _state.update { it.copy(weather = weather) }

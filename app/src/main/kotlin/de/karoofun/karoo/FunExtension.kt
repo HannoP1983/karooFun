@@ -92,7 +92,7 @@ class FunExtension : KarooExtension("karoo-fun", "1") {
                 val values = (state as? StreamState.Streaming)?.dataPoint?.values ?: return@collect
                 val latitude = values[DataType.Field.LOC_LATITUDE] ?: return@collect
                 val longitude = values[DataType.Field.LOC_LONGITUDE] ?: return@collect
-                RideStore.onLocation(latitude, longitude, values[DataType.Field.LOC_BEARING])
+                RideStore.onLocation(latitude, longitude, values[DataType.Field.LOC_BEARING], values[DataType.Field.LOC_ACCURACY])
             }
         }
         launch { pollWeather() }
@@ -100,16 +100,21 @@ class FunExtension : KarooExtension("karoo-fun", "1") {
         launch { watchForTakeovers() }
     }
 
-    /** Current weather every 15 minutes once there is a GPS fix; without a connection the last one simply ages out. */
+    /**
+     * Current weather every 15 minutes once there is a real GPS fix, not for the coarse or old position the Karoo
+     * may report before. A failed fetch is tried again after a minute (the phone link often comes up only
+     * after start); without a connection the last one simply ages out.
+     */
     private suspend fun CoroutineScope.pollWeather() {
         while (isActive) {
             val data = RideStore.state.value
-            if (data.latitude == null || data.longitude == null) {
+            if (!data.hasFix || data.latitude == null || data.longitude == null) {
                 delay(10_000)
                 continue
             }
-            karooSystem.fetchWeather(data.latitude, data.longitude, System.currentTimeMillis())?.let(RideStore::onWeather)
-            delay(WEATHER_INTERVAL_MS)
+            val weather = karooSystem.fetchWeather(data.latitude, data.longitude, System.currentTimeMillis())
+            weather?.let(RideStore::onWeather)
+            delay(if (weather != null) WEATHER_INTERVAL_MS else WEATHER_RETRY_MS)
         }
     }
 
@@ -147,5 +152,6 @@ class FunExtension : KarooExtension("karoo-fun", "1") {
     private companion object {
         const val KMH_PER_MPS = 3.6
         const val WEATHER_INTERVAL_MS = 15 * 60_000L
+        const val WEATHER_RETRY_MS = 60_000L
     }
 }

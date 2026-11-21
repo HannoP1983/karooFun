@@ -23,7 +23,7 @@ How to get the app onto the Karoo with a USB cable is explained step by step on 
 - **Comic Cockpit** (a whole ride page): speed with average, bunny or snail · temperature with the sun's position, moon phase, weather and windsock · heart rate by zone · distance · elevation profile growing live, colored by grade
 - **Comic actions** that take over the whole screen for a moment: "Pokal oder Spital?!" (trophy or hospital) on fast descents, "You're on fire!" at full gas, "Party-Pace wins the race!" when riding steadily
 - **Single fields** in comic style for building your own pages, made for 2 × 4: speed (now, average, max), distance, elevation profile, heart rate (now, average, zone, max, % of max), cadence (now, average, max), temperature with weather and, since 1.4, power (watts, average, zone, % FTP), gear with the drivetrain seen from above, grade, to the summit, next turn, calories in pretzels, rain, wind, lights on and sunset. On the Karoo under "Karoo Fun" when editing a page, sorted by category
-- **Rain radar** (its own tile): DWD radar on a grey map of Germany, zoom with + and −, forecast for the next hour in 10-minute steps, outlook for your position
+- **Rain radar** (its own tile): DWD radar on a grey map of Germany, zoom with + and −, forecast for the next hour in 5-minute steps, outlook for your position
 - **Settings** on the Karoo under Settings › Apps › Karoo Fun › Open, including the language: German, English or automatic like the Karoo
 
 Weather and radar need a connection (Hammerhead Companion app on the phone or WiFi on the Karoo). Radar and map cover Germany and its border regions.

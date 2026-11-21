@@ -24,7 +24,7 @@ data class FieldTexts(
     val rear: String,
     val crossChain: String,
     val kcal: String,
-    val pretzels: (Int) -> String,
+    val food: (Food, Int) -> String,
     val noRoute: String,
     val noClimb: String,
     val stillToGo: String,
@@ -35,7 +35,7 @@ data class FieldTexts(
     val wet: String,
     val nextHour: String,
     val nextMinutes: String,
-    val dryFor: String,
+    val jacketIn: String,
     val wetFor: String,
     val radarLoading: String,
     val radarOutside: String,
@@ -52,6 +52,23 @@ data class FieldTexts(
     val sunsetAt: String,
     val sunriseAt: String,
     val noFtp: String,
+    val appliance: (Appliance, Int) -> String,
+    val espressos: (String, Int) -> String,
+    val zoneCharacters: List<String>,
+    val pot: List<String>,
+    val krrk: String,
+    val coffeeGrinder: String,
+    val tractor: String,
+    val lazyShifting: String,
+    val wall: String,
+    val push: String,
+    val wheee: String,
+    val summitBeer: String,
+    val summitMadeIt: String,
+    val offRoute: String,
+    val backToRoute: String,
+    val blowDry: String,
+    val photoStop: String,
 )
 
 /**
@@ -61,38 +78,49 @@ data class FieldTexts(
  */
 class SensorFields(private val comic: Comic, private val texts: FieldTexts, private val units: Units) {
     private val weatherArt = WeatherArt(comic)
+    private val art = FunArt(comic)
     private val clock = SimpleDateFormat("H:mm", units.locale)
 
+    /** Watts with the household appliance they would run: light bulbs, blender, toaster, hair dryer, kettle. */
     fun power(c: Canvas, w: Float, h: Float, s: RideSnapshot, rider: Rider, frame: Int) {
-        val zone = rider.powerZone(s.power)
+        val watts = s.power
+        val zone = rider.powerZone(watts)
         background(c, w, h, zone?.let { powerColor(it) } ?: GREY)
-        c.save()
-        c.rotate(if (s.power != null && frame % 2 == 0) -8f else 4f, w - 32, 30f)
-        bolt(c, w - 46, 4f, 1f)
-        c.restore()
-        if (zone != null && zone >= 5 && frame % 2 == 0) zap(c, w - 32, 30f)
         tag(c, ComicField.POWER)
-        number(c, w, h, s.power?.roundToInt()?.toString())
+        if (watts == null) {
+            bolt(c, w - 46, 4f, 1f)
+            number(c, w, h, null)
+            return
+        }
+        val appliance = Appliance.of(watts)
+        art.appliance(c, w - 40, 36f, appliance, watts, frame)
+        if (zone != null && zone >= 5 && frame % 2 == 0) zap(c, w - 36, 34f)
+        number(c, w, h, watts.roundToInt().toString(), captioned = true)
+        caption(c, w, h, texts.appliance(appliance, Appliance.bulbs(watts)))
     }
 
-    fun averagePower(c: Canvas, w: Float, h: Float, s: RideSnapshot) {
+    /** Average watts; the ride's work so far goes into the caption as espressos. */
+    fun averagePower(c: Canvas, w: Float, h: Float, s: RideSnapshot, frame: Int) {
         background(c, w, h, TEAL)
-        comic.sticker(c, Path().apply { addCircle(w - 34, 34f, 24f, Path.Direction.CW) }, Color.WHITE, 3f, shadow = 2.5f)
-        bolt(c, w - 49, 12f, 0.78f)
+        art.espresso(c, w - 38, 38f, frame)
         tag(c, ComicField.AVERAGE_POWER)
-        number(c, w, h, s.averagePower?.roundToInt()?.toString())
+        val cups = s.energy?.let { espressos(it) } ?: 0
+        number(c, w, h, s.averagePower?.roundToInt()?.toString(), captioned = cups > 0)
+        if (cups > 0) caption(c, w, h, texts.espressos(s.energy!!.roundToInt().toString(), cups))
     }
 
     /** Big zone over a ladder with one step per zone, like the heart rate zone field. */
     fun powerZone(c: Canvas, w: Float, h: Float, s: RideSnapshot, rider: Rider, frame: Int) {
         val zone = rider.powerZone(s.power)
         background(c, w, h, zone?.let { powerColor(it) } ?: GREY)
-        c.save()
-        c.rotate(if (zone != null && frame % 2 == 0) -6f else 4f, w - 26, 26f)
-        bolt(c, w - 40, 6f, 0.7f)
-        c.restore()
-        tag(c, ComicField.POWER_ZONE)
         val count = zoneCount(rider)
+        val character = zone?.let { ZoneCharacter.of(it, count) }
+        if (character != null) {
+            art.character(c, w - 34, 34f, character, frame)
+        } else {
+            bolt(c, w - 40, 6f, 0.7f)
+        }
+        tagOr(c, ComicField.POWER_ZONE, character?.let { texts.zoneCharacters[it.ordinal] }, frame)
         val left = 12f
         val gap = 4f
         val step = (w - 2 * left - (count - 1) * gap) / count
@@ -109,27 +137,13 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
         if (zone == null && rider.ftp <= 0 && rider.powerZoneStarts.size < 2) caption(c, w, h, texts.noFtp, top = h - 70)
     }
 
-    /** Percent of FTP with a speedometer: blue below the threshold, green around it, red above. */
-    fun percentFtp(c: Canvas, w: Float, h: Float, s: RideSnapshot, rider: Rider) {
+    /** Percent of FTP as a pot on the stove: lukewarm, simmering, bubbling, boiling over from 110 %. */
+    fun percentFtp(c: Canvas, w: Float, h: Float, s: RideSnapshot, rider: Rider, frame: Int) {
         val percent = percentFtpOf(s.power, rider.ftp)
         background(c, w, h, rider.powerZone(s.power)?.let { powerColor(it) } ?: GREY)
-        val cx = w - 42
-        val cy = 50f
-        val r = 30f
-        val dial = RectF(cx - r, cy - r, cx + r, cy + r)
-        comic.sticker(c, Path().apply { addArc(dial, 180f, 180f); close() }, Color.WHITE, 3f, shadow = 2.5f)
-        comic.stroke.strokeWidth = 7f
-        for ((start, sweep, color) in listOf(Triple(185f, 55f, 0xFF4FA3F0.toInt()), Triple(240f, 60f, 0xFF8BD13F.toInt()), Triple(300f, 55f, 0xFFF2564B.toInt()))) {
-            comic.stroke.color = color
-            c.drawArc(RectF(dial).apply { inset(6f, 6f) }, start, sweep, false, comic.stroke)
-        }
-        val angle = Math.toRadians(180.0 + 180.0 * ((percent ?: 0) / 150.0).coerceIn(0.0, 1.0))
-        comic.stroke.color = INK
-        comic.stroke.strokeWidth = 4f
-        c.drawLine(cx, cy, cx + (r - 6) * cos(angle).toFloat(), cy + (r - 6) * sin(angle).toFloat(), comic.stroke)
-        comic.fill.color = INK
-        c.drawCircle(cx, cy, 4f, comic.fill)
-        tag(c, ComicField.PERCENT_FTP)
+        val pot = Pot.of(percent ?: 0)
+        art.pot(c, w - 44, 40f, pot, frame)
+        tagOr(c, ComicField.PERCENT_FTP, percent?.let { texts.pot[pot.ordinal] }, frame)
         if (rider.ftp <= 0) {
             number(c, w, h, null, captioned = true)
             caption(c, w, h, texts.noFtp)
@@ -142,11 +156,20 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
      * Front and rear gear as two numbers with the drivetrain seen from above below them: chainrings left,
      * cassette right, the chain from the ring in use to the cog in use. Cross-chaining turns the field orange.
      */
-    fun gear(c: Canvas, w: Float, h: Float, s: RideSnapshot, settings: FunSettings, frame: Int) {
+    fun gear(c: Canvas, w: Float, h: Float, s: RideSnapshot, settings: FunSettings, now: Long, frame: Int) {
         val drive = Drivetrain.of(s.gears, settings)
         val cross = drive.crossChained
         background(c, w, h, if (cross) ORANGE else TEAL)
-        tag(c, ComicField.GEAR)
+        val remark = when {
+            cross -> null
+            lazyShifting(s.gearSince, now, s.speed) -> texts.lazyShifting
+            else -> when (pedalStyle(s.cadence, s.speed)) {
+                PedalStyle.COFFEE_GRINDER -> texts.coffeeGrinder
+                PedalStyle.TRACTOR -> texts.tractor
+                null -> null
+            }
+        }
+        tagOr(c, ComicField.GEAR, remark, frame)
         val front = drive.frontGear?.toString() ?: DASH
         val rear = drive.rearGear?.toString() ?: DASH
         for ((value, label, x) in listOf(Triple(front, texts.front, w / 2 - 36), Triple(rear, texts.rear, w / 2 + 36))) {
@@ -154,7 +177,7 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
             pill(c, label, x, 102f)
         }
         topView(c, RectF(10f, h - 50, w - 10, h - 4), drive, frame)
-        if (cross) comic.bubble(c, texts.crossChain, w - 8, 8f, size = 15f, background = 0xFFFFE135.toInt(), rotation = 4f, anchorRight = true)
+        if (cross) comic.bubble(c, if (frame % 4 < 2) texts.crossChain else texts.krrk, w - 8, 8f, size = 15f, background = 0xFFFFE135.toInt(), rotation = 4f, anchorRight = true)
     }
 
     private fun topView(c: Canvas, area: RectF, drive: Drivetrain, frame: Int) {
@@ -198,18 +221,29 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
         comic.stroke.pathEffect = null
     }
 
+    /** Calories in food, a different dish every few seconds: pretzel, bratwurst, pizza, döner, wheat beer. */
     fun calories(c: Canvas, w: Float, h: Float, s: RideSnapshot, frame: Int) {
         background(c, w, h, 0xFF8BD13F.toInt())
-        comic.pretzel(c, w - 38, 34f, 0.6f, frame)
-        tag(c, ComicField.CALORIES)
         val kcal = s.calories
+        val food = Food.at(frame, kcal)
+        art.food(c, w - 38, 34f, food, frame)
+        tag(c, ComicField.CALORIES)
         number(c, w, h, kcal?.roundToInt()?.toString(), captioned = true)
-        val count = kcal?.let { pretzels(it) } ?: 0
-        caption(c, w, h, if (count > 0) "${texts.kcal} = ${texts.pretzels(count)}" else texts.kcal)
+        val count = kcal?.let { food.count(it) } ?: 0
+        caption(c, w, h, if (count > 0) "${texts.kcal} = ${texts.food(food, count)}" else texts.kcal)
     }
 
-    /** Signpost that gets more urgent the closer the turn is. */
+    /** Signpost that gets more urgent the closer the turn is; off the route the way back instead. */
     fun nextTurn(c: Canvas, w: Float, h: Float, s: RideSnapshot, frame: Int) {
+        s.offRoute?.let { back ->
+            background(c, w, h, GREY)
+            art.recalculating(c, w - 36, 36f, frame)
+            tagOr(c, ComicField.NEXT_TURN, texts.offRoute, frame, always = true)
+            val (value, unit) = shortDistance(back)
+            number(c, w, h, value, unit = unit, captioned = true)
+            caption(c, w, h, texts.backToRoute)
+            return
+        }
         val meters = s.distanceToNextTurn
         val color = when {
             meters == null -> GREY
@@ -229,7 +263,7 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
             lineTo(px + 30 + bounce, 34f); lineTo(px - 6 + bounce, 34f); close()
         }, Color.WHITE, 3f, shadow = 2.5f)
         if (meters != null && meters <= NOW_METERS) {
-            comic.bubble(c, texts.turnNow, 10f, 8f, size = Comic.TAG_SIZE, background = 0xFFFFE135.toInt())
+            comic.bubble(c, texts.turnNow, 10f, 8f, size = REMARK_SIZE_SMALL, background = 0xFFFFE135.toInt())
         } else {
             tag(c, ComicField.NEXT_TURN)
         }
@@ -242,18 +276,38 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
         number(c, w, h, value, unit = unit)
     }
 
-    /** Meters to climb with the mountain and its flag; the distance left goes into the caption. */
-    fun toSummit(c: Canvas, w: Float, h: Float, s: RideSnapshot) {
-        gradient(c, w, h, 0xFF6EC3FF.toInt(), 0xFFCFEBFF.toInt())
+    /**
+     * Meters to climb with the mountain and its flag, a climber on its flank as far up as the rider is; the distance
+     * left goes into the caption. On top: summit cross, confetti and summit beer.
+     */
+    fun toSummit(c: Canvas, w: Float, h: Float, s: RideSnapshot, now: Long, frame: Int) {
         val base = 78f
+        val up = s.elevationToTop
+        if (celebratingSummit(s.summitAt, now) && (up == null || up <= SUMMIT_LEFT)) {
+            gradient(c, w, h, 0xFFFFD23F.toInt(), 0xFFFFF1A8.toInt())
+            comic.sticker(c, Path().apply { moveTo(w - 128, base); lineTo(w - 64, 18f); lineTo(w + 4, base); close() }, 0xFFFF9A1F.toInt(), 3f)
+            comic.stroke.color = INK
+            comic.stroke.strokeWidth = 4f
+            c.drawLine(w - 64, 18f, w - 64, 0f, comic.stroke)
+            c.drawLine(w - 72, 6f, w - 56, 6f, comic.stroke)
+            art.confetti(c, w, h, frame)
+            tagOr(c, ComicField.TO_SUMMIT, texts.summitBeer, frame)
+            number(c, w, h, units.elevation(0.0), unit = units.elevationUnit, captioned = true)
+            caption(c, w, h, texts.summitMadeIt)
+            return
+        }
+        gradient(c, w, h, 0xFF6EC3FF.toInt(), 0xFFCFEBFF.toInt())
         comic.sticker(c, Path().apply { moveTo(w - 128, base); lineTo(w - 64, 18f); lineTo(w + 4, base); close() }, 0xFFFF9A1F.toInt(), 3f)
         comic.sticker(c, Path().apply { moveTo(w - 128, base); lineTo(w - 92, 44f); lineTo(w - 76, base); close() }, 0xFF3DDC6A.toInt(), 2f)
         comic.stroke.color = INK
         comic.stroke.strokeWidth = 3f
         c.drawLine(w - 64, 18f, w - 64, 2f, comic.stroke)
         comic.sticker(c, Path().apply { moveTo(w - 64, 3f); lineTo(w - 48, 8f); lineTo(w - 64, 13f); close() }, 0xFFF2564B.toInt(), 2f)
+        climbProgress(s.climbTotal, up)?.let { p ->
+            // Up the right flank to just below the flag, starting where the flank enters the cell; the left one is behind the field name
+            art.climber(c, w - 10 - 52 * p, base - 18 - 46 * p, frame)
+        }
         tag(c, ComicField.TO_SUMMIT)
-        val up = s.elevationToTop
         if (up == null) {
             number(c, w, h, null, captioned = true)
             caption(c, w, h, texts.noClimb)
@@ -288,16 +342,25 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
             c.translate(-29f, -32f)
             comic.bike(c, frame)
             c.restore()
+            repeat(GradeMood.sweat(grade)) { i ->
+                art.sweat(c, x - 22 - i * 9f, y - 44 + ((frame + i) % 2) * 5f, 0.8f)
+            }
+            if (GradeMood.of(grade) == GradeMood.WHEEE) {
+                comic.stroke.color = Color.WHITE
+                comic.stroke.strokeWidth = 3f
+                for (dy in listOf(-24f, -14f)) c.drawLine(x - 40 - (frame % 2) * 6, y + dy, x - 26, y + dy + 4, comic.stroke)
+            }
         }
-        tag(c, ComicField.GRADE)
+        tagOr(c, ComicField.GRADE, grade?.let { GradeMood.of(it) }?.let {
+            when (it) { GradeMood.WALL -> texts.wall; GradeMood.PUSH -> texts.push; GradeMood.WHEEE -> texts.wheee }
+        }, frame)
         // Number left of the bike, so the bike stays visible at the right edge
         val text = grade?.let { units.grade(it) } ?: DASH
         val unit = if (grade == null) "" else PERCENT
         comic.bigNumber(c, text, (w - BIKE_LANE) / 2 + 6, h * CAPTIONED_BASELINE, fit(text, NUMBER_SIZE, w - BIKE_LANE - 12, unit), unit = unit)
     }
 
-    fun rain(c: Canvas, w: Float, h: Float, s: RideSnapshot, now: Long, frame: Int) {
-        val outlook = rainOutlook(s)
+    fun rain(c: Canvas, w: Float, h: Float, outlook: RainOutlook?, now: Long, frame: Int) {
         when (outlook) {
             null, RainOutlook.Unknown -> {
                 background(c, w, h, GREY)
@@ -316,6 +379,7 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
             is RainOutlook.StaysWet -> {
                 background(c, w, h, 0xFF6E7E92.toInt())
                 rainCloud(c, w, frame)
+                art.ducks(c, w, h, frame)
                 comic.fieldTag(c, texts.rain)
                 word(c, w, h, texts.wet)
                 caption(c, w, h, horizon(outlook.until, now))
@@ -325,12 +389,13 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
                 rainCloud(c, w, frame)
                 tag(c, ComicField.RAIN)
                 number(c, w, h, clock.format(Date(outlook.time)), captioned = true)
-                caption(c, w, h, String.format(texts.dryFor, minutesUntil(outlook.time, now)))
+                caption(c, w, h, String.format(texts.jacketIn, minutesUntil(outlook.time, now)))
             }
             is RainOutlook.DryFrom -> {
                 background(c, w, h, 0xFF4FA3F0.toInt())
                 sun(c, w - 30, 26f, frame)
                 weatherArt.cloud(c, w - 96, 56f, Color.WHITE, 1.1f)
+                art.ducks(c, w, h, frame)
                 comic.fieldTag(c, texts.dryFrom)
                 number(c, w, h, clock.format(Date(outlook.time)), captioned = true)
                 caption(c, w, h, String.format(texts.wetFor, minutesUntil(outlook.time, now)))
@@ -351,7 +416,10 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
             WindSide.CROSS -> 0xFF4FA3F0.toInt()
             null -> GREY
         })
-        if (weather != null && side != null) {
+        val blowDry = weather != null && side == WindSide.HEAD && weather.windKmh >= BLOW_DRY_KMH
+        if (blowDry) {
+            art.blowDry(c, w - 70, 38f, frame)
+        } else if (weather != null && side != null) {
             c.save()
             c.translate(w - 108, 0f)
             weatherArt.windsock(c, 100f, 64f, weather.windKmh, side, frame)
@@ -365,7 +433,12 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
         }
         val speed = if (units.imperialDistance) weather.windKmh * MILES_PER_KM else weather.windKmh
         number(c, w, h, speed.roundToInt().toString(), unit = units.speedUnit, captioned = true)
-        caption(c, w, h, when (side) { WindSide.TAIL -> texts.tailwind; WindSide.HEAD -> texts.headwind; WindSide.CROSS -> texts.crosswind })
+        caption(c, w, h, when {
+            blowDry -> texts.blowDry
+            side == WindSide.TAIL -> texts.tailwind
+            side == WindSide.HEAD -> texts.headwind
+            else -> texts.crosswind
+        })
     }
 
     /** Countdown to civil dusk, when bike lights are needed; after it the lamp is on until it gets light. */
@@ -383,6 +456,7 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
             dusk?.let { caption(c, w, h, String.format(texts.dusk, clock.format(Date(it)))) }
         } else {
             gradient(c, w, h, 0xFF14203F.toInt(), 0xFF2D3F72.toInt())
+            art.bats(c, w - 70, frame)
             lamp(c, w - 34, 34f, lit = true, frame)
             comic.fieldTag(c, texts.lightsOnNow, 0xFFFFE135.toInt())
             word(c, w, h, texts.on)
@@ -403,7 +477,8 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
             gradient(c, w, h, 0xFFFF9F45.toInt(), 0xFFF2566B.toInt())
             comic.sticker(c, Path().apply { addCircle(w - 46, 46f + (frame % 3) * 2, 20f, Path.Direction.CW) }, 0xFFFF4E1F.toInt(), 3f)
             hills(c, w, 0xFF8A3E6B.toInt())
-            tag(c, ComicField.SUNSET)
+            val golden = next != null && next - now <= PHOTO_STOP_MS
+            tagOr(c, ComicField.SUNSET, if (golden) texts.photoStop else null, frame)
         } else {
             gradient(c, w, h, 0xFF14203F.toInt(), 0xFF3D3A8C.toInt())
             comic.sticker(c, Path().apply { addCircle(w - 46, 50f - (frame % 3) * 2, 20f, Path.Direction.CW) }, 0xFFFFC23D.toInt(), 3f)
@@ -434,6 +509,18 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
     }
 
     private fun tag(c: Canvas, field: ComicField) = comic.fieldTag(c, texts.labels.getValue(field))
+
+    /**
+     * The field name, taking turns with a comic [remark] every few seconds, so the big number stays free.
+     * With [always] the remark stays.
+     */
+    private fun tagOr(c: Canvas, field: ComicField, remark: String?, frame: Int, always: Boolean = false) {
+        if (remark != null && (always || frame % REMARK_CYCLE >= REMARK_CYCLE / 2)) {
+            comic.bubble(c, remark, 10f, 8f, size = Comic.TAG_SIZE, background = 0xFFFFE135.toInt())
+        } else {
+            tag(c, field)
+        }
+    }
 
     /** Big number; with a caption below it sits higher and a bit smaller. */
     private fun number(c: Canvas, w: Float, h: Float, value: String?, unit: String = "", captioned: Boolean = false, baseline: Float = if (captioned) CAPTIONED_BASELINE else BASELINE) {
@@ -542,6 +629,11 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
         private const val BASELINE = 0.84f
         private const val CAPTIONED_BASELINE = 0.74f
         private const val NOW_METERS = 30.0
+        private const val REMARK_CYCLE = 6
+        private const val REMARK_SIZE_SMALL = 16f
+        private const val SUMMIT_LEFT = 15.0
+        private const val BLOW_DRY_KMH = 30.0
+        private const val PHOTO_STOP_MS = 30 * 60_000L
         private const val BIKE_LANE = 52f
         private const val MILES_PER_KM = 0.621371
         private val GREY = 0xFF8FA3B8.toInt()

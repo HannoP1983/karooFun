@@ -57,6 +57,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          apk="karoo-fun-${GITHUB_REF_NAME#v}.apk"
+          version="${GITHUB_REF_NAME#v}"
+          apk="karoo-fun-$version.apk"
           cp app/build/outputs/apk/release/app-release.apk "$apk"
-          gh release create "$GITHUB_REF_NAME" "$apk" --title "Karoo Fun ${GITHUB_REF_NAME#v}" --generate-notes
+          # Release notes: this version's section of the changelog
+          awk -v v="## $version" '$0 == v { on = 1; next } /^## / { on = 0 } on' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+          gh release create "$GITHUB_REF_NAME" "$apk" --title "Karoo Fun $version" --notes-file "$RUNNER_TEMP/notes.md"

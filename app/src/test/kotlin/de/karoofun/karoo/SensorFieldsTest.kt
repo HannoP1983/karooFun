@@ -87,8 +87,8 @@ class SensorFieldsTest {
 
     @Test
     fun pretzelsAndCountdown() {
-        assertEquals(0, pretzels(240.0))
-        assertEquals(4, pretzels(1180.0))
+        assertEquals(0, Food.PRETZEL.count(240.0))
+        assertEquals(4, Food.PRETZEL.count(1180.0))
         assertEquals("1:12", SensorFields.countdown(72 * 60_000L))
         assertEquals("0:38", SensorFields.countdown(38 * 60_000L + 30_000))
         assertEquals("0:00", SensorFields.countdown(-5_000))

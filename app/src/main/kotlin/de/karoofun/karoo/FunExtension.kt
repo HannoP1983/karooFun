@@ -3,6 +3,7 @@ package de.karoofun.karoo
 import io.hammerhead.karooext.KarooSystemService
 import io.hammerhead.karooext.extension.KarooExtension
 import io.hammerhead.karooext.models.DataType
+import io.hammerhead.karooext.models.OnNavigationState
 import io.hammerhead.karooext.models.StreamState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -68,8 +69,9 @@ class FunExtension : KarooExtension("karoo-fun", "1") {
             DataType.Type.SMOOTHED_3S_AVERAGE_POWER to RideStore::onPower,
             DataType.Type.AVERAGE_POWER to RideStore::onAveragePower,
             DataType.Type.CALORIES to RideStore::onCalories,
+            DataType.Type.ENERGY_OUTPUT to RideStore::onEnergy,
             DataType.Type.DISTANCE_TO_TOP to RideStore::onDistanceToTop,
-            DataType.Type.ELEVATION_TO_TOP to RideStore::onElevationToTop,
+            DataType.Type.ELEVATION_TO_TOP to { meters: Double? -> RideStore.onElevationToTop(meters) },
             DataType.Type.DISTANCE_TO_NEXT_TURN to RideStore::onDistanceToNextTurn,
         )
         for ((type, update) in optional) {
@@ -93,6 +95,12 @@ class FunExtension : KarooExtension("karoo-fun", "1") {
                 val latitude = values[DataType.Field.LOC_LATITUDE] ?: return@collect
                 val longitude = values[DataType.Field.LOC_LONGITUDE] ?: return@collect
                 RideStore.onLocation(latitude, longitude, values[DataType.Field.LOC_BEARING], values[DataType.Field.LOC_ACCURACY])
+            }
+        }
+        launch {
+            // Off the route the Karoo plans a way back to it; that distance means "recalculating"
+            karooSystem.consumerFlow<OnNavigationState>().collect { event ->
+                RideStore.onOffRoute((event.state as? OnNavigationState.NavigationState.NavigatingRoute)?.rejoinDistance?.takeIf { it > 0 })
             }
         }
         launch { pollWeather() }
@@ -132,12 +140,16 @@ class FunExtension : KarooExtension("karoo-fun", "1") {
             val data = RideStore.state.value
             val now = System.currentTimeMillis()
             val zone = rider.zone(data.heartRate, settings)
-            val sample = TriggerSample(now, data.speed?.times(KMH_PER_MPS), data.averageSpeed?.times(KMH_PER_MPS), data.grade, zone)
+            val sample = TriggerSample(
+                now, data.speed?.times(KMH_PER_MPS), data.averageSpeed?.times(KMH_PER_MPS), data.grade, zone,
+                data.power, percentFtpOf(data.power, rider.ftp), data.summitAt, data.summitHeight,
+            )
             val steady = detector.partyMinutes(now)
+            val boiling = detector.boilSeconds(now)
             val fired = detector.onSample(sample, visible = RideStore.visibleViews.get() > 0)
             if (fired != null) {
                 // One saying per takeover, so it stays readable the whole time
-                RideStore.fire(ActiveTakeover(fired, Random.nextInt(sayings), now, zone, steady))
+                RideStore.fire(ActiveTakeover(fired, Random.nextInt(sayings), now, zone, steady, boiling))
             }
             delay(1_000)
         }

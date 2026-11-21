@@ -41,8 +41,3 @@ data class Drivetrain(val rings: List<Int>, val cogs: List<Int>, val frontGear: 
         )
     }
 }
-
-/** Pretzels for so many kilocalories, one per 250 kcal. */
-fun pretzels(kcal: Double) = (kcal / KCAL_PER_PRETZEL).toInt()
-
-private const val KCAL_PER_PRETZEL = 250

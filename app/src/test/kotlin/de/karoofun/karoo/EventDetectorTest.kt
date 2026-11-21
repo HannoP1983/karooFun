@@ -87,4 +87,31 @@ class EventDetectorTest {
         assertEquals(2, rider.zone(130.0, FunSettings(ownZones = false)))
         assertEquals(3, rider.zone(130.0, FunSettings()))
     }
+
+    @Test
+    fun `kilowatt club fires from 1000 watts`() {
+        assertNull(detector.onSample(sample(0, 40.0).copy(power = 980.0), visible = true))
+        assertEquals(Takeover.KILOWATT, detector.onSample(sample(1, 40.0).copy(power = 1040.0), visible = true))
+    }
+
+    @Test
+    fun `summit fires once right after a big enough climb`() {
+        val top = 5_000L
+        assertEquals(Takeover.SUMMIT, detector.onSample(sample(6, 12.0).copy(summitAt = top, summitHeight = 184.0), visible = true))
+        settings = settings.copy(cooldownMinutes = 5)
+        assertNull(detector.onSample(sample(6 + 6 * 60, 12.0).copy(summitAt = top, summitHeight = 184.0), visible = true))
+    }
+
+    @Test
+    fun `small bumps and old summits are no reason to celebrate`() {
+        assertNull(detector.onSample(sample(6, 12.0).copy(summitAt = 5_000, summitHeight = 30.0), visible = true))
+        assertNull(detector.onSample(sample(120, 12.0).copy(summitAt = 5_000, summitHeight = 184.0), visible = true))
+    }
+
+    @Test
+    fun `boiling over needs two minutes above 105 percent FTP`() {
+        for (s in 0L until 120) assertNull(detector.onSample(sample(s, 30.0).copy(percentFtp = 112), visible = true))
+        assertEquals(120, detector.boilSeconds(120_000))
+        assertEquals(Takeover.BOILING, detector.onSample(sample(120, 30.0).copy(percentFtp = 112), visible = true))
+    }
 }

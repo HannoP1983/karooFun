@@ -72,11 +72,24 @@ class SettingsActivity : Activity() {
             stepper(getString(R.string.settings_pokal_speed), "km/h", { it.pokalSpeedKmh }, FunSettings.POKAL_SPEED_RANGE, 5) { s, v -> s.copy(pokalSpeedKmh = v) },
             stepper(getString(R.string.settings_pokal_grade), "%", { it.pokalGrade }, FunSettings.POKAL_GRADE_RANGE) { s, v -> s.copy(pokalGrade = v) },
         ))
+        column.addView(card(getString(R.string.settings_summit), getString(R.string.settings_summit_hint),
+            Toggle({ it.summitEnabled }) { s, v -> s.copy(summitEnabled = v) }, Takeover.SUMMIT,
+            stepper(getString(R.string.settings_summit_min), "hm", { it.summitMinMeters }, FunSettings.SUMMIT_MIN_RANGE, 10) { s, v -> s.copy(summitMinMeters = v) },
+        ))
+        column.addView(card(getString(R.string.settings_kilowatt), getString(R.string.settings_kilowatt_hint),
+            Toggle({ it.kilowattEnabled }) { s, v -> s.copy(kilowattEnabled = v) }, Takeover.KILOWATT,
+            stepper(getString(R.string.settings_kilowatt_watts), "W", { it.kilowattWatts }, FunSettings.KILOWATT_RANGE, 50) { s, v -> s.copy(kilowattWatts = v) },
+        ))
         column.addView(card(getString(R.string.settings_fire), getString(R.string.settings_fire_hint),
             Toggle({ it.fireEnabled }) { s, v -> s.copy(fireEnabled = v) }, Takeover.FIRE,
             stepper(getString(R.string.settings_fire_above), "%", { it.fireAbovePercent }, FunSettings.FIRE_ABOVE_RANGE, 5, prefix = "+") { s, v -> s.copy(fireAbovePercent = v) },
             stepper(getString(R.string.settings_fire_zone), "", { it.fireMinZone }, FunSettings.ZONE_RANGE, prefix = "Z") { s, v -> s.copy(fireMinZone = v) },
             stepper(getString(R.string.settings_fire_seconds), "s", { it.fireSeconds }, FunSettings.FIRE_SECONDS_RANGE, 5) { s, v -> s.copy(fireSeconds = v) },
+        ))
+        column.addView(card(getString(R.string.settings_boil), getString(R.string.settings_boil_hint),
+            Toggle({ it.boilEnabled }) { s, v -> s.copy(boilEnabled = v) }, Takeover.BOILING,
+            stepper(getString(R.string.settings_boil_percent), "% FTP", { it.boilPercent }, FunSettings.BOIL_PERCENT_RANGE, 5) { s, v -> s.copy(boilPercent = v) },
+            stepper(getString(R.string.settings_boil_minutes), "min", { it.boilMinutes }, FunSettings.BOIL_MINUTES_RANGE) { s, v -> s.copy(boilMinutes = v) },
         ))
         column.addView(card(getString(R.string.settings_party), getString(R.string.settings_party_hint),
             Toggle({ it.partyEnabled }) { s, v -> s.copy(partyEnabled = v) }, Takeover.PARTY,
@@ -295,10 +308,21 @@ class SettingsActivity : Activity() {
 
         thread {
             val art = TakeoverArt(takeoverTexts())
-            val scenario = if (type == Takeover.POKAL) DemoRide.Scenario.DESCENT else if (type == Takeover.FIRE) DemoRide.Scenario.HOT else DemoRide.Scenario.NORMAL
-            val data = DemoRide.snapshot(scenario, 0).let { if (type == Takeover.PARTY) it.copy(heartRate = 138.0, speed = 25.4 / 3.6, averageSpeed = 25.1 / 3.6) else it }
+            val scenario = when (type) {
+                Takeover.POKAL -> DemoRide.Scenario.DESCENT
+                Takeover.FIRE, Takeover.KILOWATT, Takeover.BOILING -> DemoRide.Scenario.HOT
+                else -> DemoRide.Scenario.NORMAL
+            }
+            val data = DemoRide.snapshot(scenario, 0).let {
+                when (type) {
+                    Takeover.PARTY -> it.copy(heartRate = 138.0, speed = 25.4 / 3.6, averageSpeed = 25.1 / 3.6)
+                    Takeover.KILOWATT -> it.copy(power = 1240.0)
+                    Takeover.SUMMIT -> it.copy(summitHeight = 384.0)
+                    else -> it
+                }
+            }
             val zone = Rider().zone(data.heartRate, settings)
-            val takeover = ActiveTakeover(type, 0, 0, zone, settings.partyMinutes + 4)
+            val takeover = ActiveTakeover(type, 0, 0, zone, settings.partyMinutes + 4, settings.boilMinutes * 60 + 14)
             val panelBitmap = art.renderPanel(type, width, panelInfo(takeover, data, settings, Units()))
             val frames: List<Bitmap> = if (fixedFrame >= 0) listOf(art.renderFrame(type, width, height, fixedFrame, count, 0))
             else (0 until count).map { art.renderFrame(type, width, height, it, count, 0) }

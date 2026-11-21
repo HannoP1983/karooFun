@@ -72,43 +72,43 @@
     <string name="field_max_cadence_description">Höchste Trittfrequenz der Fahrt</string>
     <string name="field_grade">Steigung</string>
     <string name="field_grade_name">Höhe · Steigung</string>
-    <string name="field_grade_description">Aktuelle Steigung mit einem Rad auf der Rampe, die mitkippt, gefärbt wie im Profil</string>
+    <string name="field_grade_description">Aktuelle Steigung mit einem Rad auf der Rampe, die mitkippt, gefärbt wie im Profil; Schweiß ab 6 %, Sprüche an der Wand und bergab</string>
     <string name="field_to_summit">Bis zum Gipfel</string>
     <string name="field_to_summit_name">Höhe · Bis zum Gipfel</string>
-    <string name="field_to_summit_description">Höhenmeter und Strecke bis zum Gipfel des aktuellen Anstiegs auf deiner Route</string>
+    <string name="field_to_summit_description">Höhenmeter und Strecke bis zum Gipfel des aktuellen Anstiegs; ein Bergsteiger klettert mit, oben gibt es Gipfelbier</string>
     <string name="field_power">Watt</string>
     <string name="field_power_name">Leistung · Watt</string>
-    <string name="field_power_description">3-s-Leistung mit Blitz, gefärbt nach Leistungszone</string>
+    <string name="field_power_description">3-s-Leistung als Haushaltsgerät: Glühbirnen, Standmixer, Toaster, Föhn, Wasserkocher; gefärbt nach Leistungszone</string>
     <string name="field_avg_power">Ø Watt</string>
     <string name="field_avg_power_name">Leistung · Ø</string>
-    <string name="field_avg_power_description">Durchschnittsleistung der Fahrt</string>
+    <string name="field_avg_power_description">Durchschnittsleistung der Fahrt; die bisher geleistete Arbeit, umgerechnet in Espresso</string>
     <string name="field_power_zone">Leistungszone</string>
     <string name="field_power_zone_name">Leistung · Zone</string>
-    <string name="field_power_zone_description">Aktuelle Leistungszone mit Zonenleiter, aus dem Karoo-Profil oder deiner FTP</string>
+    <string name="field_power_zone_description">Aktuelle Leistungszone mit Zonenleiter und einem Charakter pro Zone, vom Faultier bis zur Rakete</string>
     <string name="field_percent_ftp">% FTP</string>
     <string name="field_percent_ftp_name">Leistung · % FTP</string>
-    <string name="field_percent_ftp_description">Aktuelle Leistung in Prozent deiner FTP, mit Tacho</string>
+    <string name="field_percent_ftp_description">Aktuelle Leistung in Prozent deiner FTP, als Kochtopf: lauwarm, köchelt, blubbert, überkocht</string>
     <string name="field_gear">Gang</string>
     <string name="field_gear_name">Schaltung · Gang</string>
-    <string name="field_gear_description">Gang vorne und hinten mit Antrieb von oben, warnt bei schräger Kette</string>
+    <string name="field_gear_description">Gang vorne und hinten mit Antrieb von oben; Sprüche bei schräger Kette, Kaffeemühle, Traktor und ewig demselben Gang</string>
     <string name="field_calories">Kalorien</string>
     <string name="field_calories_name">Energie · Kalorien</string>
-    <string name="field_calories_description">Verbrannte Kalorien, umgerechnet in Brezn</string>
+    <string name="field_calories_description">Verbrannte Kalorien, umgerechnet in Brezn, Bratwürste, Pizza, Döner und Weißbier</string>
     <string name="field_next_turn">Abbiegen in</string>
     <string name="field_next_turn_name">Navigation · Abbiegen in</string>
-    <string name="field_next_turn_description">Strecke bis zur nächsten Abbiegung auf deiner Route, je näher desto dringender</string>
+    <string name="field_next_turn_description">Strecke bis zur nächsten Abbiegung auf deiner Route, je näher desto dringender; neben der Route der Weg zurück</string>
     <string name="field_rain">Regen ab</string>
     <string name="field_rain_name">Wetter · Regen</string>
-    <string name="field_rain_description">Wann es bei dir zu regnen anfängt oder aufhört, aus dem DWD-Regenradar</string>
+    <string name="field_rain_description">Wann es bei dir zu regnen anfängt oder aufhört, aus dem DWD-Regenradar, mit Jacken-Countdown und Gummienten im Regen</string>
     <string name="field_wind">Wind</string>
     <string name="field_wind_name">Wetter · Wind</string>
-    <string name="field_wind_description">Windstärke mit Windsack, grün bei Rückenwind, rot bei Gegenwind</string>
+    <string name="field_wind_description">Windstärke mit Windsack: Gratis-Watt bei Rückenwind, Föhnfrisur ab 30 km/h Gegenwind</string>
     <string name="field_lights_on">Licht an in</string>
     <string name="field_lights_on_name">Himmel · Licht an in</string>
-    <string name="field_lights_on_description">Countdown bis zur Dämmerung, ab dann brauchst du Licht</string>
+    <string name="field_lights_on_description">Countdown bis zur Dämmerung, ab dann brauchst du Licht; nachts flattern Fledermäuse</string>
     <string name="field_sunset">Sonne weg in</string>
     <string name="field_sunset_name">Himmel · Sonne weg in</string>
-    <string name="field_sunset_description">Countdown bis Sonnenuntergang, danach bis Sonnenaufgang</string>
+    <string name="field_sunset_description">Countdown bis Sonnenuntergang mit Foto-Stopp in der letzten halben Stunde, danach bis Sonnenaufgang</string>
     <string name="field_gear_front">vorne</string>
     <string name="field_gear_rear">hinten</string>
     <string name="field_cross_chain">Kette schräg!</string>
@@ -116,16 +116,15 @@
     <string name="field_no_route">keine Route</string>
     <string name="field_no_climb">gerade kein Anstieg</string>
     <string name="field_still_to_go">noch %s</string>
-    <string name="field_turn_now">Jetzt abbiegen!</string>
+    <string name="field_turn_now">JETZT! Nicht verpennen!</string>
     <string name="field_rain_tag">Regen</string>
     <string name="field_dry_from">Trocken ab</string>
     <string name="field_dry">TROCKEN</string>
     <string name="field_wet">NASS</string>
     <string name="field_next_hour">die nächste Stunde</string>
     <string name="field_next_minutes">die nächsten %d min</string>
-    <string name="field_dry_for">noch %d min trocken</string>
     <string name="field_wet_for">noch %d min nass</string>
-    <string name="field_tailwind">Rückenwind 😎</string>
+    <string name="field_tailwind">Rückenwind = Gratis-Watt! 💸</string>
     <string name="field_headwind">Gegenwind 😤</string>
     <string name="field_crosswind">Seitenwind</string>
     <string name="field_no_weather">noch kein Wetter</string>
@@ -187,4 +186,51 @@
     <string name="settings_zones_hint">AN: diese Zonen gelten für Farben und Animationen. AUS: Zonen aus dem Karoo-Profil.</string>
     <string name="settings_max_hr">Max-Puls</string>
     <string name="settings_zone_from">Z%d ab</string>
+
+    <plurals name="field_bulbs"><item quantity="one">= %d Glühbirne</item><item quantity="other">= %d Glühbirnen</item></plurals>
+    <string name="field_blender">= ein Standmixer</string>
+    <string name="field_toaster">= ein Toaster</string>
+    <string name="field_hair_dryer">= ein Föhn</string>
+    <string name="field_kettle">= ein Wasserkocher</string>
+    <plurals name="field_espressos"><item quantity="one">%1$s kJ = %2$d Espresso</item><item quantity="other">%1$s kJ = %2$d Espresso</item></plurals>
+    <string-array name="field_zone_characters"><item>Kaffeefahrt</item><item>Plauderrunde</item><item>Tempo!</item><item>Nicht reden!</item><item>Augen zu!</item><item>Monster-Modus</item><item>RAKETE!</item></string-array>
+    <string-array name="field_pot"><item>lauwarm</item><item>köchelt</item><item>blubbert</item><item>ÜBERKOCHT!</item></string-array>
+    <string name="field_krrk">KRRRK!</string>
+    <string name="field_coffee_grinder">Kaffeemühle!</string>
+    <string name="field_tractor">Traktor!</string>
+    <string name="field_lazy_shifting">Schon mal geschaltet?</string>
+    <plurals name="field_bratwursts"><item quantity="one">%d Bratwurst</item><item quantity="other">%d Bratwürste</item></plurals>
+    <plurals name="field_pizza"><item quantity="one">%d Stück Pizza</item><item quantity="other">%d Stück Pizza</item></plurals>
+    <plurals name="field_doner"><item quantity="one">%d Döner</item><item quantity="other">%d Döner</item></plurals>
+    <plurals name="field_weissbier"><item quantity="one">%d Weißbier</item><item quantity="other">%d Weißbier</item></plurals>
+    <string name="field_wall">DIE WAND!</string>
+    <string name="field_push">Schiebestrecke?</string>
+    <string name="field_wheee">Wheeee!</string>
+    <string name="field_summit_beer">Gipfelbier! 🍺</string>
+    <string name="field_summit_made_it">geschafft!</string>
+    <string name="field_off_route">Neuberechnung … 🙄</string>
+    <string name="field_back_to_route">zurück zur Route</string>
+    <string name="field_jacket_in">Jacke an in %d min</string>
+    <string name="field_blow_dry">Gegenwind · Föhnfrisur</string>
+    <string name="field_photo_stop">Foto-Stopp! 📸</string>
+    <string name="kilowatt_top">WILLKOMMEN IM</string>
+    <string name="kilowatt_mid">KILOWATT-</string>
+    <string name="kilowatt_bottom">CLUB!</string>
+    <string name="summit_top">GIPFEL!</string>
+    <string name="summit_bottom">Gipfelbier verdient!</string>
+    <string name="boil_top">ÜBER-</string>
+    <string name="boil_bottom">KOCHT!</string>
+    <string name="panel_kilowatt">Watt · 3 s</string>
+    <string name="panel_summit">Anstieg geschafft!</string>
+    <string name="panel_boiling">Über %d %% FTP seit</string>
+    <string name="settings_summit">🏔 Gipfel!</string>
+    <string name="settings_summit_hint">Wenn du oben auf einem Anstieg deiner Route ankommst:</string>
+    <string name="settings_summit_min">Anstieg ab</string>
+    <string name="settings_kilowatt">⚡ Kilowatt-Club</string>
+    <string name="settings_kilowatt_hint">Wenn deine 3-s-Leistung die Marke knackt:</string>
+    <string name="settings_kilowatt_watts">Ab</string>
+    <string name="settings_boil">🍲 Überkocht</string>
+    <string name="settings_boil_hint">Wenn du länger über deiner FTP fährst:</string>
+    <string name="settings_boil_percent">Ab</string>
+    <string name="settings_boil_minutes">Mindestens</string>
 </resources>

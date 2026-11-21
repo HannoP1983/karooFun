@@ -124,16 +124,19 @@ class FieldRenderer(private val fieldTexts: FieldTexts, texts: DashboardTexts, p
     private val zoneShort = texts.zone
 
     /** [now] decides where sun and moon stand in the temperature field. */
-    fun render(width: Int, height: Int, field: ComicField, s: RideSnapshot, rider: Rider, settings: FunSettings, frame: Int, now: Long = System.currentTimeMillis()): Bitmap {
+    fun render(
+        width: Int, height: Int, field: ComicField, s: RideSnapshot, rider: Rider, settings: FunSettings, frame: Int,
+        now: Long = System.currentTimeMillis(), rain: RainOutlook? = if (field == ComicField.RAIN) SensorFields.rainOutlook(s) else null,
+    ): Bitmap {
         val bitmap = Bitmap.createBitmap(max(1, width), max(1, height), Bitmap.Config.RGB_565)
         val c = Canvas(bitmap)
         val k = min(width / DESIGN_WIDTH, height / DESIGN_HEIGHT)
         c.scale(k, k)
-        draw(c, width / k, height / k, field, s, rider, settings, frame, now)
+        draw(c, width / k, height / k, field, s, rider, settings, frame, now, rain)
         return bitmap
     }
 
-    private fun draw(c: Canvas, w: Float, h: Float, field: ComicField, s: RideSnapshot, rider: Rider, settings: FunSettings, frame: Int, now: Long) {
+    private fun draw(c: Canvas, w: Float, h: Float, field: ComicField, s: RideSnapshot, rider: Rider, settings: FunSettings, frame: Int, now: Long, rain: RainOutlook?) {
         c.drawColor(INK)
         c.save()
         c.clipPath(Path().apply { addRoundRect(RectF(0f, 0f, w, h), CORNER, CORNER, Path.Direction.CW) })
@@ -180,15 +183,15 @@ class FieldRenderer(private val fieldTexts: FieldTexts, texts: DashboardTexts, p
             ComicField.AVERAGE_CADENCE -> averageCadence(c, w, h, s.averageCadence, frame)
             ComicField.MAX_CADENCE -> cadence(c, w, h, s.maxCadence, frame, record = true)
             ComicField.GRADE -> sensors.grade(c, w, h, s, frame)
-            ComicField.TO_SUMMIT -> sensors.toSummit(c, w, h, s)
+            ComicField.TO_SUMMIT -> sensors.toSummit(c, w, h, s, now, frame)
             ComicField.POWER -> sensors.power(c, w, h, s, rider, frame)
-            ComicField.AVERAGE_POWER -> sensors.averagePower(c, w, h, s)
+            ComicField.AVERAGE_POWER -> sensors.averagePower(c, w, h, s, frame)
             ComicField.POWER_ZONE -> sensors.powerZone(c, w, h, s, rider, frame)
-            ComicField.PERCENT_FTP -> sensors.percentFtp(c, w, h, s, rider)
-            ComicField.GEAR -> sensors.gear(c, w, h, s, settings, frame)
+            ComicField.PERCENT_FTP -> sensors.percentFtp(c, w, h, s, rider, frame)
+            ComicField.GEAR -> sensors.gear(c, w, h, s, settings, now, frame)
             ComicField.CALORIES -> sensors.calories(c, w, h, s, frame)
             ComicField.NEXT_TURN -> sensors.nextTurn(c, w, h, s, frame)
-            ComicField.RAIN -> sensors.rain(c, w, h, s, now, frame)
+            ComicField.RAIN -> sensors.rain(c, w, h, rain, now, frame)
             ComicField.WIND -> sensors.wind(c, w, h, s, now, frame)
             ComicField.LIGHTS_ON -> sensors.lightsOn(c, w, h, s, now, frame)
             ComicField.SUNSET -> sensors.sunset(c, w, h, s, now, frame)

@@ -27,6 +27,13 @@ data class TakeoverTexts(
     val partyTop: String,
     val partyBottom: String,
     val prost: String,
+    val kilowattTop: String,
+    val kilowattMid: String,
+    val kilowattBottom: String,
+    val summitTop: String,
+    val summitBottom: String,
+    val boilTop: String,
+    val boilBottom: String,
 )
 
 /** The fixed, readable strip at the bottom of a takeover. */
@@ -64,6 +71,9 @@ class TakeoverArt(private val texts: TakeoverTexts) {
             Takeover.POKAL -> pokal(c, h, index, variant)
             Takeover.FIRE -> fire(c, h, index, count)
             Takeover.PARTY -> party(c, h, index, count)
+            Takeover.KILOWATT -> kilowatt(c, h, index, count)
+            Takeover.SUMMIT -> summit(c, h, index, count)
+            Takeover.BOILING -> boiling(c, h, index, count)
         }
         c.restore()
         comic.stroke.color = INK
@@ -82,6 +92,9 @@ class TakeoverArt(private val texts: TakeoverTexts) {
             Takeover.POKAL -> 0xFF3B8CFF.toInt()
             Takeover.FIRE -> 0xFFF2564B.toInt()
             Takeover.PARTY -> 0xFF22B8A6.toInt()
+            Takeover.KILOWATT -> 0xFFA884F3.toInt()
+            Takeover.SUMMIT -> 0xFF3FBF66.toInt()
+            Takeover.BOILING -> 0xFFFF7A2E.toInt()
         }
         val box = RectF(18f, 2f, DESIGN_WIDTH - 18, 2f + PANEL_HEIGHT)
         comic.sticker(c, Path().apply { addRoundRect(box, 22f, 22f, Path.Direction.CW) }, color, 3.5f, shadow = 5f)
@@ -432,6 +445,225 @@ class TakeoverArt(private val texts: TakeoverTexts) {
         }
     }
 
+    /* ---------- Kilowatt club ---------- */
+
+    private fun kilowatt(c: Canvas, h: Float, t: Int, count: Int) {
+        val cx = 240f
+        val cy = 260f
+        val offset = (t % 2) * 7.5f
+        for (k in 0 until 48) {
+            comic.fill.color = if (k % 2 == 0) 0xFF3D2670.toInt() else 0xFF2D1B4E.toInt()
+            c.drawPath(wedge(cx, cy, 900f, offset + k * 7.5f, 7.5f), comic.fill)
+        }
+        c.drawRect(0f, 0f, DESIGN_WIDTH, h, lightDots)
+        // Lightning crackles down both edges every other frame
+        if (t % 2 == 0) for (x in listOf(34f, 446f)) zigzag(c, x, 40f, if (x < cx) 1f else -1f)
+
+        val shake = SHAKE[t % 4]
+        c.save()
+        c.translate(shake.first, shake.second)
+        c.save()
+        c.scale(entrance(t, count), entrance(t, count), cx, cy)
+        val rot = t * 0.05f
+        c.save(); c.translate(7f, 7f); comic.fill.color = INK; c.drawPath(burst(cx, cy, 236f, 176f, 16, rot, 0.9f), comic.fill); c.restore()
+        comic.sticker(c, burst(cx, cy, 236f, 176f, 16, rot, 0.9f), 0xFFA884F3.toInt(), 5f)
+        comic.sticker(c, burst(cx, cy, 190f, 142f, 14, -rot + 0.2f, 0.9f), 0xFF4FA3F0.toInt(), 4f)
+        c.save()
+        c.translate(cx, cy)
+        c.rotate(-10f + (t % 2) * 4)
+        c.scale(3.6f, 3.6f)
+        c.translate(-19f, -27f)
+        comic.sticker(c, BOLT, if (t % 2 == 0) Color.WHITE else 0xFFFFF3B0.toInt(), 1.4f)
+        c.restore()
+        c.restore()
+        for (i in 0 until 10) {
+            val a = i / 10.0 * 2 * PI + t * 0.3
+            val r = 214f + (i % 3) * 14
+            c.save()
+            c.translate(cx + r * cos(a).toFloat(), cy + r * sin(a).toFloat() * 0.9f)
+            c.rotate(t * 40f + i * 36)
+            comic.sticker(c, comic.star(0f, 0f, 9f, 3f, points = 4), if (i % 2 == 0) 0xFFFFE135.toInt() else Color.WHITE, 2f)
+            c.restore()
+        }
+        if (t >= 1 && t < count - 1) {
+            c.save()
+            c.rotate(-5f, cx, cy)
+            comic.outlined(c, texts.kilowattTop, cx, 208f, fitSize(texts.kilowattTop, 34f), align = Paint.Align.CENTER)
+            comic.outlined(c, texts.kilowattMid, cx, 280f, fitSize(texts.kilowattMid, 74f), color = 0xFFFFE135.toInt(), align = Paint.Align.CENTER)
+            comic.outlined(c, texts.kilowattBottom, cx, 356f, fitSize(texts.kilowattBottom, 80f), color = 0xFFFFE135.toInt(), align = Paint.Align.CENTER)
+            c.restore()
+        }
+        c.restore()
+    }
+
+    private fun zigzag(c: Canvas, x: Float, top: Float, side: Float) {
+        val bolt = Path().apply {
+            moveTo(x, top)
+            var y = top
+            var dx = 18f * side
+            while (y < 440f) {
+                y += 34f
+                lineTo(x + dx, y)
+                dx = -dx
+            }
+        }
+        comic.stroke.color = INK
+        comic.stroke.strokeWidth = 9f
+        c.drawPath(bolt, comic.stroke)
+        comic.stroke.color = 0xFFFFE135.toInt()
+        comic.stroke.strokeWidth = 4.5f
+        c.drawPath(bolt, comic.stroke)
+    }
+
+    /* ---------- Summit! ---------- */
+
+    private fun summit(c: Canvas, h: Float, t: Int, count: Int) {
+        val ground = h - PANEL_STRIP - 20
+        comic.fill.shader = android.graphics.LinearGradient(0f, 0f, 0f, ground, 0xFF6EC3FF.toInt(), 0xFFCFEBFF.toInt(), Shader.TileMode.CLAMP)
+        c.drawRect(0f, 0f, DESIGN_WIDTH, h, comic.fill)
+        comic.fill.shader = null
+
+        // Sun with turning rays
+        comic.stroke.color = INK
+        comic.stroke.strokeWidth = 4f
+        for (k in 0 until 10) {
+            val a = k * PI / 5 + t * 0.15
+            c.drawLine(74f + 40 * cos(a).toFloat(), 86f + 40 * sin(a).toFloat(), 74f + 56 * cos(a).toFloat(), 86f + 56 * sin(a).toFloat(), comic.stroke)
+        }
+        comic.sticker(c, Path().apply { addCircle(74f, 86f, 30f, Path.Direction.CW) }, 0xFFFFC23D.toInt(), 3.5f)
+
+        val peakX = 240f
+        val peakY = 150f
+        comic.sticker(c, Path().apply { moveTo(-40f, ground); lineTo(peakX, peakY); lineTo(520f, ground); close() }, 0xFFFF9A1F.toInt(), 5f, shadow = 6f)
+        comic.sticker(c, Path().apply {
+            moveTo(peakX, peakY); lineTo(196f, 196f); lineTo(214f, 190f); lineTo(228f, 206f); lineTo(246f, 188f)
+            lineTo(262f, 204f); lineTo(284f, 196f); close()
+        }, Color.WHITE, 3.5f)
+        comic.sticker(c, Path().apply { addRect(-10f, ground, DESIGN_WIDTH + 10, h + 10, Path.Direction.CW) }, 0xFF3DDC6A.toInt(), 4f)
+
+        // Summit cross and the rider cheering beside it
+        for ((width, color) in listOf(12f to INK, 6f to 0xFFB8742A.toInt())) {
+            comic.stroke.color = color
+            comic.stroke.strokeWidth = width
+            c.drawLine(peakX, peakY, peakX, peakY - 82, comic.stroke)
+            c.drawLine(peakX - 26, peakY - 58, peakX + 26, peakY - 58, comic.stroke)
+        }
+        cheering(c, peakX + 44, peakY - 12, t)
+
+        for (i in 0 until 30) {
+            val x = (i * 67 + (t % 2) * 5) % 470 + 5f
+            val y = ((i * 53 + t * 24) % ground.toInt()).toFloat()
+            c.save()
+            c.rotate(t * 45f + i * 33, x, y)
+            comic.sticker(c, Path().apply { addRect(x - 5, y - 8, x + 5, y + 8, Path.Direction.CW) }, CONFETTI[i % CONFETTI.size], 2f)
+            c.restore()
+        }
+        beer(c, 412f, ground - 34, 1.05f, if (t % 2 == 1) -10f else 4f, t, 0, mirrored = true)
+        beer(c, 68f, ground - 34, 1.05f, if (t % 2 == 1) 10f else -4f, t, 1, mirrored = false)
+
+        if (t >= 1 && t < count - 1) {
+            val k = if (t == 1) 1.15f else 1f
+            c.save()
+            c.scale(k, k, 240f, 330f)
+            c.rotate(-5f, 240f, 330f)
+            comic.outlined(c, texts.summitTop, 240f, 340f, fitSize(texts.summitTop, 92f), color = 0xFFFFE135.toInt(), align = Paint.Align.CENTER)
+            comic.outlined(c, texts.summitBottom, 240f, 392f, fitSize(texts.summitBottom, 36f, 380f), align = Paint.Align.CENTER)
+            c.restore()
+        }
+    }
+
+    /** Stick figure with both arms up, waving every other frame. */
+    private fun cheering(c: Canvas, x: Float, y: Float, t: Int) {
+        val up = t % 2 == 0
+        comic.stroke.color = INK
+        comic.stroke.strokeWidth = 5f
+        c.drawLine(x, y - 22, x, y + 6, comic.stroke)
+        c.drawLine(x, y + 6, x - 10, y + 24, comic.stroke)
+        c.drawLine(x, y + 6, x + 10, y + 24, comic.stroke)
+        c.drawLine(x, y - 16, x - 14, if (up) y - 38 else y - 30, comic.stroke)
+        c.drawLine(x, y - 16, x + 14, if (up) y - 38 else y - 30, comic.stroke)
+        comic.sticker(c, Path().apply { addCircle(x, y - 30, 8f, Path.Direction.CW) }, 0xFFFFD6A0.toInt(), 3f)
+        comic.sticker(c, Path().apply { addRoundRect(RectF(x - 7, y - 22, x + 7, y - 2), 3f, 3f, Path.Direction.CW) }, 0xFFF2564B.toInt(), 2.5f)
+    }
+
+    /* ---------- Boiling over ---------- */
+
+    private fun boiling(c: Canvas, h: Float, t: Int, count: Int) {
+        comic.fill.shader = RadialGradient(240f, h * 0.45f, h * 0.7f, intArrayOf(0xFF7A1E1E.toInt(), 0xFF3A1414.toInt(), 0xFF1E0B0B.toInt()),
+            floatArrayOf(0f, 0.55f, 1f), Shader.TileMode.CLAMP)
+        c.drawRect(0f, 0f, DESIGN_WIDTH, h, comic.fill)
+        comic.fill.shader = null
+        c.drawRect(0f, 0f, DESIGN_WIDTH, h, lightDots)
+
+        val shake = SHAKE[t % 4]
+        c.save()
+        c.translate(shake.first, shake.second)
+        // Flames under the pot
+        for (i in 0 until 5) {
+            val x = 150f + i * 45
+            val r = 24f + ((t + i) % 2) * 8
+            comic.sticker(c, burst(x, 468f, r, r * 0.55f, 7, t * 0.4f + i, 1.1f), 0xFFFF7A2E.toInt(), 2.5f)
+            comic.sticker(c, burst(x, 470f, r * 0.55f, r * 0.3f, 6, -t * 0.4f, 1.1f), 0xFFFFE135.toInt(), 2f)
+        }
+        // Steam curling up
+        for ((i, x) in listOf(170f, 240f, 310f).withIndex()) {
+            val steam = Path().apply {
+                moveTo(x, 280f)
+                val sway = if ((t + i) % 2 == 0) 16f else -16f
+                cubicTo(x - sway, 240f, x + sway, 200f, x, 160f)
+                cubicTo(x - sway, 130f, x + sway, 100f, x, 70f)
+            }
+            comic.stroke.color = INK
+            comic.stroke.strokeWidth = 14f
+            c.drawPath(steam, comic.stroke)
+            comic.stroke.color = Color.WHITE
+            comic.stroke.strokeWidth = 8f
+            c.drawPath(steam, comic.stroke)
+        }
+        comic.sticker(c, Path().apply { addRoundRect(RectF(110f, 300f, 370f, 450f), 24f, 24f, Path.Direction.CW) }, 0xFF9AA6B4.toInt(), 5f, shadow = 6f)
+        for ((width, color) in listOf(16f to INK, 9f to 0xFF6E7E92.toInt())) {
+            comic.stroke.color = color
+            comic.stroke.strokeWidth = width
+            c.drawLine(80f, 330f, 110f, 330f, comic.stroke)
+            c.drawLine(370f, 330f, 400f, 330f, comic.stroke)
+        }
+        // Foam spilling over the rim, the drips growing
+        val drip = min(t, 6) * 9f
+        comic.sticker(c, Path().apply {
+            moveTo(104f, 306f)
+            cubicTo(110f, 272f, 150f, 276f, 160f, 292f); cubicTo(176f, 266f, 222f, 270f, 230f, 290f)
+            cubicTo(246f, 264f, 296f, 268f, 302f, 290f); cubicTo(320f, 270f, 370f, 276f, 376f, 306f)
+            lineTo(376f, 330f + drip); quadTo(366f, 344f + drip, 358f, 330f + drip); lineTo(356f, 312f)
+            lineTo(134f, 312f); lineTo(132f, 326f + drip * 1.3f); quadTo(122f, 342f + drip * 1.3f, 112f, 326f + drip * 1.3f); close()
+        }, Color.WHITE, 3.5f)
+        // The lid flies off and spins away
+        val lift = min(1f, t / 4f)
+        c.save()
+        c.translate(240f + 50 * lift, 290f - 190 * lift)
+        c.rotate(-28 * lift + (t % 2) * 8)
+        comic.sticker(c, Path().apply {
+            moveTo(-136f, 6f); lineTo(136f, 6f); cubicTo(126f, -34f, -126f, -34f, -136f, 6f); close()
+        }, 0xFFC7CFD8.toInt(), 4f)
+        comic.sticker(c, Path().apply { addCircle(0f, -28f, 12f, Path.Direction.CW) }, INK, 3f)
+        c.restore()
+
+        if (t >= 1 && t < count - 1) {
+            c.save()
+            c.rotate(-5f, 240f, 260f)
+            comic.outlined(c, texts.boilTop, 240f, 236f, fitSize(texts.boilTop, 80f), color = 0xFFFF9F1C.toInt(), align = Paint.Align.CENTER)
+            comic.outlined(c, texts.boilBottom, 240f, 316f, fitSize(texts.boilBottom, 86f), color = 0xFFFF9F1C.toInt(), align = Paint.Align.CENTER)
+            c.restore()
+        }
+        c.restore()
+    }
+
+    /** Pops in, throbs, shrinks away in the last two frames; like the fire explosion. */
+    private fun entrance(t: Int, count: Int) = when {
+        t < 3 -> listOf(0.25f, 0.65f, 1.12f)[t]
+        t >= count - 2 -> listOf(0.8f, 0.5f)[t - (count - 2)]
+        else -> 1 + (t % 2) * 0.05f
+    }
+
     /* ---------- Shapes ---------- */
 
     private val darkDots = Paint().apply {
@@ -470,6 +702,10 @@ class TakeoverArt(private val texts: TakeoverTexts) {
         const val PANEL_STRIP = 150f
         private const val PANEL_HEIGHT = 118f
         private val SHAKE = listOf(0f to 0f, -4f to 3f, 4f to -2f, -2f to -3f)
+        private val CONFETTI = intArrayOf(0xFFF2564B.toInt(), 0xFF4FA3F0.toInt(), 0xFFFFE135.toInt(), 0xFFA884F3.toInt(), Color.WHITE, 0xFFFF9F1C.toInt())
+        private val BOLT = Path().apply {
+            moveTo(22f, 0f); lineTo(4f, 30f); lineTo(16f, 30f); lineTo(10f, 54f); lineTo(34f, 20f); lineTo(21f, 20f); lineTo(28f, 0f); close()
+        }
         private val PARTY_COLORS = intArrayOf(0xFFFF4FA3.toInt(), 0xFFFFE135.toInt(), 0xFF22B8A6.toInt(), 0xFF4FA3F0.toInt(), 0xFFFF9F1C.toInt(), 0xFFA884F3.toInt())
     }
 }

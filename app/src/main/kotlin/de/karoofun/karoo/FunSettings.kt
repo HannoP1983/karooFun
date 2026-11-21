@@ -27,6 +27,13 @@ data class FunSettings(
     val partyMaxZone: Int = 3,
     val partyMinutes: Int = 20,
     val partyTolerancePercent: Int = 5,
+    val summitEnabled: Boolean = true,
+    val summitMinMeters: Int = 50,
+    val kilowattEnabled: Boolean = true,
+    val kilowattWatts: Int = 1000,
+    val boilEnabled: Boolean = true,
+    val boilPercent: Int = 105,
+    val boilMinutes: Int = 2,
     /** Own number of chainrings and cogs for the gear field; off uses what the shifting reports. */
     val ownGears: Boolean = false,
     val frontGears: Int = 2,
@@ -68,6 +75,13 @@ data class FunSettings(
             .putInt(PARTY_MAX_ZONE, partyMaxZone)
             .putInt(PARTY_MINUTES, partyMinutes)
             .putInt(PARTY_TOLERANCE, partyTolerancePercent)
+            .putBoolean(SUMMIT, summitEnabled)
+            .putInt(SUMMIT_MIN, summitMinMeters)
+            .putBoolean(KILOWATT, kilowattEnabled)
+            .putInt(KILOWATT_WATTS, kilowattWatts)
+            .putBoolean(BOIL, boilEnabled)
+            .putInt(BOIL_PERCENT, boilPercent)
+            .putInt(BOIL_MINUTES, boilMinutes)
             .putString(LANGUAGE, language)
             .putBoolean(OWN_GEARS, ownGears)
             .putInt(FRONT_GEARS, frontGears)
@@ -88,6 +102,10 @@ data class FunSettings(
         val FIRE_SECONDS_RANGE = 0..60
         val PARTY_MINUTES_RANGE = 5..60
         val PARTY_TOLERANCE_RANGE = 1..15
+        val SUMMIT_MIN_RANGE = 20..500
+        val KILOWATT_RANGE = 500..2000
+        val BOIL_PERCENT_RANGE = 100..150
+        val BOIL_MINUTES_RANGE = 1..20
         val FRONT_GEARS_RANGE = 1..2
         val REAR_GEARS_RANGE = 8..14
         const val LANGUAGE_AUTO = ""
@@ -117,6 +135,13 @@ data class FunSettings(
                 partyMaxZone = p.getInt(PARTY_MAX_ZONE, d.partyMaxZone).coerceIn(ZONE_RANGE),
                 partyMinutes = p.getInt(PARTY_MINUTES, d.partyMinutes).coerceIn(PARTY_MINUTES_RANGE),
                 partyTolerancePercent = p.getInt(PARTY_TOLERANCE, d.partyTolerancePercent).coerceIn(PARTY_TOLERANCE_RANGE),
+                summitEnabled = p.getBoolean(SUMMIT, d.summitEnabled),
+                summitMinMeters = p.getInt(SUMMIT_MIN, d.summitMinMeters).coerceIn(SUMMIT_MIN_RANGE),
+                kilowattEnabled = p.getBoolean(KILOWATT, d.kilowattEnabled),
+                kilowattWatts = p.getInt(KILOWATT_WATTS, d.kilowattWatts).coerceIn(KILOWATT_RANGE),
+                boilEnabled = p.getBoolean(BOIL, d.boilEnabled),
+                boilPercent = p.getInt(BOIL_PERCENT, d.boilPercent).coerceIn(BOIL_PERCENT_RANGE),
+                boilMinutes = p.getInt(BOIL_MINUTES, d.boilMinutes).coerceIn(BOIL_MINUTES_RANGE),
                 language = p.getString(LANGUAGE, d.language).takeIf { it in LANGUAGES } ?: d.language,
                 ownGears = p.getBoolean(OWN_GEARS, d.ownGears),
                 frontGears = p.getInt(FRONT_GEARS, d.frontGears).coerceIn(FRONT_GEARS_RANGE),
@@ -146,6 +171,13 @@ data class FunSettings(
         private const val PARTY_MAX_ZONE = "party_max_zone"
         private const val PARTY_MINUTES = "party_minutes"
         private const val PARTY_TOLERANCE = "party_tolerance_percent"
+        private const val SUMMIT = "summit_enabled"
+        private const val SUMMIT_MIN = "summit_min_meters"
+        private const val KILOWATT = "kilowatt_enabled"
+        private const val KILOWATT_WATTS = "kilowatt_watts"
+        private const val BOIL = "boil_enabled"
+        private const val BOIL_PERCENT = "boil_percent"
+        private const val BOIL_MINUTES = "boil_minutes"
         private const val LANGUAGE = "language"
         private const val OWN_GEARS = "own_gears"
         private const val FRONT_GEARS = "front_gears"

@@ -24,10 +24,21 @@ data class RideSnapshot(
     val power: Double? = null,
     val averagePower: Double? = null,
     val calories: Double? = null,
+    /** Work done in the ride, in kJ. */
+    val energy: Double? = null,
     val distanceToTop: Double? = null,
     val elevationToTop: Double? = null,
+    /** Height of the current climb, see [ClimbTracker]. */
+    val climbTotal: Double? = null,
+    /** When the last real climb was topped out, and how high it was. */
+    val summitAt: Long? = null,
+    val summitHeight: Double? = null,
     val distanceToNextTurn: Double? = null,
+    /** Meters back to the route while the rider is off it, null on the route or without one. */
+    val offRoute: Double? = null,
     val gears: Gears = Gears(),
+    /** When front or rear gear last changed. */
+    val gearSince: Long? = null,
     val distance: Double? = null,
     val points: List<ProfilePoint> = emptyList(),
     val elevation: Double? = null,
@@ -64,13 +75,17 @@ data class Gears(
     val rearTeeth: Int? = null,
 )
 
-/** A takeover that fired and waits to be shown. [variant] picks the saying, [steadyMinutes] feeds the party panel. */
+/**
+ * A takeover that fired and waits to be shown. [variant] picks the saying, [steadyMinutes] feeds the party panel,
+ * [boilSeconds] the boiling one.
+ */
 data class ActiveTakeover(
     val type: Takeover,
     val variant: Int,
     val firedAt: Long,
     val zone: Int?,
     val steadyMinutes: Int,
+    val boilSeconds: Int = 0,
 )
 
 /**
@@ -79,6 +94,7 @@ data class ActiveTakeover(
  */
 object RideStore {
     private val track = ProfileTrack()
+    private val climbs = ClimbTracker()
     private val _state = MutableStateFlow(RideSnapshot())
     val state: StateFlow<RideSnapshot> = _state.asStateFlow()
 
@@ -131,18 +147,29 @@ object RideStore {
 
     fun onCalories(calories: Double?) = _state.update { it.copy(calories = calories) }
 
+    fun onEnergy(kiloJoules: Double?) = _state.update { it.copy(energy = kiloJoules) }
+
     fun onDistanceToTop(meters: Double?) = _state.update { it.copy(distanceToTop = meters) }
 
-    fun onElevationToTop(meters: Double?) = _state.update { it.copy(elevationToTop = meters) }
+    fun onElevationToTop(meters: Double?, now: Long = System.currentTimeMillis()) = synchronized(climbs) {
+        climbs.onElevationToTop(meters, now)
+        _state.update {
+            it.copy(elevationToTop = meters, climbTotal = climbs.total, summitAt = climbs.summitAt, summitHeight = climbs.summitHeight)
+        }
+    }
 
     fun onDistanceToNextTurn(meters: Double?) = _state.update { it.copy(distanceToNextTurn = meters) }
 
-    fun onFrontGear(gear: Int?, max: Int?, teeth: Int?) = _state.update {
-        it.copy(gears = it.gears.copy(front = gear, frontMax = max ?: it.gears.frontMax, frontTeeth = teeth))
+    fun onOffRoute(meters: Double?) = _state.update { it.copy(offRoute = meters) }
+
+    fun onFrontGear(gear: Int?, max: Int?, teeth: Int?, now: Long = System.currentTimeMillis()) = _state.update {
+        val since = if (gear != null && gear != it.gears.front) now else it.gearSince
+        it.copy(gears = it.gears.copy(front = gear, frontMax = max ?: it.gears.frontMax, frontTeeth = teeth), gearSince = since)
     }
 
-    fun onRearGear(gear: Int?, max: Int?, teeth: Int?) = _state.update {
-        it.copy(gears = it.gears.copy(rear = gear, rearMax = max ?: it.gears.rearMax, rearTeeth = teeth))
+    fun onRearGear(gear: Int?, max: Int?, teeth: Int?, now: Long = System.currentTimeMillis()) = _state.update {
+        val since = if (gear != null && gear != it.gears.rear) now else it.gearSince
+        it.copy(gears = it.gears.copy(rear = gear, rearMax = max ?: it.gears.rearMax, rearTeeth = teeth), gearSince = since)
     }
 
     fun onAscent(ascent: Double) = _state.update { it.copy(ascent = ascent) }

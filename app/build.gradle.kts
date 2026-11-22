@@ -30,8 +30,8 @@ android {
         applicationId = "de.karoofun.karoo"
         minSdk = 23
         targetSdk = 34
-        versionCode = 6
-        versionName = "1.5"
+        versionCode = 7
+        versionName = "1.5.1"
     }
 
     signingConfigs {

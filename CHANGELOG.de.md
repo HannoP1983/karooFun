@@ -2,7 +2,7 @@
 
 [English](CHANGELOG.md) | **Deutsch**
 
-## Unveröffentlicht
+## 1.5.1
 
 - **Höhe · Höhenmeter**: gefahrene Höhenmeter, gemessen in Bauwerken und Bergen vom Kölner Dom bis zum Everest
 - **Höhe · Aktuell**: Höhe über dem Meer mit Stecknadel am Berg, Schnee ab 1500 m, von „Meeresluft“ bis

@@ -2,7 +2,7 @@
 
 **English** | [Deutsch](CHANGELOG.de.md)
 
-## Unreleased
+## 1.5.1
 
 - **Elevation · Climbed**: meters climbed in the ride, measured in landmarks from Cologne Cathedral to Everest
 - **Elevation · Now**: altitude above sea level with a pin on the mountain, snow from 1500 m, from "sea breeze" to

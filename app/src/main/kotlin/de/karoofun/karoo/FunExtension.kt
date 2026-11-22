@@ -59,6 +59,7 @@ class FunExtension : KarooExtension("karoo-fun", "1") {
             DataType.Type.AVERAGE_CADENCE to RideStore::onAverageCadence,
             DataType.Type.MAX_CADENCE to RideStore::onMaxCadence,
             DataType.Type.ELEVATION_GAIN to RideStore::onAscent,
+            DataType.Type.ELEVATION_LOSS to RideStore::onDescent,
             DataType.Type.ELEVATION_GRADE to RideStore::onGrade,
         )
         for ((type, update) in values) {

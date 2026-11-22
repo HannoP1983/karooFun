@@ -233,4 +233,19 @@
     <string name="settings_boil_hint">When you stay above your FTP for a while:</string>
     <string name="settings_boil_percent">From</string>
     <string name="settings_boil_minutes">For at least</string>
+    <string name="field_ascent">Climbed</string>
+    <string name="field_ascent_name">Elevation · Climbed</string>
+    <string name="field_ascent_description">Meters climbed in this ride, measured in landmarks: Cologne Cathedral, Eiffel Tower, Zugspitze, Everest</string>
+    <string name="field_altitude">Altitude</string>
+    <string name="field_altitude_name">Elevation · Now</string>
+    <string name="field_altitude_description">Current altitude above sea level, with a pin on a mountain that gets snow up high</string>
+    <string name="field_landmark_cathedral">= %s × Cologne Cathedral</string>
+    <string name="field_landmark_eiffel">= %s × Eiffel Tower</string>
+    <string name="field_landmark_zugspitze">= %s × Zugspitze</string>
+    <string name="field_landmark_everest">= %s × Everest</string>
+    <string-array name="field_altitude_bands"><item>sea breeze</item><item>lowlands</item><item>low mountains</item><item>alpine air</item><item>the air gets thin</item><item>above the Zugspitze!</item></string-array>
+    <string name="field_up_down">Up &amp; down</string>
+    <string name="field_up_down_name">Elevation · Up &amp; down</string>
+    <string name="field_up_down_description">Meters climbed (+) and descended (−) in this ride, with the balance</string>
+    <string name="field_net">net %s</string>
 </resources>

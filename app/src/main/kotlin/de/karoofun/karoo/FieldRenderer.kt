@@ -23,6 +23,9 @@ enum class ComicField(val typeId: String, val nameRes: Int, val descriptionRes: 
     ELEVATION("fun-elevation", R.string.field_now_profile_name, R.string.field_now_profile_description, R.string.field_profile_short),
     GRADE("fun-grade", R.string.field_grade_name, R.string.field_grade_description, R.string.field_grade),
     TO_SUMMIT("fun-to-summit", R.string.field_to_summit_name, R.string.field_to_summit_description, R.string.field_to_summit),
+    ASCENT("fun-ascent", R.string.field_ascent_name, R.string.field_ascent_description, R.string.field_ascent),
+    ALTITUDE("fun-altitude", R.string.field_altitude_name, R.string.field_altitude_description, R.string.field_altitude),
+    UP_DOWN("fun-up-down", R.string.field_up_down_name, R.string.field_up_down_description, R.string.field_up_down),
     HEART_RATE("fun-heart-rate", R.string.field_now_hr_name, R.string.field_now_hr_description, R.string.field_heart_rate),
     AVERAGE_HR("fun-avg-hr", R.string.field_avg_hr_name, R.string.field_avg_hr_description, R.string.field_avg_hr),
     HR_ZONE("fun-hr-zone", R.string.field_hr_zone_name, R.string.field_hr_zone_description, R.string.field_hr_zone),
@@ -65,6 +68,9 @@ enum class ComicField(val typeId: String, val nameRes: Int, val descriptionRes: 
         MAX_CADENCE -> s.maxCadence
         GRADE -> s.grade
         TO_SUMMIT -> s.elevationToTop
+        ASCENT -> s.ascent
+        ALTITUDE -> s.elevation
+        UP_DOWN -> s.ascent?.let { up -> s.descent?.let { up - it } }
         POWER -> s.power
         AVERAGE_POWER -> s.averagePower
         POWER_ZONE -> rider.powerZone(s.power)?.toDouble()
@@ -184,6 +190,9 @@ class FieldRenderer(private val fieldTexts: FieldTexts, texts: DashboardTexts, p
             ComicField.MAX_CADENCE -> cadence(c, w, h, s.maxCadence, frame, record = true)
             ComicField.GRADE -> sensors.grade(c, w, h, s, frame)
             ComicField.TO_SUMMIT -> sensors.toSummit(c, w, h, s, now, frame)
+            ComicField.ASCENT -> sensors.ascent(c, w, h, s, frame)
+            ComicField.ALTITUDE -> sensors.altitude(c, w, h, s, frame)
+            ComicField.UP_DOWN -> sensors.upDown(c, w, h, s, frame)
             ComicField.POWER -> sensors.power(c, w, h, s, rider, frame)
             ComicField.AVERAGE_POWER -> sensors.averagePower(c, w, h, s, frame)
             ComicField.POWER_ZONE -> sensors.powerZone(c, w, h, s, rider, frame)

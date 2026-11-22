@@ -60,7 +60,7 @@ Am Karoo im Fahrprofil unter **Seiten** eine Seite anlegen:
 |---|---|
 | Geschwindigkeit | aktuell · Ø · Max |
 | Distanz | gefahren |
-| Höhe | Profil (am schönsten in einem breiten Feld) · Steigung · Bis zum Gipfel |
+| Höhe | Profil (am schönsten in einem breiten Feld) · Steigung · Bis zum Gipfel · Höhenmeter · Aktuell · Rauf & runter |
 | Herzfrequenz | aktuell · Ø · Zone · Max · % Max |
 | Trittfrequenz | aktuell · Ø · Max |
 | Leistung | Watt · Ø · Zone · % FTP (braucht einen Powermeter) |

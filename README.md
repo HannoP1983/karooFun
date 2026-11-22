@@ -60,7 +60,7 @@ On the Karoo, open **Pages** in your ride profile and add a page:
 |---|---|
 | Speed | Now · Avg · Max |
 | Distance | Ride |
-| Elevation | Profile (looks best in a wide field) · Grade · To summit |
+| Elevation | Profile (looks best in a wide field) · Grade · To summit · Climbed · Now · Up & down |
 | Heart rate | Now · Avg · Zone · Max · % max |
 | Cadence | Now · Avg · Max |
 | Power | Watts · Avg · Zone · % FTP (needs a power meter) |

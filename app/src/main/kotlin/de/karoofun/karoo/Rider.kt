@@ -135,6 +135,16 @@ fun Context.fieldTexts() = FieldTexts(
     backToRoute = getString(R.string.field_back_to_route),
     blowDry = getString(R.string.field_blow_dry),
     photoStop = getString(R.string.field_photo_stop),
+    landmark = { landmark, times ->
+        getString(when (landmark) {
+            Landmark.CATHEDRAL -> R.string.field_landmark_cathedral
+            Landmark.EIFFEL_TOWER -> R.string.field_landmark_eiffel
+            Landmark.ZUGSPITZE -> R.string.field_landmark_zugspitze
+            Landmark.EVEREST -> R.string.field_landmark_everest
+        }, times)
+    },
+    altitudeBands = resources.getStringArray(R.array.field_altitude_bands).toList(),
+    net = getString(R.string.field_net),
 )
 
 /** "= 3 light bulbs", "= a toaster": what the rider's watts would run at home. */

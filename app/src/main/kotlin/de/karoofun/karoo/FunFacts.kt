@@ -167,3 +167,36 @@ class ClimbTracker {
         const val MIN_SUMMIT = 20.0
     }
 }
+
+/** A landmark to measure the climbed meters in: the cathedral at first, then ever bigger ones. */
+enum class Landmark(val meters: Int) {
+    CATHEDRAL(157), EIFFEL_TOWER(330), ZUGSPITZE(2962), EVEREST(8849);
+
+    /** How many times this landmark fits into [climbed]. */
+    fun times(climbed: Double) = climbed / meters
+
+    companion object {
+        fun of(climbed: Double) = when {
+            climbed >= EVEREST.meters -> EVEREST
+            climbed >= ZUGSPITZE.meters -> ZUGSPITZE
+            climbed >= EIFFEL_TOWER.meters -> EIFFEL_TOWER
+            else -> CATHEDRAL
+        }
+    }
+}
+
+/** What it is like up there, by meters above sea level. */
+enum class AltitudeBand {
+    SEA, LOWLANDS, LOW_MOUNTAINS, ALPINE, THIN_AIR, ABOVE_ZUGSPITZE;
+
+    companion object {
+        fun of(meters: Double) = when {
+            meters < 100 -> SEA
+            meters < 500 -> LOWLANDS
+            meters < 1000 -> LOW_MOUNTAINS
+            meters < 2000 -> ALPINE
+            meters < Landmark.ZUGSPITZE.meters -> THIN_AIR
+            else -> ABOVE_ZUGSPITZE
+        }
+    }
+}

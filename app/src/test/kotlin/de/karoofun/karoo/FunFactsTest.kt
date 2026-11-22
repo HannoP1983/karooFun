@@ -123,4 +123,32 @@ class FunFactsTest {
         climbs.onElevationToTop(null, 2 * minute)
         assertNull(climbs.summitAt)
     }
+
+    @Test
+    fun climbedMetersInLandmarks() {
+        assertEquals(Landmark.CATHEDRAL, Landmark.of(240.0))
+        assertEquals(1.5, Landmark.CATHEDRAL.times(240.0), 0.05)
+        assertEquals(Landmark.EIFFEL_TOWER, Landmark.of(800.0))
+        assertEquals(Landmark.ZUGSPITZE, Landmark.of(3100.0))
+        assertEquals(Landmark.EVEREST, Landmark.of(9000.0))
+    }
+
+    @Test
+    fun altitudeBands() {
+        assertEquals(AltitudeBand.SEA, AltitudeBand.of(12.0))
+        assertEquals(AltitudeBand.LOWLANDS, AltitudeBand.of(380.0))
+        assertEquals(AltitudeBand.LOW_MOUNTAINS, AltitudeBand.of(720.0))
+        assertEquals(AltitudeBand.ALPINE, AltitudeBand.of(1600.0))
+        assertEquals(AltitudeBand.THIN_AIR, AltitudeBand.of(2400.0))
+        assertEquals(AltitudeBand.ABOVE_ZUGSPITZE, AltitudeBand.of(3000.0))
+    }
+
+    @Test
+    fun upAndDownGivesTheBalance() {
+        val s = RideSnapshot(ascent = 1240.0, descent = 1180.0, elevation = 520.0)
+        assertEquals(60.0, ComicField.UP_DOWN.value(s, Rider(), FunSettings())!!, 0.01)
+        assertEquals(1240.0, ComicField.ASCENT.value(s, Rider(), FunSettings())!!, 0.01)
+        assertEquals(520.0, ComicField.ALTITUDE.value(s, Rider(), FunSettings())!!, 0.01)
+        assertNull(ComicField.UP_DOWN.value(RideSnapshot(ascent = 100.0), Rider(), FunSettings()))
+    }
 }

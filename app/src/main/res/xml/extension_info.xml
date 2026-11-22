@@ -59,6 +59,24 @@
         icon="@drawable/ic_fun"
         typeId="fun-to-summit" />
     <DataType
+        description="@string/field_ascent_description"
+        displayName="@string/field_ascent_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-ascent" />
+    <DataType
+        description="@string/field_altitude_description"
+        displayName="@string/field_altitude_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-altitude" />
+    <DataType
+        description="@string/field_up_down_description"
+        displayName="@string/field_up_down_name"
+        graphical="true"
+        icon="@drawable/ic_fun"
+        typeId="fun-up-down" />
+    <DataType
         description="@string/field_now_hr_description"
         displayName="@string/field_now_hr_name"
         graphical="true"

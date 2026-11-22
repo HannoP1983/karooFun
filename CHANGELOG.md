@@ -2,6 +2,13 @@
 
 **English** | [Deutsch](CHANGELOG.de.md)
 
+## Unreleased
+
+- **Elevation · Climbed**: meters climbed in the ride, measured in landmarks from Cologne Cathedral to Everest
+- **Elevation · Now**: altitude above sea level with a pin on the mountain, snow from 1500 m, from "sea breeze" to
+  "above the Zugspitze!"
+- **Elevation · Up & down**: meters climbed (+) and descended (−), the balance takes turns with the field name
+
 ## 1.5
 
 **More fun in the fields**

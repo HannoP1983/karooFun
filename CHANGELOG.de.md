@@ -2,6 +2,13 @@
 
 [English](CHANGELOG.md) | **Deutsch**
 
+## Unveröffentlicht
+
+- **Höhe · Höhenmeter**: gefahrene Höhenmeter, gemessen in Bauwerken und Bergen vom Kölner Dom bis zum Everest
+- **Höhe · Aktuell**: Höhe über dem Meer mit Stecknadel am Berg, Schnee ab 1500 m, von „Meeresluft“ bis
+  „höher als die Zugspitze!“
+- **Höhe · Rauf & runter**: gefahrene Höhenmeter (+) und Tiefenmeter (−), der Saldo wechselt sich mit dem Feldnamen ab
+
 ## 1.5
 
 **Mehr Spaß in den Feldern**

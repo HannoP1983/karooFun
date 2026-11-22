@@ -354,6 +354,64 @@ class FunArt(private val comic: Comic) {
         }
     }
 
+    /** The landmark the climbed meters are measured in, about 60 px tall. */
+    fun landmark(c: Canvas, cx: Float, cy: Float, landmark: Landmark, frame: Int) {
+        when (landmark) {
+            Landmark.CATHEDRAL -> {
+                // Two spires over the nave
+                for (x in listOf(cx - 12, cx + 12)) {
+                    comic.sticker(c, Path().apply { moveTo(x - 8, cy + 26); lineTo(x - 8, cy - 4); lineTo(x, cy - 30); lineTo(x + 8, cy - 4); lineTo(x + 8, cy + 26); close() }, 0xFF9AA0A8.toInt(), 2.5f)
+                    comic.fill.color = INK
+                    c.drawRoundRect(RectF(x - 2.5f, cy - 2, x + 2.5f, cy + 8), 2.5f, 2.5f, comic.fill)
+                }
+                comic.sticker(c, Path().apply { addRect(cx - 4, cy + 6, cx + 4, cy + 26, Path.Direction.CW) }, 0xFF9AA0A8.toInt(), 2.5f)
+                comic.sticker(c, star(cx - 12, cy - 32, 3f, 1.2f, 4), 0xFFFFE135.toInt(), 1.5f)
+                comic.sticker(c, star(cx + 12, cy - 32, 3f, 1.2f, 4), 0xFFFFE135.toInt(), 1.5f)
+            }
+            Landmark.EIFFEL_TOWER -> {
+                comic.sticker(c, Path().apply {
+                    moveTo(cx, cy - 32); lineTo(cx + 5, cy - 4); quadTo(cx + 10, cy + 14, cx + 22, cy + 28); lineTo(cx + 10, cy + 28)
+                    quadTo(cx, cy + 14, cx - 10, cy + 28); lineTo(cx - 22, cy + 28); quadTo(cx - 10, cy + 14, cx - 5, cy - 4); close()
+                }, 0xFF8A6A4E.toInt(), 2.5f, shadow = 2f)
+                comic.stroke.color = INK
+                comic.stroke.strokeWidth = 2.5f
+                c.drawLine(cx - 7, cy - 4, cx + 7, cy - 4, comic.stroke)
+                c.drawLine(cx - 12, cy + 12, cx + 12, cy + 12, comic.stroke)
+                if (frame % 2 == 0) comic.sticker(c, star(cx, cy - 34, 4f, 1.5f, 4), 0xFFFFE135.toInt(), 1.5f)
+            }
+            Landmark.ZUGSPITZE, Landmark.EVEREST -> {
+                val everest = landmark == Landmark.EVEREST
+                comic.sticker(c, Path().apply { moveTo(cx - 30, cy + 26); lineTo(cx, cy - 26); lineTo(cx + 30, cy + 26); close() }, 0xFF9AA0A8.toInt(), 3f, shadow = 2f)
+                comic.sticker(c, Path().apply {
+                    moveTo(cx, cy - 26); lineTo(cx - (if (everest) 18 else 10), cy + (if (everest) 4 else -8)); lineTo(cx - 4, cy - 4)
+                    lineTo(cx + 4, cy - 10); lineTo(cx + (if (everest) 18 else 10), cy + (if (everest) 4 else -8)); close()
+                }, Color.WHITE, 2.5f)
+                comic.stroke.color = INK
+                comic.stroke.strokeWidth = 2.5f
+                if (everest) {
+                    c.drawLine(cx, cy - 26, cx, cy - 42, comic.stroke)
+                    val wave = if (frame % 2 == 0) 3f else -3f
+                    comic.sticker(c, Path().apply { moveTo(cx, cy - 42); quadTo(cx + 7, cy - 42 + wave, cx + 14, cy - 40); lineTo(cx, cy - 34); close() }, 0xFFF2564B.toInt(), 2f)
+                } else {
+                    c.drawLine(cx, cy - 26, cx, cy - 40, comic.stroke)
+                    c.drawLine(cx - 5, cy - 35, cx + 5, cy - 35, comic.stroke)
+                }
+            }
+        }
+    }
+
+    /** Map pin marking where the rider is, bobbing a little. */
+    fun pin(c: Canvas, x: Float, y: Float, frame: Int) {
+        val bob = if (frame % 2 == 0) 0f else -3f
+        comic.sticker(c, Path().apply {
+            moveTo(x, y + bob); cubicTo(x - 4, y - 8 + bob, x - 9, y - 12 + bob, x - 9, y - 18 + bob)
+            cubicTo(x - 9, y - 24 + bob, x - 5, y - 28 + bob, x, y - 28 + bob); cubicTo(x + 5, y - 28 + bob, x + 9, y - 24 + bob, x + 9, y - 18 + bob)
+            cubicTo(x + 9, y - 12 + bob, x + 4, y - 8 + bob, x, y + bob); close()
+        }, 0xFFF2564B.toInt(), 2.5f, shadow = 2f)
+        comic.fill.color = Color.WHITE
+        c.drawCircle(x, y - 18 + bob, 3.5f, comic.fill)
+    }
+
     /* ---------- Weather and sky ---------- */
 
     /** Water along the bottom edge with two rubber ducks bobbing at the corners, leaving the middle to the caption. */

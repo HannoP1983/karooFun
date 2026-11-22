@@ -26,6 +26,7 @@ object DemoRide {
         val points = synchronized(profiles) { profiles.getOrPut(scenario) { profile(scenario.km) } }
         val grades = smoothedGrades(points)
         val ascent = points.zipWithNext().sumOf { (a, b) -> max(0.0, b.elevation - a.elevation) }
+        val descent = points.zipWithNext().sumOf { (a, b) -> max(0.0, a.elevation - b.elevation) }
         return RideSnapshot(
             speed = scenario.speedKmh / 3.6,
             averageSpeed = scenario.averageKmh / 3.6,
@@ -48,6 +49,7 @@ object DemoRide {
             points = points,
             elevation = points.last().elevation,
             ascent = ascent,
+            descent = descent,
             grade = if (scenario == Scenario.DESCENT) -8.7 else grades.last(),
             latitude = ALPS_LATITUDE,
             longitude = ALPS_LONGITUDE,

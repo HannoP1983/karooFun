@@ -43,6 +43,7 @@ data class RideSnapshot(
     val points: List<ProfilePoint> = emptyList(),
     val elevation: Double? = null,
     val ascent: Double? = null,
+    val descent: Double? = null,
     val grade: Double? = null,
     val latitude: Double? = null,
     val longitude: Double? = null,
@@ -173,6 +174,8 @@ object RideStore {
     }
 
     fun onAscent(ascent: Double) = _state.update { it.copy(ascent = ascent) }
+
+    fun onDescent(descent: Double) = _state.update { it.copy(descent = descent) }
 
     fun onGrade(grade: Double) = _state.update { it.copy(grade = grade) }
 

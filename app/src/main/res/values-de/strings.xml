@@ -233,4 +233,19 @@
     <string name="settings_boil_hint">Wenn du länger über deiner FTP fährst:</string>
     <string name="settings_boil_percent">Ab</string>
     <string name="settings_boil_minutes">Mindestens</string>
+    <string name="field_ascent">Höhenmeter</string>
+    <string name="field_ascent_name">Höhe · Höhenmeter</string>
+    <string name="field_ascent_description">Gefahrene Höhenmeter der Fahrt, gemessen in Bauwerken und Bergen: Kölner Dom, Eiffelturm, Zugspitze, Everest</string>
+    <string name="field_altitude">Höhe</string>
+    <string name="field_altitude_name">Höhe · Aktuell</string>
+    <string name="field_altitude_description">Aktuelle Höhe über dem Meer, mit einer Stecknadel auf einem Berg, der weiter oben Schnee bekommt</string>
+    <string name="field_landmark_cathedral">= %s × Kölner Dom</string>
+    <string name="field_landmark_eiffel">= %s × Eiffelturm</string>
+    <string name="field_landmark_zugspitze">= %s × Zugspitze</string>
+    <string name="field_landmark_everest">= %s × Everest</string>
+    <string-array name="field_altitude_bands"><item>Meeresluft</item><item>Flachland</item><item>Mittelgebirge</item><item>Alpenluft</item><item>die Luft wird dünn</item><item>höher als die Zugspitze!</item></string-array>
+    <string name="field_up_down">Rauf &amp; runter</string>
+    <string name="field_up_down_name">Höhe · Rauf &amp; runter</string>
+    <string name="field_up_down_description">Gefahrene Höhenmeter (+) und Tiefenmeter (−) der Fahrt, mit Saldo</string>
+    <string name="field_net">Saldo %s</string>
 </resources>

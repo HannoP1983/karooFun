@@ -69,6 +69,9 @@ data class FieldTexts(
     val backToRoute: String,
     val blowDry: String,
     val photoStop: String,
+    val landmark: (Landmark, String) -> String,
+    val altitudeBands: List<String>,
+    val net: String,
 )
 
 /**
@@ -316,6 +319,77 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
         number(c, w, h, units.elevation(up), unit = units.elevationUnit, captioned = s.distanceToTop != null)
         s.distanceToTop?.let { caption(c, w, h, String.format(texts.stillToGo, units.shortDistance(it))) }
     }
+
+    /** Meters climbed in this ride, measured in landmarks from the cathedral to Everest. */
+    fun ascent(c: Canvas, w: Float, h: Float, s: RideSnapshot, frame: Int) {
+        background(c, w, h, 0xFFFF9F1C.toInt())
+        val climbed = s.ascent
+        val landmark = Landmark.of(climbed ?: 0.0)
+        art.landmark(c, w - 36, 48f, landmark, frame)
+        tag(c, ComicField.ASCENT)
+        val times = climbed?.let { landmark.times(it) }?.takeIf { it >= MIN_LANDMARK_SHARE }
+        number(c, w, h, climbed?.let { units.elevation(it) }, unit = units.elevationUnit, captioned = times != null)
+        if (times != null) caption(c, w, h, texts.landmark(landmark, String.format(units.locale, "%.1f", times)))
+    }
+
+    /**
+     * Altitude above sea level with a pin on the mountain: the higher, the further up (the peak stands for 3000 m),
+     * snow from 1500 m, waves at the foot near the sea.
+     */
+    fun altitude(c: Canvas, w: Float, h: Float, s: RideSnapshot, frame: Int) {
+        gradient(c, w, h, 0xFF6EC3FF.toInt(), 0xFFCFEBFF.toInt())
+        val meters = s.elevation
+        val band = meters?.let { AltitudeBand.of(it) }
+        val base = 82f
+        val peakX = w - 56
+        comic.sticker(c, Path().apply { moveTo(w - 130, base); lineTo(peakX, 14f); lineTo(w + 6, base); close() }, 0xFF3FBF66.toInt(), 3f)
+        if (meters != null && meters >= SNOW_FROM) {
+            comic.sticker(c, Path().apply {
+                moveTo(peakX, 14f); lineTo(peakX - 18, 30f); lineTo(peakX - 8, 26f); lineTo(peakX, 34f); lineTo(peakX + 8, 26f); lineTo(peakX + 16, 30f); close()
+            }, Color.WHITE, 2.5f)
+        }
+        if (band == AltitudeBand.SEA) {
+            comic.sticker(c, Path().apply {
+                moveTo(w - 140, base + 2); quadTo(w - 125, base - 6 + (frame % 2) * 4, w - 110, base + 2)
+                quadTo(w - 95, base - 6 + (frame % 2) * 4, w - 80, base + 2); lineTo(w - 80, base + 12); lineTo(w - 140, base + 12); close()
+            }, 0xFF4FA3F0.toInt(), 2.5f)
+        }
+        meters?.let {
+            // Along the part of the right flank inside the cell, so the pin stays whole at the foot and at the peak
+            val p = 0.3f + 0.55f * (it / ALTITUDE_AT_PEAK).toFloat().coerceIn(0f, 1f)
+            art.pin(c, w + 6 - 62 * p, base - 68 * p, frame)
+        }
+        tag(c, ComicField.ALTITUDE)
+        number(c, w, h, meters?.let { units.elevation(it) }, unit = units.elevationUnit, captioned = band != null)
+        if (band != null) caption(c, w, h, texts.altitudeBands[band.ordinal])
+    }
+
+    /** Meters up and down in this ride, one above the other; the balance takes turns with the field name. */
+    fun upDown(c: Canvas, w: Float, h: Float, s: RideSnapshot, frame: Int) {
+        comic.fill.color = 0xFFFF9F1C.toInt()
+        c.drawRect(0f, 0f, w, h / 2 + 8, comic.fill)
+        comic.fill.color = 0xFF4FA3F0.toInt()
+        c.drawRect(0f, h / 2 + 8, w, h, comic.fill)
+        comic.halftone(c, w, h)
+        val up = s.ascent
+        val down = s.descent
+        val net = if (up != null && down != null) up - down else null
+        tagOr(c, ComicField.UP_DOWN, net?.let { String.format(texts.net, signed(it) + " " + units.elevationUnit) }, frame)
+        val rows = listOf(Triple(up?.let { "+" + units.elevation(it) }, h * 0.55f, true), Triple(down?.let { MINUS + units.elevation(it) }, h * 0.9f, false))
+        for ((value, baseline, rising) in rows) {
+            val ax = 22f
+            val ay = baseline - 18
+            comic.sticker(c, Path().apply {
+                if (rising) { moveTo(ax, ay - 12); lineTo(ax + 11, ay + 6); lineTo(ax - 11, ay + 6) } else { moveTo(ax, ay + 12); lineTo(ax + 11, ay - 6); lineTo(ax - 11, ay - 6) }
+                close()
+            }, Color.WHITE, 2.5f, shadow = 2f)
+            val text = value ?: DASH
+            val size = fit(text, UP_DOWN_SIZE, w - 56, units.elevationUnit)
+            comic.bigNumber(c, text, (w + 34) / 2, baseline, size, unit = if (value != null) units.elevationUnit else "")
+        }
+    }
+
+    private fun signed(meters: Double) = (if (meters < 0) MINUS else "+") + units.elevation(abs(meters))
 
     /** The slope tilts with the grade, a bike rides on it, colored like the profile's grade bands. */
     fun grade(c: Canvas, w: Float, h: Float, s: RideSnapshot, frame: Int) {
@@ -630,6 +704,11 @@ class SensorFields(private val comic: Comic, private val texts: FieldTexts, priv
         private const val CAPTIONED_BASELINE = 0.74f
         private const val NOW_METERS = 30.0
         private const val REMARK_CYCLE = 6
+        private const val MINUS = "−"
+        private const val UP_DOWN_SIZE = 52f
+        private const val MIN_LANDMARK_SHARE = 0.1
+        private const val SNOW_FROM = 1500.0
+        private const val ALTITUDE_AT_PEAK = 3000.0
         private const val REMARK_SIZE_SMALL = 16f
         private const val SUMMIT_LEFT = 15.0
         private const val BLOW_DRY_KMH = 30.0

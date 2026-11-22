@@ -231,7 +231,8 @@ class PreviewActivity : Activity() {
 
     /**
      * Values for one cell: power, avgPower, energy (kJ), cadence, speed (km/h), grade, up (m to the top), total
-     * (climb height), summit (seconds since the top), turn (m), offroute (m), lazy (minutes in the same gear), kcal,
+     * (climb height), summit (seconds since the top), turn (m), offroute (m), lazy (minutes in the same gear), kcal, ascent,
+     * descent, alt (altitude),
      * wind (km/h), windFrom (degrees), bearing, rear and front gear; time (HHmm), rain (DRY, WET, RAIN30, DRY20) and
      * f (the cell's own frame) are read by the caller.
      */
@@ -251,6 +252,9 @@ class PreviewActivity : Activity() {
         d("offroute")?.let { s = s.copy(offRoute = it) }
         d("lazy")?.let { s = s.copy(gearSince = now - (it * 60_000).toLong()) }
         d("kcal")?.let { s = s.copy(calories = it) }
+        d("ascent")?.let { s = s.copy(ascent = it) }
+        d("descent")?.let { s = s.copy(descent = it) }
+        d("alt")?.let { s = s.copy(elevation = it) }
         d("bearing")?.let { s = s.copy(bearing = it) }
         d("rear")?.let { s = s.copy(gears = s.gears.copy(rear = it.toInt())) }
         d("front")?.let { s = s.copy(gears = s.gears.copy(front = it.toInt())) }
